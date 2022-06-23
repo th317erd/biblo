@@ -1,0 +1,31 @@
+{
+  "name": "biblo",
+  "version": "1.0.0",
+  "description": "Biblo is a Javascript documentation generator",
+  "main": "src/index.js",
+  "type": "commonjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/th317erd/biblo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/th317erd/biblo/issues"
+  },
+  "homepage": "https://github.com/th317erd/biblo#readme",
+  "dependencies": {
+    "@babel/core": "^7.18.5",
+    "janap": "^1.0.8",
+    "nife": "^1.8.1"
+  },
+  "devDependencies": {
+    "@spothero/eslint-plugin-spothero": "github:spothero/eslint-plugin-spothero",
+    "eslint": "^8.18.0",
+    "jasmine": "^4.2.1"
+  }
+}
