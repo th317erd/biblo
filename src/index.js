@@ -1,122 +1,64 @@
 'use strict';
 
-/* global process */
+const Nife        = require('nife');
+const FileSystem  = require('fs');
+const { compile } = require('./compiler');
+const Utils       = require('./utils');
 
-const Nife          = require('nife');
-const Path          = require('path');
-const FileSystem    = require('fs');
-const { walkFiles } = require('./utils');
+async function compileString(string, options) {
+  let parser = (options && options.parser);
+  let result;
 
-function createFileNameFilter(_includePatterns, _excludePatterns) {
-  let includePatterns = Nife.arrayFlatten(Nife.toArray(_includePatterns)).filter(Boolean);
-  let excludePatterns = Nife.arrayFlatten(Nife.toArray(_excludePatterns)).filter(Boolean);
+  if (Nife.instanceOf(parser, 'string')) {
+    parser = Utils.getParserByName(options.parser);
+    if (parser)
+      result = await Utils.runMiddleware(null, parser.parse, { source: string, options });
+  } else if (parser && typeof parser.parse === 'function') {
+    result = await Utils.runMiddleware(null, parser.parse, { source: string, options });
+  } else if (typeof parser === 'function') {
+    result = await Utils.runMiddleware(null, parser, { source: string, options });
+  }
 
-  return (args) => {
-    let result = true;
+  result = await Utils.runMiddleware('parseInput', null, result, options);
+  result = await Utils.runMiddleware('transformInput', options && options.transformInput, result, options);
 
-    // Exclude patterns run first
-    for (let i = 0, il = excludePatterns.length; i < il; i++) {
-      let pattern = excludePatterns[i];
-
-      if (typeof pattern === 'function') {
-        let matchResult = pattern(args);
-        if (matchResult === true) {
-          result = false;
-          break;
-        }
-      } else if (pattern instanceof RegExp) {
-        if (pattern.test(args.fullFileName)) {
-          result = false;
-          break;
-        }
-      }
-    }
-
-    // Include runs after exclude
-    for (let i = 0, il = includePatterns.length; i < il; i++) {
-      let pattern = includePatterns[i];
-
-      if (typeof pattern === 'function') {
-        let matchResult = pattern(args);
-        if (matchResult === false) {
-          result = false;
-          break;
-        }
-      } else if (pattern instanceof RegExp) {
-        if (!pattern.test(args.fullFileName)) {
-          result = false;
-          break;
-        }
-      }
-    }
-
-    return result;
-  };
+  return compile(result, options);
 }
 
-function iterateFiles(callback, options) {
-  if (!options)
-    throw new TypeError('iterateFiles: "options" argument is required.');
+async function compileStrings(strings, options) {
+  let artifacts = strings.map((string) => {
+    if (!string)
+      return;
 
-  let inputPath   = Path.resolve(options.input);
-  let outputPath  = Path.resolve(options.output);
-  let filter      = createFileNameFilter(options.includePatterns, options.excludePatterns);
+    return compileString(string, options);
+  });
 
-  if (!FileSystem.existsSync(inputPath)) {
-    console.error('Specified input path does\'t exist!');
-    process.exit(1);
-  }
-
-  let stats = FileSystem.statSync(inputPath);
-  if (stats.isDirectory()) {
-    walkFiles(inputPath, callback, { filter });
-  } else {
-    // single file
-  }
+  return await Utils.collectPromises(artifacts);
 }
 
 async function compileFile(fullFileName, options) {
-
+  let content   = FileSystem.readFileSync(fullFileName, 'utf8');
+  let artifact  = await compileString(content, options);
+  return artifact;
 }
 
-async function compile(options) {
+async function compileFiles(options) {
   if (!options)
     throw new TypeError('compile: "options" argument is required.');
 
   let artifacts = [];
 
-  iterateFiles(({ fullFileName }) => {
+  Utils.iterateFiles(({ fullFileName }) => {
     artifacts.push(compileFile(fullFileName, options));
   }, options);
 
-  let errors = [];
-
-  artifacts = await Promise.allSettled(artifacts);
-  artifacts = artifacts.map((result) => {
-    if (result.status !== 'fulfilled') {
-      if (options.logger)
-        options.logger.error(result.reason);
-
-      errors.push(result.reason);
-      return;
-    }
-
-    return result.value;
-  }).filter(Boolean);
-
-  if (errors.length > 0) {
-    if (options.logger)
-      options.logger.log('compile: There were errors encountered. Aborting.');
-
-    let error = new Error('Errors encountered during compile');
-    error.errors = errors;
-
-    throw error;
-  }
-
-  return artifacts;
+  return await Utils.collectPromises(artifacts);
 }
 
 module.exports = {
-  compile,
+  Utils,
+  compileString,
+  compileStrings,
+  compileFile,
+  compileFiles,
 };
