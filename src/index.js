@@ -1,28 +1,24 @@
 'use strict';
 
-const Nife        = require('nife');
 const FileSystem  = require('fs');
-const { compile } = require('./compiler');
 const Utils       = require('./utils');
 
 async function compileString(string, options) {
-  let parser = (options && options.parser);
   let result;
 
-  if (Nife.instanceOf(parser, 'string')) {
-    parser = Utils.getParserByName(options.parser);
-    if (parser)
-      result = await Utils.runMiddleware(null, parser.parse, { source: string, options });
-  } else if (parser && typeof parser.parse === 'function') {
-    result = await Utils.runMiddleware(null, parser.parse, { source: string, options });
-  } else if (typeof parser === 'function') {
-    result = await Utils.runMiddleware(null, parser, { source: string, options });
-  }
+  let { parse } = Utils.getParser(options);
+  if (!parse)
+    throw new Error('compileString: "parser" is required, but not found.');
 
+  let { compile } = Utils.getCompiler(options);
+  if (!compile)
+    throw new Error('compileString: "compiler" is required, but not found.');
+
+  result = await Utils.runMiddleware(null, parse, { source: string, options });
   result = await Utils.runMiddleware('parseInput', null, result, options);
   result = await Utils.runMiddleware('transformInput', options && options.transformInput, result, options);
 
-  return compile(result, options);
+  return await compile(result, options);
 }
 
 async function compileStrings(strings, options) {
@@ -38,7 +34,7 @@ async function compileStrings(strings, options) {
 
 async function compileFile(fullFileName, options) {
   let content   = FileSystem.readFileSync(fullFileName, 'utf8');
-  let artifact  = await compileString(content, options);
+  let artifact  = await compileString(content, Object.assign({}, options, { fileName: fullFileName }));
   return artifact;
 }
 

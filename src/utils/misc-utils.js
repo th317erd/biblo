@@ -1,6 +1,7 @@
 'use strict';
 
-const Path = require('path');
+const Nife  = require('nife');
+const Path  = require('path');
 
 /* global __dirname */
 async function collectPromises(_promises, options) {
@@ -82,15 +83,66 @@ function getParserByName(_name) {
   let name = ('' + _name).replace(/[^\w_.-]+/g, '').replace(/\.+/g, '.');
 
   try {
-    let { Parser } = require(Path.resolve(__dirname, `../parsers/${name}`));
-    return Parser;
+    return require(Path.resolve(__dirname, `../parsers/${name}`));
   } catch (error) {
     return;
   }
+}
+
+function getParser(options) {
+  let parser = (options && options.parser);
+  if (Nife.instanceOf(parser, 'string')) {
+    parser = getParserByName(options.parser);
+    if (parser)
+      return parser;
+  } else if (parser && typeof parser.parse === 'function') {
+    return parser;
+  } else if (typeof parser === 'function') {
+    return {
+      traverse: options.traverse,
+      parser,
+    };
+  }
+
+  return {};
+}
+
+function getCompilerByName(_name) {
+  let name = ('' + _name).replace(/[^\w_.-]+/g, '').replace(/\.+/g, '.');
+
+  try {
+    return require(Path.resolve(__dirname, `../compilers/${name}`));
+  } catch (error) {
+    console.error(error);
+    return;
+  }
+}
+
+function getCompiler(options) {
+  let compiler = (options && options.compiler);
+  if (compiler && typeof compiler.compile === 'function') {
+    return compiler;
+  } else if (typeof compiler === 'function') {
+    return {
+      compile: compiler,
+    };
+  }
+
+  let parser = (options && options.parser);
+  if (Nife.instanceOf(parser, 'string')) {
+    compiler = getCompilerByName(options.parser);
+    if (compiler)
+      return compiler;
+  }
+
+  return {};
 }
 
 module.exports = {
   collectPromises,
   runMiddleware,
   getParserByName,
+  getParser,
+  getCompilerByName,
+  getCompiler,
 };

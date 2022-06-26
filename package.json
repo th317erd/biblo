@@ -29,6 +29,7 @@
   },
   "devDependencies": {
     "@spothero/eslint-plugin-spothero": "github:spothero/eslint-plugin-spothero",
+    "diff": "^5.1.0",
     "eslint": "^8.18.0",
     "jasmine": "^4.2.1"
   }

@@ -13,7 +13,7 @@ function loadTestFile(name) {
   if (FileSystem.existsSync(configPath))
     config = require(configPath);
 
-  return { content: FileSystem.readFileSync(fullPath, 'utf8'), config };
+  return { content: FileSystem.readFileSync(fullPath, 'utf8'), config, path: fullPath };
 }
 
 module.exports = {

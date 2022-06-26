@@ -11,4 +11,7 @@ module.exports = {
   collectPromises:      MiscUtils.collectPromises,
   runMiddleware:        MiscUtils.runMiddleware,
   getParserByName:      MiscUtils.getParserByName,
+  getParser:            MiscUtils.getParser,
+  getCompilerByName:    MiscUtils.getCompilerByName,
+  getCompiler:          MiscUtils.getCompiler,
 };

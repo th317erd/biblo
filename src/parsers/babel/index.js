@@ -1,7 +1,3 @@
 'use strict';
 
-const Parser = require('./parser');
-
-module.exports = {
-  Parser,
-};
+module.exports = require('./parser');

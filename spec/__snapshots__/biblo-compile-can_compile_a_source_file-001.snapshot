@@ -1,0 +1,60 @@
+[
+  {
+    "type": "DocComment",
+    "start": 15,
+    "end": 289,
+    "value": "/ Description:\n/   This is a function!\n/   It does things. Who'd have thought?\n/ Return: string\n/   Will return a string... who knows what it will be?\n/ Arguments:\n/   a: string\n/     This is crazy sir!\n/   b: string\n/     Some other pointless argument",
+    "target": {
+      "type": "FunctionDeclaration",
+      "genericType": "FunctionDeclaration",
+      "start": 290,
+      "end": 325,
+      "name": "test",
+      "arguments": [
+        {
+          "type": "Identifier",
+          "start": 304,
+          "end": 305,
+          "name": "a",
+          "description": "Test"
+        },
+        {
+          "type": "Identifier",
+          "start": 318,
+          "end": 319,
+          "name": "b",
+          "description": ""
+        }
+      ]
+    },
+    "definition": {
+      "description": {
+        "name": "description",
+        "body": "\nThis is a function!\nIt does things. Who'd have thought?"
+      },
+      "return": {
+        "name": "return",
+        "body": "Will return a string... who knows what it will be?",
+        "types": [
+          "string"
+        ]
+      },
+      "arguments": [
+        {
+          "name": "a",
+          "body": "This is crazy sir!",
+          "types": [
+            "string"
+          ]
+        },
+        {
+          "name": "b",
+          "body": "Some other pointless argument",
+          "types": [
+            "string"
+          ]
+        }
+      ]
+    }
+  }
+]

@@ -1,17 +1,31 @@
 'use strict';
 
-/* global describe, it */
+/* global describe, it, expect */
 
-const Biblo       = require('../src/index.js');
-const TestHelpers = require('./support/test-helpers.js');
+const Biblo           = require('../src/index.js');
+const TestHelpers     = require('./support/test-helpers.js');
+const matchesSnapshot = require('./support/snapshots');
 
 describe('biblo', () => {
   describe('compile', () => {
-    it('can compile a source file', () => {
-      const { content, config } = TestHelpers.loadTestFile('javascript/test01.js');
-      let result = Biblo.compileString(content, {
-        parser: 'babel',
+    it('can compile a source file', async () => {
+      const { content, config, path } = TestHelpers.loadTestFile('javascript/func-test-default1.js');
+      let result = await Biblo.compileString(content, {
+        parser:   'babel',
+        fileName: path,
       });
+
+      expect(matchesSnapshot(result)).toEqual(true);
+    });
+
+    it('can provide the arguments if none are defined', async () => {
+      const { content, config, path } = TestHelpers.loadTestFile('javascript/func-test-auto-args1.js');
+      let result = await Biblo.compileString(content, {
+        parser:   'babel',
+        fileName: path,
+      });
+
+      expect(matchesSnapshot(result)).toEqual(true);
     });
   });
 });
