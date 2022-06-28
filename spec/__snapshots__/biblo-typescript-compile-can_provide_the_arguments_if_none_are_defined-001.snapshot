@@ -1,0 +1,55 @@
+[
+  {
+    "type": "DocComment",
+    "genericType": "Comment",
+    "start": 15,
+    "end": 175,
+    "value": "/ Description:\n/   This is a function!\n/   It does things. Who'd have thought?\n/ Return: string\n/   Will return a string... who knows what it will be?",
+    "target": {
+      "type": "FunctionDeclaration",
+      "genericType": "FunctionDeclaration",
+      "start": 184,
+      "end": 272,
+      "name": "test",
+      "arguments": [
+        {
+          "type": "Identifier",
+          "start": 190,
+          "end": 199,
+          "name": "a"
+        },
+        {
+          "type": "Identifier",
+          "start": 225,
+          "end": 235,
+          "name": "b"
+        }
+      ]
+    },
+    "definition": {
+      "description": {
+        "name": "description",
+        "body": "\nThis is a function!\nIt does things. Who'd have thought?"
+      },
+      "return": {
+        "name": "return",
+        "body": "Will return a string... who knows what it will be?",
+        "types": [
+          "string"
+        ]
+      },
+      "arguments": [
+        {
+          "name": "a",
+          "body": "",
+          "types": []
+        },
+        {
+          "name": "b",
+          "body": "",
+          "types": []
+        }
+      ]
+    }
+  }
+]

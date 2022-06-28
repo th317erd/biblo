@@ -1,29 +1,30 @@
 [
   {
     "type": "DocComment",
+    "genericType": "Comment",
     "start": 15,
-    "end": 289,
-    "value": "/ Description:\n/   This is a function!\n/   It does things. Who'd have thought?\n/ Return: string\n/   Will return a string... who knows what it will be?\n/ Arguments:\n/   a: string\n/     This is crazy sir!\n/   b: string\n/     Some other pointless argument",
+    "end": 175,
+    "value": "/ Description:\n/   This is a function!\n/   It does things. Who'd have thought?\n/ Return: string\n/   Will return a string... who knows what it will be?",
     "target": {
       "type": "FunctionDeclaration",
       "genericType": "FunctionDeclaration",
-      "start": 290,
-      "end": 325,
+      "start": 176,
+      "end": 256,
       "name": "test",
       "arguments": [
         {
           "type": "Identifier",
-          "start": 304,
-          "end": 305,
+          "start": 190,
+          "end": 191,
           "name": "a",
-          "description": "Test"
+          "description": "\"a\" does things..."
         },
         {
           "type": "Identifier",
-          "start": 318,
-          "end": 319,
+          "start": 218,
+          "end": 219,
           "name": "b",
-          "description": ""
+          "description": "b does some other things"
         }
       ]
     },
@@ -42,17 +43,13 @@
       "arguments": [
         {
           "name": "a",
-          "body": "This is crazy sir!",
-          "types": [
-            "string"
-          ]
+          "body": "\"a\" does things...",
+          "types": []
         },
         {
           "name": "b",
-          "body": "Some other pointless argument",
-          "types": [
-            "string"
-          ]
+          "body": "b does some other things",
+          "types": []
         }
       ]
     }

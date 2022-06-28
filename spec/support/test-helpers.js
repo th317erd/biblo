@@ -5,8 +5,13 @@
 const Path        = require('path');
 const FileSystem  = require('fs');
 
+function getTestFilePath(name) {
+  let fullPath = Path.resolve(__dirname, 'test-files', name);
+  return fullPath;
+}
+
 function loadTestFile(name) {
-  let fullPath    = Path.resolve(__dirname, 'test-files', name);
+  let fullPath    = getTestFilePath(name);
   let configPath  = fullPath.replace(/\.(\w+)$/, '.config.js');
   let config;
 
@@ -17,5 +22,6 @@ function loadTestFile(name) {
 }
 
 module.exports = {
+  getTestFilePath,
   loadTestFile,
 };

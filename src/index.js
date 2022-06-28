@@ -6,9 +6,13 @@ const Utils       = require('./utils');
 async function compileString(string, options) {
   let result;
 
-  let { parse } = Utils.getParser(options);
-  if (!parse)
+  let { parse, parseFile } = Utils.getParser(options);
+  if (!parse) {
+    if (parseFile)
+      throw new Error('compileString: "parser" found, but parser only supports parsing files directly.');
+
     throw new Error('compileString: "parser" is required, but not found.');
+  }
 
   let { compile } = Utils.getCompiler(options);
   if (!compile)
@@ -33,9 +37,25 @@ async function compileStrings(strings, options) {
 }
 
 async function compileFile(fullFileName, options) {
-  let content   = FileSystem.readFileSync(fullFileName, 'utf8');
-  let artifact  = await compileString(content, Object.assign({}, options, { fileName: fullFileName }));
-  return artifact;
+  let { parse, parseFile } = Utils.getParser(options);
+  if (parse) {
+    let content = FileSystem.readFileSync(fullFileName, 'utf8');
+    return await compileString(content, Object.assign({}, options, { fileName: fullFileName }));
+  } else if (parseFile) {
+    let result;
+
+    let { compile } = Utils.getCompiler(options);
+    if (!compile)
+      throw new Error('compileString: "compiler" is required, but not found.');
+
+    result = await Utils.runMiddleware(null, parseFile, { fileName: fullFileName, options });
+    result = await Utils.runMiddleware('parseInput', null, result, options);
+    result = await Utils.runMiddleware('transformInput', options && options.transformInput, result, options);
+
+    return await compile(result, options);
+  } else {
+    throw new Error('compileString: "parser" is required, but not found.');
+  }
 }
 
 async function compileFiles(options) {
