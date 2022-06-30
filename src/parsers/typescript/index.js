@@ -1,3 +1,4 @@
+/* eslint-disable no-magic-numbers */
 'use strict';
 
 const Typescript = require('typescript');
@@ -26,29 +27,59 @@ function parse({ source, options }, next) {
 }
 
 function traverse(program, visitor) {
+  const getComments = (sourceFileText, commentRanges) => {
+    let comments = [];
+
+    if (commentRanges && commentRanges.length) {
+      commentRanges.forEach((range) => {
+        let value = sourceFileText.slice(range.pos, range.end);
+        let kind = -1;
+
+        if (value.startsWith('//')) {
+          kind = -1;
+          value = value.substring(2);
+        } else if (value.startsWith('/*')) {
+          kind = -2;
+          value = value.substring(2, value.length - 2);
+        }
+
+        comments.push({
+          pos:  range.pos,
+          end:  range.end,
+          kind,
+          value,
+        });
+      });
+    }
+
+    return comments;
+  };
+
   const transformer = (context) => {
+    let alreadySeenComments = {};
+
     return (rootNode) => {
       let sourceFileText = rootNode.getSourceFile().getFullText();
 
       function visit(node) {
-        let commentRanges = Typescript.getLeadingCommentRanges(sourceFileText, node.getFullStart());
-        if (commentRanges && commentRanges.length) {
-          commentRanges.forEach((range) => {
-            let value = sourceFileText.slice(range.pos, range.end);
+        let comments = [].concat(
+          getComments(sourceFileText, Typescript.getLeadingCommentRanges(sourceFileText, node.getFullStart())),
+          getComments(sourceFileText, Typescript.getTrailingCommentRanges(sourceFileText, node.getFullStart())),
+        );
 
-            if (value.startsWith('//'))
-              value = value.substring(2);
-            else if (value.startsWith('/*'))
-              value = value.substring(2, value.length - 2);
 
-            visitor({
-              pos:  range.pos,
-              end:  range.end,
-              kind: -1,
-              value,
-            });
-          });
-        }
+
+        comments.filter((comment) => {
+          let key = `${comment.pos}:${comment.end}`;
+          if (alreadySeenComments[key])
+            return false;
+
+          alreadySeenComments[key] = true;
+
+          return true;
+        }).forEach((comment) => {
+          visitor(comment);
+        });
 
         visitor(node);
 

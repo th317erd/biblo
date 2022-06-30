@@ -3,53 +3,243 @@
     "type": "DocComment",
     "genericType": "Comment",
     "start": 15,
-    "end": 175,
-    "value": "/ Description:\n/   This is a function!\n/   It does things. Who'd have thought?\n/ Return: string\n/   Will return a string... who knows what it will be?",
+    "end": 177,
+    "value": "/ This is standard test!\n/ Return: any\n/  Gives ya a result man\n/ Arguments:\n/   a: string\n/     Wacky, right?\n/   b: number\n/     Big fat number!",
     "target": {
       "type": "FunctionDeclaration",
       "genericType": "FunctionDeclaration",
-      "start": 184,
-      "end": 272,
+      "start": 186,
+      "end": 261,
       "name": "test",
       "arguments": [
         {
           "type": "Identifier",
-          "start": 190,
-          "end": 199,
-          "name": "a"
+          "genericType": "Identifier",
+          "start": 192,
+          "end": 193,
+          "name": "a",
+          "types": [
+            "string",
+            "null",
+            "undefined"
+          ]
         },
         {
           "type": "Identifier",
-          "start": 225,
-          "end": 235,
-          "name": "b"
+          "genericType": "Identifier",
+          "start": 221,
+          "end": 223,
+          "name": "b",
+          "types": [
+            "number",
+            "null"
+          ]
         }
-      ]
+      ],
+      "return": {
+        "type": "Type",
+        "genericType": "Type",
+        "start": 240,
+        "end": 256,
+        "types": [
+          "string",
+          "number"
+        ]
+      }
     },
     "definition": {
       "description": {
         "name": "description",
-        "body": "\nThis is a function!\nIt does things. Who'd have thought?"
+        "body": "This is standard test!"
       },
       "return": {
         "name": "return",
-        "body": "Will return a string... who knows what it will be?",
+        "body": "Gives ya a result man",
         "types": [
-          "string"
+          "any"
         ]
       },
       "arguments": [
         {
           "name": "a",
-          "body": "",
-          "types": []
+          "body": "Wacky, right?",
+          "types": [
+            "string"
+          ]
         },
         {
           "name": "b",
-          "body": "",
-          "types": []
+          "body": "Big fat number!",
+          "types": [
+            "number"
+          ]
         }
       ]
+    }
+  },
+  {
+    "type": "DocComment",
+    "genericType": "Comment",
+    "start": 263,
+    "end": 409,
+    "value": "/ This is type test!\n/ Return:\n/  This returns stuff\n/ Arguments:\n/   a:\n/     Does things, okay?\n/   b:\n/     Will blow your mind",
+    "target": {
+      "type": "FunctionDeclaration",
+      "genericType": "FunctionDeclaration",
+      "start": 418,
+      "end": 499,
+      "name": "test_types",
+      "arguments": [
+        {
+          "type": "Identifier",
+          "genericType": "Identifier",
+          "start": 430,
+          "end": 431,
+          "name": "a",
+          "types": [
+            "string",
+            "null",
+            "undefined"
+          ]
+        },
+        {
+          "type": "Identifier",
+          "genericType": "Identifier",
+          "start": 459,
+          "end": 461,
+          "name": "b",
+          "types": [
+            "number",
+            "null"
+          ]
+        }
+      ],
+      "return": {
+        "type": "Type",
+        "genericType": "Type",
+        "start": 478,
+        "end": 494,
+        "types": [
+          "string",
+          "number"
+        ]
+      }
+    },
+    "definition": {
+      "description": {
+        "name": "description",
+        "body": "This is type test!"
+      },
+      "return": {
+        "name": "return",
+        "body": "This returns stuff",
+        "types": [
+          "string",
+          "number"
+        ]
+      },
+      "arguments": [
+        {
+          "name": "a",
+          "body": "Does things, okay?",
+          "types": [
+            "string",
+            "null",
+            "undefined"
+          ]
+        },
+        {
+          "name": "b",
+          "body": "Will blow your mind",
+          "types": [
+            "number",
+            "null"
+          ]
+        }
+      ]
+    }
+  },
+  {
+    "type": "DocComment",
+    "genericType": "Comment",
+    "start": 501,
+    "end": 528,
+    "value": "/ This is an inline test!",
+    "target": {
+      "type": "FunctionDeclaration",
+      "genericType": "FunctionDeclaration",
+      "start": 537,
+      "end": 696,
+      "name": "test_inline",
+      "arguments": [
+        {
+          "type": "Identifier",
+          "genericType": "Identifier",
+          "start": 550,
+          "end": 576,
+          "name": "a",
+          "types": [
+            "string",
+            "null",
+            "undefined"
+          ],
+          "description": "\"a\" does things..."
+        },
+        {
+          "type": "Identifier",
+          "genericType": "Identifier",
+          "start": 604,
+          "end": 637,
+          "name": "b",
+          "types": [
+            "number",
+            "null"
+          ],
+          "description": "b does some other things"
+        }
+      ],
+      "return": {
+        "type": "Type",
+        "genericType": "Type",
+        "start": 654,
+        "end": 661,
+        "types": [
+          "string"
+        ],
+        "description": "Return a string please!"
+      }
+    },
+    "definition": {
+      "description": {
+        "name": "description",
+        "body": "This is an inline test!"
+      },
+      "arguments": [
+        {
+          "name": "a",
+          "body": "\"a\" does things...",
+          "types": [
+            "string",
+            "null",
+            "undefined"
+          ]
+        },
+        {
+          "name": "b",
+          "body": "b does some other things",
+          "types": [
+            "number",
+            "null"
+          ]
+        }
+      ],
+      "return": {
+        "name": "return",
+        "body": "Return a string please!",
+        "types": [
+          "string"
+        ]
+      }
     }
   }
 ]

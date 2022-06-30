@@ -15,7 +15,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/th317erd/biblo/issues"
   },
@@ -26,7 +26,7 @@
     "@babel/traverse": "^7.18.5",
     "colors": "^1.4.0",
     "janap": "^1.0.8",
-    "nife": "^1.8.1",
+    "nife": "^1.9.0",
     "typescript": "^4.7.4"
   },
   "devDependencies": {

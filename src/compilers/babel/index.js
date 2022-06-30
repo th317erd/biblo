@@ -35,20 +35,7 @@ async function compile(parsed, options) {
       arg.innerComments,
     );
 
-    body = body
-      .filter((comment) => {
-        if (!comment)
-          return false;
-
-        if (comment.value.match(/^\//))
-          return false;
-
-        return true;
-      })
-      .map((comment) => comment.value.trim())
-      .join(' ');
-
-    return body;
+    return CompilerUtils.parseFloatingDescription(body);
   };
 
   traverse(program, {

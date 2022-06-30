@@ -1,14 +1,36 @@
 'use strict';
 
-/// Description:
-///   This is a function!
-///   It does things. Who'd have thought?
-/// Return: string
-///   Will return a string... who knows what it will be?
-function test(a: string /* "a" does things... */, b: number /* b does some other things */) {
+/// This is standard test!
+/// Return: any
+///  Gives ya a result man
+/// Arguments:
+///   a: string
+///     Wacky, right?
+///   b: number
+///     Big fat number!
+function test(a: string | null | undefined, b: number | null): string | number {
+
+}
+
+/// This is type test!
+/// Return:
+///  This returns stuff
+/// Arguments:
+///   a:
+///     Does things, okay?
+///   b:
+///     Will blow your mind
+function test_types(a: string | null | undefined, b: number | null): string | number {
+
+}
+
+/// This is an inline test!
+function test_inline(/* "a" does things... */ a: string | null | undefined, /* b does some other things */ b: number | null): string /* Return a string please! */ {
 
 }
 
 module.exports = {
   test,
+  test_types,
+  test_inline,
 };

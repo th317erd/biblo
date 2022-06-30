@@ -2,6 +2,7 @@
 
 /* global describe, it, expect */
 
+const Util            = require('util');
 const Biblo           = require('../src/index.js');
 const TestHelpers     = require('./support/test-helpers.js');
 const matchesSnapshot = require('./support/snapshots');

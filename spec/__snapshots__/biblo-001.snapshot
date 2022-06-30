@@ -43,13 +43,11 @@
       "arguments": [
         {
           "name": "a",
-          "body": "\"a\" does things...",
-          "types": []
+          "body": "\"a\" does things..."
         },
         {
           "name": "b",
-          "body": "b does some other things",
-          "types": []
+          "body": "b does some other things"
         }
       ]
     }

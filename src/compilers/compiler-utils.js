@@ -9,13 +9,22 @@ const {
 
 const docCommentParsers = require('./doc-comment-parser');
 
-function sortArtifacts(artifacts) {
-  return artifacts.sort((a, b) => {
-    let x = a.start;
-    let y = b.start;
+function sortArtifacts(artifacts, _key) {
+  let key = _key || 'start';
 
-    if (x === y)
-      return 0;
+  return artifacts.sort((a, b) => {
+    let x = a[key];
+    let y = b[key];
+
+    if (x === y) {
+      x = a['end'];
+      y = b['end'];
+
+      if (x === y)
+        return 0;
+
+      return (x < y) ? -1 : 1;
+    }
 
     return (x < y) ? -1 : 1;
   });
@@ -125,10 +134,26 @@ function collectComments(source, comments) {
   return finalComments;
 }
 
+function parseFloatingDescription(body) {
+  return Nife.toArray(body)
+    .filter((comment) => {
+      if (!comment)
+        return false;
+
+      if (comment.value.match(/^\//))
+        return false;
+
+      return true;
+    })
+    .map((comment) => comment.value.trim())
+    .join(' ');
+}
+
 module.exports = {
   collectArtifactsIntoComments,
+  collectComments,
   parseDocComment,
   parseDocComments,
+  parseFloatingDescription,
   sortArtifacts,
-  collectComments,
 };
