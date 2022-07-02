@@ -79,12 +79,23 @@ async function compile(parsed, options) {
   const buildFunctionDeclarationArtifact = (node, parentClass) => {
     let isConstructor = false;
     let name;
+    let returnNode;
 
     if (node.id) {
       name = node.id.name;
     } else if (node.kind === 'constructor') {
       name = 'constructor';
       isConstructor = true;
+
+      if (parentClass) {
+        returnNode = {
+          'type':         'Type',
+          'genericType':  'Type',
+          'start':        node.start,
+          'end':          node.end,
+          'types':        [ parentClass.name ],
+        };
+      }
     }
 
     return {
@@ -102,6 +113,7 @@ async function compile(parsed, options) {
       'access':                 node.access,
       'isConstructor':          isConstructor,
       'parentClass':            parentClass,
+      'return':                 returnNode,
       'arguments':              node.params.map((arg) => {
         return {
           'type':         'Identifier',

@@ -30,7 +30,7 @@ describe('biblo', () => {
         expect(matchesSnapshot(result)).toEqual(true);
       });
 
-      fit('can parse classes', async () => {
+      it('can parse classes', async () => {
         const { content, config, path } = TestHelpers.loadTestFile('javascript/class-test-1.js');
         let result = await Biblo.compileString(content, {
           parser:   'babel',
@@ -56,7 +56,7 @@ describe('biblo', () => {
         expect(matchesSnapshot(result)).toEqual(true);
       });
 
-      it('can parse classes', async () => {
+      fit('can parse classes', async () => {
         const path = TestHelpers.getTestFilePath('typescript/class-test-1.ts');
         let result = await Biblo.compileFile(path, {
           parser:   'typescript',

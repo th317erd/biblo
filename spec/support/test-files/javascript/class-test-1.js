@@ -4,7 +4,6 @@
 /// Who left the barn door open?
 class Animal {
   /// Specify the number of feet for this animal
-  /// Type: string
   feetCount = 0;
 
   /// Some of us have a hundred feet... so what?

@@ -34,8 +34,25 @@ function sortArtifacts(artifacts, _key) {
   });
 }
 
+function removeDuplicateArtifacts(artifacts) {
+  let artifactMap = {};
+
+  for (let i = 0, il = artifacts.length; i < il; i++) {
+    let artifact  = artifacts[i];
+    let key       = `${artifact.type}:${artifact.start}:${artifact.end}`;
+
+    if (artifactMap[key])
+      continue;
+
+    artifactMap[key] = artifact;
+  }
+
+  return Array.from(Object.values(artifactMap));
+}
+
 function collectArtifactsIntoComments(_artifacts) {
-  let artifacts = sortArtifacts(_artifacts);
+  let artifacts = removeDuplicateArtifacts(_artifacts);
+  artifacts = sortArtifacts(artifacts);
 
   // console.log('Final artifacts: ', artifacts);
 

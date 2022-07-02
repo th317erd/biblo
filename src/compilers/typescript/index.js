@@ -39,6 +39,18 @@ function compile(parsed, _options) {
   let artifacts = [];
   let nodes     = [];
 
+  const SK = Typescript.SyntaxKind;
+
+  const adjustNodeStartPos = (node) => {
+    if (node.kind < 0)
+      return node;
+
+    node.pos = node.getStart();
+    node.end = node.getEnd();
+
+    return node;
+  };
+
   const getNodeIndexAtPosition = (start, end) => {
     for (let i = nodes.length - 1; i >= 0; i--) {
       let node = nodes[i];
@@ -53,7 +65,66 @@ function compile(parsed, _options) {
     return -1;
   };
 
-  const SK = Typescript.SyntaxKind;
+  const searchForComment = (nodeIndex, direction) => {
+    let stopNodes = [
+      SK.ClassDeclaration,
+      SK.FunctionDeclaration,
+      SK.MethodDeclaration,
+      SK.Constructor,
+      SK.PropertyDeclaration,
+    ];
+
+    let count = 0;
+
+    // eslint-disable-next-line semi-spacing
+    for (let i = nodeIndex + direction, il = nodes.length;;) {
+      if (i < 0 || i >= nodes.length)
+        return;
+
+      let node = nodes[i];
+      if (stopNodes.indexOf(node.kind) >= 0)
+        return;
+
+      if (count > 10)
+        return;
+
+      if (node.kind < 0)
+        return node;
+
+      count++;
+      i += direction;
+    }
+  };
+
+  const assignFloatingCommentToArtifact = (artifact, direction = -1) => {
+    let thisNodeIndex = getNodeIndexAtPosition(artifact.start, artifact.end);
+    if (thisNodeIndex > 0) {
+      let commentNode = searchForComment(thisNodeIndex, direction);
+      if (commentNode)
+        return Object.assign({}, artifact, { description: CompilerUtils.parseFloatingDescription(commentNode) });
+    }
+
+    return artifact;
+  };
+
+  const assignFloatingComments = (_artifacts) => {
+    let artifacts = _artifacts;
+
+    artifacts = artifacts.map((artifact) => {
+      if (artifact.genericType !== 'FunctionDeclaration')
+        return artifact;
+
+      let args = artifact['arguments'].map((arg) => assignFloatingCommentToArtifact(arg));
+
+      let returnNode = artifact['return'];
+      if (returnNode)
+        returnNode = assignFloatingCommentToArtifact(returnNode, 1);
+
+      return assignFloatingCommentToArtifact(Object.assign({}, artifact, { 'arguments': args, 'return': returnNode }));
+    });
+
+    return artifacts;
+  };
 
   const buildClassDeclarationArtifact = (node) => {
     let parentClass = {
@@ -72,8 +143,8 @@ function compile(parsed, _options) {
         let typeStr = (memberNode.type) ? source.substring(memberNode.type.getFullStart(), memberNode.type.getFullStart() + memberNode.type.getFullWidth()) : undefined;
 
         return {
-          'type':         'Identifier',
-          'genericType':  'Identifier',
+          'type':         'PropertyDeclaration',
+          'genericType':  'PropertyDeclaration',
           'start':        memberNode.name.pos,
           'end':          memberNode.name.end,
           'name':         memberNode.name.escapedText,
@@ -83,8 +154,10 @@ function compile(parsed, _options) {
       });
 
       parentClass.methods = node.members
-        .filter((memberNode) => (memberNode.kind === SK.Constructor))
+        .filter((memberNode) => (memberNode.kind === SK.Constructor || memberNode.kind === SK.MethodDeclaration))
         .map((memberNode) => buildFunctionDeclarationArtifact(memberNode, parentClass));
+
+      artifacts = artifacts.concat(parentClass.properties, parentClass.methods);
     }
 
     return parentClass;
@@ -103,13 +176,40 @@ function compile(parsed, _options) {
       return false;
     };
 
+    const isStatic = () => {
+      if (Nife.isNotEmpty(node.modifiers)) {
+        for (let i = 0, il = node.modifiers.length; i < il; i++) {
+          let modifier = node.modifiers[i];
+          if (modifier.kind === SK.StaticKeyword)
+            return true;
+        }
+      }
+
+      return false;
+    };
+
     const isGenerator = () => {
       return !!node.asteriskToken;
     };
 
-    let returnTypeStr = (node.type) ? source.substring(node.type.getFullStart(), node.type.getFullStart() + node.type.getFullWidth()) : undefined;
+    const getAccessLevel = () => {
+      if (Nife.isNotEmpty(node.modifiers)) {
+        for (let i = 0, il = node.modifiers.length; i < il; i++) {
+          let modifier = node.modifiers[i];
+          if (modifier.kind === SK.PrivateKeyword)
+            return 'private';
+          else if (modifier.kind === SK.ProtectedKeyword)
+            return 'protected';
+          else if (modifier.kind === SK.PublicKeyword)
+            return 'public';
+        }
+      }
+
+      return 'public';
+    };
+
+    let returnTypeStr = (node.type) ? source.substring(node.type.getStart(), node.type.getEnd()) : undefined;
     let isConstructor = false;
-    let start;
     let name;
     let returnNode;
 
@@ -124,8 +224,8 @@ function compile(parsed, _options) {
       returnNode = {
         'type':         'Type',
         'genericType':  'Type',
-        'start':        node.type.getFullStart(),
-        'end':          node.type.getFullStart() + node.type.getFullWidth(),
+        'start':        node.type.pos,
+        'end':          node.type.end,
         'types':        parseTypes(returnTypeStr),
       };
     } else if (isConstructor) {
@@ -138,20 +238,20 @@ function compile(parsed, _options) {
       };
     }
 
-    start = node.parameters.pos - name.length;
-
     return {
       'fileName':               options.fileName,
       'relativeFileName':       CompilerUtils.getRelativeFileName(options.fileName, options),
       'sourceControlFileName':  CompilerUtils.getSourceControlFileName(options.fileName, options),
       'type':                   'FunctionDeclaration',
       'genericType':            'FunctionDeclaration',
-      'start':                  start,
+      'start':                  node.pos,
       'end':                    node.end,
       'isConstructor':          isConstructor,
+      'static':                 isStatic(),
       'name':                   name,
       'async':                  isAsync(),
       'generator':              isGenerator(),
+      'access':                 getAccessLevel(),
       'parentClass':            parentClass,
       'arguments':              node.parameters.map((arg) => {
         let typeStr = (arg.type) ? source.substring(arg.type.getFullStart(), arg.type.getFullStart() + arg.type.getFullWidth()) : undefined;
@@ -170,8 +270,8 @@ function compile(parsed, _options) {
   };
 
   traverse(program, (node) => {
-    // console.log('Visiting ', Typescript.SyntaxKind[node.kind]);
-    nodes.push(node);
+    console.log('Visiting ', Typescript.SyntaxKind[node.kind]);
+    nodes.push(adjustNodeStartPos(node));
 
     switch (node.kind) {
       case -1:
@@ -182,6 +282,7 @@ function compile(parsed, _options) {
           'relativeFileName':       CompilerUtils.getRelativeFileName(options.fileName, options),
           'sourceControlFileName':  CompilerUtils.getSourceControlFileName(options.fileName, options),
           'type':                   (node.kind === -2) ? 'CommentBlock' : 'CommentLine',
+          'genericType':            'Comment',
           'start':                  node.pos,
           'end':                    node.end,
           'value':                  node.value,
@@ -191,22 +292,26 @@ function compile(parsed, _options) {
       }
       case SK.ClassDeclaration: {
         // console.log(`${Typescript.SyntaxKind[node.kind]}: `, Util.inspect(stripParents(node), { colors: true, depth: Infinity }));
-        artifacts.push(buildClassDeclarationArtifact(node));
+
+        let classArtifact = buildClassDeclarationArtifact(node);
+        artifacts.push(classArtifact);
 
         break;
       }
+      case SK.MethodDeclaration:
       case SK.Constructor: {
-        // console.log(`${Typescript.SyntaxKind[node.kind]}: `, Util.inspect(stripParents(node), { colors: true, depth: Infinity }));
+        //console.log(`${Typescript.SyntaxKind[node.kind]}: `, Util.inspect(stripParents(node), { colors: true, depth: Infinity }));
 
         let parentClassName = node.parent.name.escapedText;
         let parentClass     = artifacts.find((artifact) => (artifact.type === 'ClassDeclaration' && artifact.name === parentClassName));
+        let methodArtifact  = buildFunctionDeclarationArtifact(node, parentClass);
 
-        artifacts.push(buildFunctionDeclarationArtifact(node, parentClass));
+        artifacts.push(methodArtifact);
 
         break;
       }
       case SK.FunctionDeclaration: {
-        console.log(`${Typescript.SyntaxKind[node.kind]}: `, Util.inspect(stripParents(node), { colors: true, depth: Infinity }));
+        // console.log(`${Typescript.SyntaxKind[node.kind]}: `, Util.inspect(stripParents(node), { colors: true, depth: Infinity }));
 
         artifacts.push(buildFunctionDeclarationArtifact(node));
 
@@ -215,44 +320,15 @@ function compile(parsed, _options) {
     }
   });
 
-  nodes = CompilerUtils.sortArtifacts(nodes);
+  nodes = CompilerUtils.sortArtifacts(nodes, 'pos');
 
-  // console.log('Nodes: ', nodes.map((node) => stripParents(node)));
+  console.log('Nodes: ', nodes.map((node) => stripParents(node)));
 
   artifacts = CompilerUtils.sortArtifacts(artifacts);
-  artifacts = artifacts.map((artifact) => {
-    if (artifact.genericType !== 'FunctionDeclaration')
-      return artifact;
+  artifacts = assignFloatingComments(artifacts);
 
-    let args = artifact['arguments'].map((arg) => {
-      let thisNodeIndex = getNodeIndexAtPosition(arg.start, arg.end);
-      if (thisNodeIndex > 0) {
-        let previousNode = nodes[thisNodeIndex - 1];
-        if (previousNode.kind < 0)
-          return Object.assign({}, arg, { description: CompilerUtils.parseFloatingDescription(previousNode) });
-      }
-
-      return arg;
-    });
-
-    let returnNode = artifact['return'];
-    if (returnNode) {
-      let thisNodeIndex = getNodeIndexAtPosition(returnNode.start, returnNode.end);
-      if (thisNodeIndex >= 0) {
-        let nextNode = nodes[thisNodeIndex + 1];
-        if (nextNode.kind < 0)
-          returnNode = Object.assign({}, returnNode, { description: CompilerUtils.parseFloatingDescription(nextNode) });
-      }
-    }
-
-    return Object.assign({}, artifact, { 'arguments': args, 'return': returnNode });
-  });
-
-  let comments = CompilerUtils.collectComments(source, artifacts.filter((artifact) => artifact.type === 'CommentLine'));
-  if (Nife.isEmpty(comments))
-    return [];
-
-  artifacts = artifacts.filter((artifact) => artifact.type !== 'CommentLine');
+  let comments = CompilerUtils.collectComments(source, artifacts.filter((artifact) => artifact.genericType === 'Comment'));
+  artifacts = artifacts.filter((artifact) => artifact.genericType !== 'Comment');
   artifacts = comments.concat(artifacts);
 
   artifacts = CompilerUtils.collectArtifactsIntoComments(artifacts);

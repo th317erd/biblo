@@ -8,6 +8,9 @@ async function* test() {
 /// This class is such an animal!
 /// Who left the barn door open?
 class Animal {
+  /* This is just a test... I promise */
+  private static test() { }
+
   feetCount: number;
 
   /// Some of us have a hundred feet... so what?
