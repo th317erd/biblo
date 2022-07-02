@@ -29,6 +29,18 @@ describe('biblo', () => {
 
         expect(matchesSnapshot(result)).toEqual(true);
       });
+
+      fit('can parse classes', async () => {
+        const { content, config, path } = TestHelpers.loadTestFile('javascript/class-test-1.js');
+        let result = await Biblo.compileString(content, {
+          parser:   'babel',
+          fileName: path,
+        });
+
+        console.log('Result: ', Util.inspect(result, { colors: true, depth: Infinity }));
+
+        // expect(matchesSnapshot(result)).toEqual(true);
+      });
     });
   });
 
@@ -42,6 +54,18 @@ describe('biblo', () => {
         });
 
         expect(matchesSnapshot(result)).toEqual(true);
+      });
+
+      it('can parse classes', async () => {
+        const path = TestHelpers.getTestFilePath('typescript/class-test-1.ts');
+        let result = await Biblo.compileFile(path, {
+          parser:   'typescript',
+          fileName: path,
+        });
+
+        console.log('Result: ', Util.inspect(result, { colors: true, depth: Infinity }));
+
+        //expect(matchesSnapshot(result)).toEqual(true);
       });
     });
   });

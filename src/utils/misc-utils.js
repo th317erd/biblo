@@ -1,9 +1,10 @@
 'use strict';
 
+/* global __dirname, process */
+
 const Nife  = require('nife');
 const Path  = require('path');
 
-/* global __dirname */
 async function collectPromises(_promises, options) {
   const colors  = require('../colors')(options);
   let errors    = [];
@@ -138,6 +139,27 @@ function getCompiler(options) {
   return {};
 }
 
+function getRootDirsFromOptions(options) {
+  let rootDir;
+  let sourceControlRootDir;
+
+  if (options) {
+    rootDir = options.rootDir;
+    sourceControlRootDir = options.sourceControlRootDir;
+  }
+
+  if (Nife.isEmpty(rootDir))
+    rootDir = process.cwd();
+
+  if (Nife.isEmpty(sourceControlRootDir))
+    sourceControlRootDir = rootDir;
+
+  return {
+    rootDir,
+    sourceControlRootDir,
+  };
+}
+
 module.exports = {
   collectPromises,
   runMiddleware,
@@ -145,4 +167,5 @@ module.exports = {
   getParser,
   getCompilerByName,
   getCompiler,
+  getRootDirsFromOptions,
 };

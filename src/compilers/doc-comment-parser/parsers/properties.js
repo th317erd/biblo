@@ -14,14 +14,14 @@ module.exports = createParser(
     if (Nife.isEmpty(body))
       return;
 
-    let lines       = body.split(/\n+/g);
-    let parsedArgs  = parseDocCommentSection.call(this, {}, lines, /^\s*(\w+):(.*)$/);
-    let targetArgs  = this.target.arguments || [];
+    let lines             = body.split(/\n+/g);
+    let parsedTypes       = parseDocCommentSection.call(this, {}, lines, /^\s*(\w+):(.*)$/);
+    let targetProperties  = this.target.properties || [];
 
-    parsedArgs = Nife.arrayFlatten(Array.from(Object.values(parsedArgs)));
+    parsedTypes = Nife.arrayFlatten(Array.from(Object.values(parsedTypes)));
 
-    parsedArgs = parsedArgs.map((arg, index) => {
-      let targetArg   = targetArgs[index];
+    parsedTypes = parsedTypes.map((arg, index) => {
+      let targetArg   = targetProperties[index];
       let targetTypes = (targetArg && targetArg.types);
 
       let types = (!Nife.isEmpty(arg.extra)) ? parseTypes(arg.extra) : targetTypes;
@@ -35,17 +35,17 @@ module.exports = createParser(
       };
     });
 
-    return (result['arguments'] || []).concat(parsedArgs);
+    return (result['properties'] || []).concat(parsedTypes);
   },
   function() {
     let target = this.target;
-    if (!target || target.genericType !== 'FunctionDeclaration')
-      return [];
+    if (!target || target.genericType !== 'ClassDeclaration')
+      return;
 
-    if (Nife.isEmpty(target.arguments))
-      return [];
+    if (Nife.isEmpty(target.properties))
+      return;
 
-    return target.arguments.map((arg) => {
+    return target.properties.map((arg) => {
       return {
         name:         arg.name,
         description:  arg.description || '',

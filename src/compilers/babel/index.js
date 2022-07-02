@@ -1,3 +1,4 @@
+/* eslint-disable key-spacing */
 'use strict';
 
 const Nife          = require('nife');
@@ -30,7 +31,6 @@ async function compile(parsed, options) {
 
   const parseArgumentDescription = (arg) => {
     let body = [].concat(
-      arg.trailingComments,
       arg.leadingComments,
       arg.innerComments,
     );
@@ -38,83 +38,143 @@ async function compile(parsed, options) {
     return CompilerUtils.parseFloatingDescription(body);
   };
 
+  const getDefaultValueFromNode = (node) => {
+    if (node.type === 'NullLiteral')
+      return 'null';
+
+    return ('' + node.value);
+  };
+
+  const getTypeFromNode = (node) => {
+    if (node.type === 'NumericLiteral')
+      return 'number';
+
+    if (node.type === 'StringLiteral')
+      return 'string';
+
+    if (node.type === 'BooleanLiteral')
+      return 'boolean';
+
+    if (node.type === 'BigIntLiteral' || (node.type === 'CallExpression' && node.callee.name === 'BigInt'))
+      return 'bigint';
+
+    return;
+  };
+
+  const buildClassDeclarationArtifact = (node) => {
+    return {
+      'fileName':               options.fileName,
+      'relativeFileName':       CompilerUtils.getRelativeFileName(options.fileName, options),
+      'sourceControlFileName':  CompilerUtils.getSourceControlFileName(options.fileName, options),
+      'type':                   'ClassDeclaration',
+      'genericType':            'ClassDeclaration',
+      'start':                  node.start,
+      'end':                    node.end,
+      'name':                   node.id.name,
+      'properties':             [],
+      'methods':                [],
+    };
+  };
+
+  const buildFunctionDeclarationArtifact = (node, parentClass) => {
+    let isConstructor = false;
+    let name;
+
+    if (node.id) {
+      name = node.id.name;
+    } else if (node.kind === 'constructor') {
+      name = 'constructor';
+      isConstructor = true;
+    }
+
+    return {
+      'fileName':               options.fileName,
+      'relativeFileName':       CompilerUtils.getRelativeFileName(options.fileName, options),
+      'sourceControlFileName':  CompilerUtils.getSourceControlFileName(options.fileName, options),
+      'type':                   'FunctionDeclaration',
+      'genericType':            'FunctionDeclaration',
+      'start':                  node.start,
+      'end':                    node.end,
+      'name':                   name,
+      'static':                 node.static,
+      'async':                  node.async,
+      'generator':              node.generator,
+      'access':                 node.access,
+      'isConstructor':          isConstructor,
+      'parentClass':            parentClass,
+      'arguments':              node.params.map((arg) => {
+        return {
+          'type':         'Identifier',
+          'start':        arg.start,
+          'end':          arg.end,
+          'name':         arg.name,
+          'description':  parseArgumentDescription(arg),
+        };
+      }),
+    };
+  };
+
+  const buildPropertyDeclarationArtifact = (node, parentClass) => {
+    return {
+      'type':                   'PropertyDeclaration',
+      'genericType':            'PropertyDeclaration',
+      'start':                  node.start,
+      'end':                    node.end,
+      'name':                   node.key.name || node.key.id.name,
+      'static':                 node.static,
+      'access':                 (node.type === 'ClassPrivateProperty') ? 'private' : 'public',
+      'types':                  [ getTypeFromNode(node.value) ].filter(Boolean),
+      'defaultValue':           getDefaultValueFromNode(node.value),
+      'parentClass':            parentClass,
+      'description':            parseArgumentDescription(node),
+    };
+  };
+
+  function handleClassMethod(path) {
+    let parentClassName = path.parentPath.parentPath.node.id.name;
+    let parentClass     = artifacts.find((artifact) => (artifact.type === 'ClassDeclaration' && artifact.name === parentClassName));
+    let methodArtifact  = buildFunctionDeclarationArtifact(path.node, parentClass);
+
+    if (parentClass)
+      parentClass.methods.push(methodArtifact);
+
+    artifacts.push(methodArtifact);
+  }
+
+  function handleClassProperty(path) {
+    let parentClassName   = path.parentPath.parentPath.node.id.name;
+    let parentClass       = artifacts.find((artifact) => (artifact.type === 'ClassDeclaration' && artifact.name === parentClassName));
+    let propertyArtifact  = buildPropertyDeclarationArtifact(path.node, parentClass);
+
+    if (parentClass)
+      parentClass.properties.push(propertyArtifact);
+
+    console.log('CLASS PROPERTY: ', parentClassName, path.node);
+    artifacts.push(propertyArtifact);
+  }
+
   traverse(program, {
     ArrowFunctionExpression: function(path) {
-      artifacts.push(path.node);
+      // artifacts.push(path.node);
     },
-    DeclareClass: function(path) {
-      artifacts.push(path.node);
+    ClassDeclaration:         function(path) {
+      artifacts.push(buildClassDeclarationArtifact(path.node));
     },
-    DeclareFunction: function(path) {
-      artifacts.push(path.node);
-    },
-    DeclareInterface: function(path) {
-      artifacts.push(path.node);
-    },
-    DeclareModule: function(path) {
-      artifacts.push(path.node);
-    },
-    DeclareTypeAlias: function(path) {
-      artifacts.push(path.node);
-    },
-    DeclareVariable: function(path) {
-      artifacts.push(path.node);
-    },
-    ClassDeclaration: function(path) {
-      artifacts.push(path.node);
-    },
-    ClassMethod: function(path) {
-      artifacts.push(path.node);
-    },
-    ClassProperty: function(path) {
-      artifacts.push(path.node);
-    },
+    ClassMethod: handleClassMethod,
+    ClassPrivateMethod: handleClassMethod,
+    ClassProperty: handleClassProperty,
+    ClassPrivateProperty: handleClassProperty,
     FunctionDeclaration: function(path) {
-      let node = path.node;
-
-      // console.log(node);
-
-      artifacts.push({
-        'type':         'FunctionDeclaration',
-        'genericType':  'FunctionDeclaration',
-        'start':        node.start,
-        'end':          node.end,
-        'name':         node.id.name,
-        'arguments':    node.params.map((arg) => {
-          return {
-            'type':         'Identifier',
-            'start':        arg.start,
-            'end':          arg.end,
-            'name':         arg.name,
-            'description':  parseArgumentDescription(arg),
-          };
-        }),
-      });
+      artifacts.push(buildFunctionDeclarationArtifact(path.node));
     },
     FunctionExpression: function(path) {
-      let node = path.node;
-      artifacts.push({
-        'type':         'FunctionDeclaration',
-        'genericType':  'FunctionDeclaration',
-        'start':        node.start,
-        'end':          node.end,
-        'name':         node.id.name,
-        'arguments':    node.params.map((arg) => {
-          return {
-            'type':         'Identifier',
-            'start':        arg.start,
-            'end':          arg.end,
-            'name':         arg.name,
-            'description':  parseArgumentDescription(arg),
-          };
-        }),
-      });
+      artifacts.push(buildFunctionDeclarationArtifact(path.node));
     },
     ObjectMethod: function(path) {
-      artifacts.push(path.node);
+      // artifacts.push(path.node);
     },
     VariableDeclaration: function(path) {
-      artifacts.push(path.node);
+      // artifacts.push(path.node);
     },
   });
 

@@ -19,7 +19,11 @@ module.exports = createParser(
 
     delete args.extra;
 
-    return Object.assign({}, args, { types: types || [] });
+    return {
+      name:         args.name,
+      description:  args.body,
+      types:        types || [],
+    };
   },
   function(result) {
     let targetReturn = this.target['return'];
@@ -27,9 +31,9 @@ module.exports = createParser(
       return;
 
     return {
-      name:   'return',
-      body:   targetReturn.description,
-      types:  targetReturn.types,
+      name:         'return',
+      description:  targetReturn.description,
+      types:        targetReturn.types,
     };
   },
 );

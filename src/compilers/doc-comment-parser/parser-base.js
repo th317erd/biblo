@@ -4,8 +4,10 @@ const Nife = require('nife');
 
 const DEFAULT_PROP_REGEX = (/^\/[\s\t]{0,1}(\w+)\s*:(.*)$/);
 
-function createParser(parserFunc, defaultFunc) {
+function createParser(parserFunc, defaultFunc, name) {
   parserFunc.defaultHandler = defaultFunc;
+  parserFunc.outputName = name;
+
   return parserFunc;
 }
 
@@ -71,7 +73,7 @@ function parseTypes(str) {
 }
 
 function handleDocCommentProperty(parsers, result, currentProperty, currentBody) {
-  let body        = currentBody.join('\n');
+  let body        = currentBody.join('\n').trim();
   let currentName = currentProperty.name;
   let args        = {
     name:   currentName,
@@ -79,29 +81,43 @@ function handleDocCommentProperty(parsers, result, currentProperty, currentBody)
     body,
   };
 
+  if (!this.target)
+    this.target = {};
+
+  let lowerName = currentName.toLowerCase();
+  let outputName = lowerName;
   let parserResult;
 
   if (typeof parsers === 'function') {
+    if (parsers.outputName)
+      outputName = parsers.outputName;
+
     parserResult = parsers.call(this, result, args);
   } else {
-    let parser  = parsers[currentName];
+    let parser = parsers[lowerName];
     if (!parser) {
-      let items = result[currentName] = [];
+      let items = result[lowerName] = [];
       if (!items)
-        items = result[currentName] = [];
+        items = result[lowerName] = [];
 
       items.push(args);
     } else {
+      if (parser.outputName)
+        outputName = parser.outputName;
+
       parserResult = parser.call(this, result, args);
     }
   }
 
   if (parserResult !== undefined)
-    result[currentName] = parserResult;
+    result[outputName] = parserResult;
 }
 
 function parseDocCommentSection(parsers, lines, propRE, defaultProp) {
-  let result          = {};
+  if (!this.target)
+    this.target = {};
+
+  let result          = { type: this.target.type };
   let currentBody     = [];
   let currentProperty = defaultProp;
 
@@ -117,7 +133,7 @@ function parseDocCommentSection(parsers, lines, propRE, defaultProp) {
         currentBody = [];
       }
 
-      currentProperty = { name: name.trim().toLowerCase(), extra: extra.trim() };
+      currentProperty = { name: name.trim(), extra: extra.trim() };
     });
 
     if (isProperty)

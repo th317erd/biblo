@@ -3,6 +3,10 @@
 const Nife = require('nife');
 
 const {
+  getRootDirsFromOptions,
+} = require('../utils/misc-utils');
+
+const {
   DEFAULT_PROP_REGEX,
   parseDocCommentSection,
 } = require('./doc-comment-parser/parser-base');
@@ -32,6 +36,8 @@ function sortArtifacts(artifacts, _key) {
 
 function collectArtifactsIntoComments(_artifacts) {
   let artifacts = sortArtifacts(_artifacts);
+
+  // console.log('Final artifacts: ', artifacts);
 
   for (let i = 1, il = artifacts.length; i < il; i++) {
     let artifact = artifacts[i];
@@ -146,7 +152,30 @@ function parseFloatingDescription(body) {
       return true;
     })
     .map((comment) => comment.value.trim())
+    .filter(Boolean)
     .join(' ');
+}
+
+function getRelativeFileName(fullFileName, options) {
+  if (!fullFileName)
+    return;
+
+  let { rootDir } = getRootDirsFromOptions(options);
+  if (fullFileName.startsWith(rootDir))
+    return fullFileName.substring(rootDir.length).replace(/^(.\/|\.\\|\/|\\)/, '');
+
+  return fullFileName;
+}
+
+function getSourceControlFileName(fullFileName, options) {
+  if (!fullFileName)
+    return;
+
+  let { sourceControlRootDir } = getRootDirsFromOptions(options);
+  if (fullFileName.startsWith(sourceControlRootDir))
+    return fullFileName.substring(sourceControlRootDir.length).replace(/^(.\/|\.\\|\/|\\)/, '');
+
+  return fullFileName;
 }
 
 module.exports = {
@@ -156,4 +185,6 @@ module.exports = {
   parseDocComments,
   parseFloatingDescription,
   sortArtifacts,
+  getRelativeFileName,
+  getSourceControlFileName,
 };
