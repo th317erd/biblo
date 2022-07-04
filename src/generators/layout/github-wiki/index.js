@@ -3,7 +3,7 @@
 const Nife        = require('nife');
 const Path        = require('path');
 const FileSystem  = require('fs');
-const MiscUtils   = require('../../utils/misc-utils');
+const MiscUtils   = require('../../../utils/misc-utils');
 
 function getPageNameFromArtifact(artifact) {
   const getArtifactScopeName = (artifact) => {
@@ -54,9 +54,17 @@ function generatePage(generator, page, sidebarContent, options) {
 
   for (let i = 0, il = artifacts.length; i < il; i++) {
     let artifact = artifacts[i];
+    let comment = artifact.comment;
+
+    if (!comment)
+      continue;
+
+    sidebarItems.push(`  <li>${artifact.name}</li>`);
   }
 
-  sidebarContent.push(sidebarItems);
+  sidebarContent.push('<ul>');
+  sidebarContent.push(sidebarItems.join('\n'));
+  sidebarContent.push('</ul>');
 
   return content.join('');
 }

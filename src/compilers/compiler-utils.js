@@ -179,7 +179,7 @@ function getRelativeFileName(fullFileName, options) {
   if (!fullFileName)
     return;
 
-  let { rootDir } = getRootDirsFromOptions(options);
+  let { rootDir } = options;
   if (fullFileName.startsWith(rootDir))
     return fullFileName.substring(rootDir.length).replace(/^(.\/|\.\\|\/|\\)/, '');
 
@@ -190,7 +190,7 @@ function getSourceControlFileName(fullFileName, options) {
   if (!fullFileName)
     return;
 
-  let { sourceControlRootDir } = getRootDirsFromOptions(options);
+  let { sourceControlRootDir } = options;
   if (fullFileName.startsWith(sourceControlRootDir))
     return fullFileName.substring(sourceControlRootDir.length).replace(/^(.\/|\.\\|\/|\\)/, '');
 

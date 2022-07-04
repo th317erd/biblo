@@ -4,7 +4,6 @@
 const Util          = require('util');
 const Nife          = require('nife');
 const Typescript    = require('typescript');
-const Utils         = require('../../utils');
 const CompilerUtils = require('../compiler-utils');
 
 const {
@@ -15,26 +14,15 @@ function stripParents(node) {
   return Nife.extend(Nife.extend.DEEP | Nife.extend.FILTER | Nife.extend.INSTANCES, (key) => (key !== 'parent'), {}, node);
 }
 
-function compile(parsed, _options) {
-  let options   = _options || {};
-  let parser    = options.parser;
-  let traverse  = options.traverse;
+function compile(parsed, options) {
+  let {
+    traverse,
+  } = options.parser;
 
   let {
     source,
     program,
   } = parsed;
-
-  if (Nife.instanceOf(parser, 'string')) {
-    parser = Utils.getParserByName(options.parser);
-    if (parser && typeof parser.traverse === 'function')
-      traverse = parser.traverse;
-  } else if (parser && typeof parser.traverse === 'function') {
-    traverse = parser.traverse;
-  }
-
-  if (typeof traverse !== 'function')
-    throw new Error('compile: "traverse" function required, but not found.');
 
   let artifacts = [];
   let nodes     = [];
