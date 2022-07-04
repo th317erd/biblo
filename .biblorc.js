@@ -14,4 +14,7 @@ module.exports = {
   excludePatterns: [
     /node_modules|bin\/main\.js|colors\//
   ],
+  generatorOptions: {
+    baseURL: 'https://github.com/th317erd/biblo/wiki',
+  },
 };

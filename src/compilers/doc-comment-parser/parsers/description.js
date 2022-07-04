@@ -17,6 +17,6 @@ module.exports = createParser(
 
     delete args.extra;
 
-    return Object.assign({}, args, { body });
+    return Object.assign({}, args, { type: 'Description', body });
   },
 );

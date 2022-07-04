@@ -20,6 +20,7 @@ module.exports = createParser(
     delete args.extra;
 
     return {
+      type:         'ReturnType',
       name:         args.name,
       description:  args.body,
       types:        types || [],
@@ -31,6 +32,7 @@ module.exports = createParser(
       return;
 
     return {
+      type:         'ReturnType',
       name:         'return',
       description:  targetReturn.description,
       types:        targetReturn.types,

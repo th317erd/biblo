@@ -29,4 +29,5 @@ module.exports = createParser(
     return targetTypes.types || [];
   },
   'types',
+  false,
 );

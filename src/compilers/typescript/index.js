@@ -248,8 +248,8 @@ function compile(parsed, options) {
         let typeStr = (arg.type) ? source.substring(arg.type.getFullStart(), arg.type.getFullStart() + arg.type.getFullWidth()) : undefined;
 
         return assignFloatingComments({
-          'type':         'Identifier',
-          'genericType':  'Identifier',
+          'type':         'FunctionArgument',
+          'genericType':  'FunctionArgument',
           'start':        arg.name.pos,
           'end':          arg.name.end,
           'name':         arg.name.escapedText,

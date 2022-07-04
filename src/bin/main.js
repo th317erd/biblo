@@ -71,6 +71,12 @@ Usage: biblo -i {input directory} -o {output directory} -r {root directory}
     process.exit(1);
   }
 
+  // console.log('OPTIONS: ', options);
+
   let artifacts = await compileFiles(options);
-  console.log(artifacts);
+  let {
+    layout: layoutGenerator,
+  } = options.generator;
+
+  await layoutGenerator(artifacts, options);
 })();

@@ -2,11 +2,12 @@
 
 const Nife = require('nife');
 
-const DEFAULT_PROP_REGEX = (/^\/[\s\t]{0,1}(\w+)\s*:(.*)$/);
+const DEFAULT_PROP_REGEX = (/^\/!?[\s\t]{0,1}(\w+)\s*:(.*)$/);
 
-function createParser(parserFunc, defaultFunc, name) {
+function createParser(parserFunc, defaultFunc, name, injectDefault) {
   parserFunc.defaultHandler = defaultFunc;
   parserFunc.outputName = name;
+  parserFunc.injectDefault = (injectDefault !== false);
 
   return parserFunc;
 }
@@ -21,7 +22,7 @@ function substitute(_str, regex) {
     result = str.replace(regex, (match, ...args) => {
       let index = parts.length;
 
-      index.push({
+      parts.push({
         match,
         args,
       });
@@ -46,7 +47,7 @@ function expand(_str, parts) {
   while (true) {
     result = str.replace(/@@@PART\[(\d+)\]@@@/g, (m, _index) => {
       let index = parseInt(_index, 10);
-      return parts[index];
+      return parts[index].match;
     });
 
     if (result === str)
@@ -64,8 +65,11 @@ function parseTypes(str) {
 
   let result  = substitute(str, /<[^>]+>/g);
   let types   = result.result.split(/\|/g).map((part) => {
+    console.log('Expanding type: ', part, result.parts);
     return expand(part, result.parts);
   });
+
+  console.log(types);
 
   types = types.map((type) => type.trim()).filter(Boolean);
 
@@ -122,6 +126,9 @@ function parseDocCommentSection(parsers, lines, propRE, defaultProp) {
     line.replace(propRE, (m, name, extra) => {
       isProperty = true;
 
+      if ((/^\/!/).test(m))
+        result['global'] = true;
+
       if (currentProperty) {
         handleDocCommentProperty.call(this, parsers, result, currentProperty, currentBody);
         currentBody = [];
@@ -133,7 +140,7 @@ function parseDocCommentSection(parsers, lines, propRE, defaultProp) {
     if (isProperty)
       continue;
 
-    currentBody.push(line.replace(/^\s*\/\s*/, ''));
+    currentBody.push(line.replace(/^\s*\/!?\s*/, ''));
   }
 
   handleDocCommentProperty.call(this, parsers, result, currentProperty, currentBody);
@@ -144,8 +151,14 @@ function parseDocCommentSection(parsers, lines, propRE, defaultProp) {
     for (let i = 0, il = parserNames.length; i < il; i++) {
       let parserName  = parserNames[i];
       let parser      = parsers[parserName];
-      let propValue   = result[parserName];
 
+      if (parser && parser.injectDefault === false)
+        continue;
+
+      if (parser && parser.outputName)
+        parserName = parser.outputName;
+
+      let propValue = result[parserName];
       if (propValue === undefined && parser && parser.defaultHandler)
         result[parserName] = parser.defaultHandler.call(this, result);
     }

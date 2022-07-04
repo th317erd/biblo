@@ -18,6 +18,7 @@ module.exports = createParser(
     let parsedTypes       = parseDocCommentSection.call(this, {}, lines, /^\s*(\w+):(.*)$/);
     let targetProperties  = this.properties || [];
 
+    delete parsedTypes.type;
     parsedTypes = Nife.arrayFlatten(Array.from(Object.values(parsedTypes)));
 
     parsedTypes = parsedTypes.map((arg, index) => {
@@ -29,6 +30,7 @@ module.exports = createParser(
       delete arg.extra;
 
       return {
+        type:         'PropertyDeclaration',
         name:         arg.name,
         description:  arg.body,
         types:        types || [],
@@ -46,6 +48,7 @@ module.exports = createParser(
 
     return this.properties.map((arg) => {
       return {
+        type:         'PropertyDeclaration',
         name:         arg.name,
         description:  arg.description || '',
         types:        arg.types,

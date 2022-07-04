@@ -105,7 +105,7 @@ async function compile(parsed, options) {
       'return':                 returnNode,
       'arguments':              node.params.map((arg) => {
         return {
-          'type':         'Identifier',
+          'type':         'FunctionArgument',
           'start':        arg.start,
           'end':          arg.end,
           'name':         arg.name,
