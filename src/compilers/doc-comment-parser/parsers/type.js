@@ -9,7 +9,7 @@ const {
 
 module.exports = createParser(
   function(result, args) {
-    let targetType = this.target.types;
+    let targetType = this.types;
     let types;
 
     if (Nife.isNotEmpty(args.extra))
@@ -22,7 +22,7 @@ module.exports = createParser(
     return Nife.uniq((result['types'] || []).concat(types || []));
   },
   function(result) {
-    let targetTypes = this.target['types'];
+    let targetTypes = this.types;
     if (!targetTypes)
       return;
 

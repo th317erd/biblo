@@ -5,14 +5,16 @@ const FilterUtils = require('./filter-utils');
 const MiscUtils   = require('./misc-utils');
 
 module.exports = {
-  walkFiles:              FileUtils.walkFiles,
-  iterateFiles:           FileUtils.iterateFiles,
-  createFileNameFilter:   FilterUtils.createFileNameFilter,
   collectPromises:        MiscUtils.collectPromises,
-  runMiddleware:          MiscUtils.runMiddleware,
-  getParserByName:        MiscUtils.getParserByName,
-  getParser:              MiscUtils.getParser,
-  getCompilerByName:      MiscUtils.getCompilerByName,
+  createFileNameFilter:   FilterUtils.createFileNameFilter,
   getCompiler:            MiscUtils.getCompiler,
+  getCompilerByName:      MiscUtils.getCompilerByName,
+  getGenerator:           MiscUtils.getGenerator,
+  getGeneratorByName:     MiscUtils.getGeneratorByName,
+  getParser:              MiscUtils.getParser,
+  getParserByName:        MiscUtils.getParserByName,
   getRootDirsFromOptions: MiscUtils.getRootDirsFromOptions,
+  iterateFiles:           FileUtils.iterateFiles,
+  runMiddleware:          MiscUtils.runMiddleware,
+  walkFiles:              FileUtils.walkFiles,
 };

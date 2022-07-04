@@ -67,8 +67,6 @@ function traverse(program, visitor) {
           getComments(sourceFileText, Typescript.getTrailingCommentRanges(sourceFileText, node.getFullStart())),
         );
 
-
-
         comments.filter((comment) => {
           let key = `${comment.pos}:${comment.end}`;
           if (alreadySeenComments[key])

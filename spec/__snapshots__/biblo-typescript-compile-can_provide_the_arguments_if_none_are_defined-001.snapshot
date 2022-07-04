@@ -1,245 +1,420 @@
-[
-  {
-    "type": "DocComment",
-    "genericType": "Comment",
-    "start": 15,
-    "end": 177,
-    "value": "/ This is standard test!\n/ Return: any\n/  Gives ya a result man\n/ Arguments:\n/   a: string\n/     Wacky, right?\n/   b: number\n/     Big fat number!",
-    "target": {
-      "type": "FunctionDeclaration",
-      "genericType": "FunctionDeclaration",
-      "start": 186,
-      "end": 261,
-      "name": "test",
-      "arguments": [
-        {
-          "type": "Identifier",
-          "genericType": "Identifier",
-          "start": 192,
-          "end": 193,
-          "name": "a",
-          "types": [
-            "string",
-            "null",
-            "undefined"
+{
+  "::@id@::": 0,
+  "value": [
+    {
+      "::@id@::": 1,
+      "value": {
+        "fileName": "/home/wyatt/Projects/biblo/spec/support/test-files/typescript/func-test-auto-args1.ts",
+        "relativeFileName": "spec/support/test-files/typescript/func-test-auto-args1.ts",
+        "sourceControlFileName": "spec/support/test-files/typescript/func-test-auto-args1.ts",
+        "type": "FunctionDeclaration",
+        "genericType": "FunctionDeclaration",
+        "start": 178,
+        "end": 261,
+        "isConstructor": false,
+        "static": false,
+        "name": "test",
+        "async": false,
+        "generator": false,
+        "access": "public",
+        "arguments": {
+          "::@id@::": 2,
+          "value": [
+            {
+              "::@id@::": 3,
+              "value": {
+                "type": "Identifier",
+                "genericType": "Identifier",
+                "start": 192,
+                "end": 193,
+                "name": "a",
+                "types": {
+                  "::@id@::": 4,
+                  "value": [
+                    "string",
+                    "null",
+                    "undefined"
+                  ]
+                }
+              }
+            },
+            {
+              "::@id@::": 5,
+              "value": {
+                "type": "Identifier",
+                "genericType": "Identifier",
+                "start": 222,
+                "end": 223,
+                "name": "b",
+                "types": {
+                  "::@id@::": 6,
+                  "value": [
+                    "number",
+                    "null"
+                  ]
+                }
+              }
+            }
           ]
         },
-        {
-          "type": "Identifier",
-          "genericType": "Identifier",
-          "start": 221,
-          "end": 223,
-          "name": "b",
-          "types": [
-            "number",
-            "null"
-          ]
+        "return": {
+          "::@id@::": 7,
+          "value": {
+            "type": "Type",
+            "genericType": "Type",
+            "start": 241,
+            "end": 256,
+            "types": {
+              "::@id@::": 8,
+              "value": [
+                "string",
+                "number"
+              ]
+            },
+            "description": ""
+          }
+        },
+        "description": "",
+        "comment": {
+          "::@id@::": 9,
+          "value": {
+            "type": "DocComment",
+            "genericType": "Comment",
+            "start": 15,
+            "end": 177,
+            "value": "/ This is standard test!\n/ Return: any\n/  Gives ya a result man\n/ Arguments:\n/   a: string\n/     Wacky, right?\n/   b: number\n/     Big fat number!",
+            "definition": {
+              "::@id@::": 10,
+              "value": {
+                "type": "FunctionDeclaration",
+                "description": {
+                  "::@id@::": 11,
+                  "value": {
+                    "name": "description",
+                    "body": "This is standard test!"
+                  }
+                },
+                "return": {
+                  "::@id@::": 12,
+                  "value": {
+                    "name": "Return",
+                    "description": "Gives ya a result man",
+                    "types": {
+                      "::@id@::": 13,
+                      "value": [
+                        "any"
+                      ]
+                    }
+                  }
+                },
+                "arguments": {
+                  "::@id@::": 14,
+                  "value": [
+                    {
+                      "::@id@::": 15,
+                      "value": {
+                        "types": "::@4@::"
+                      }
+                    },
+                    {
+                      "::@id@::": 16,
+                      "value": {
+                        "name": "a",
+                        "description": "Wacky, right?",
+                        "types": {
+                          "::@id@::": 17,
+                          "value": [
+                            "string"
+                          ]
+                        }
+                      }
+                    },
+                    {
+                      "::@id@::": 18,
+                      "value": {
+                        "name": "b",
+                        "description": "Big fat number!",
+                        "types": {
+                          "::@id@::": 19,
+                          "value": [
+                            "number"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
         }
-      ],
-      "return": {
-        "type": "Type",
-        "genericType": "Type",
-        "start": 240,
-        "end": 256,
-        "types": [
-          "string",
-          "number"
-        ]
       }
     },
-    "definition": {
-      "description": {
-        "name": "description",
-        "body": "This is standard test!"
-      },
-      "return": {
-        "name": "return",
-        "body": "Gives ya a result man",
-        "types": [
-          "any"
-        ]
-      },
-      "arguments": [
-        {
-          "name": "a",
-          "body": "Wacky, right?",
-          "types": [
-            "string"
+    {
+      "::@id@::": 20,
+      "value": {
+        "fileName": "/home/wyatt/Projects/biblo/spec/support/test-files/typescript/func-test-auto-args1.ts",
+        "relativeFileName": "spec/support/test-files/typescript/func-test-auto-args1.ts",
+        "sourceControlFileName": "spec/support/test-files/typescript/func-test-auto-args1.ts",
+        "type": "FunctionDeclaration",
+        "genericType": "FunctionDeclaration",
+        "start": 410,
+        "end": 499,
+        "isConstructor": false,
+        "static": false,
+        "name": "test_types",
+        "async": false,
+        "generator": false,
+        "access": "public",
+        "arguments": {
+          "::@id@::": 21,
+          "value": [
+            {
+              "::@id@::": 22,
+              "value": {
+                "type": "Identifier",
+                "genericType": "Identifier",
+                "start": 430,
+                "end": 431,
+                "name": "a",
+                "types": {
+                  "::@id@::": 23,
+                  "value": [
+                    "string",
+                    "null",
+                    "undefined"
+                  ]
+                }
+              }
+            },
+            {
+              "::@id@::": 24,
+              "value": {
+                "type": "Identifier",
+                "genericType": "Identifier",
+                "start": 460,
+                "end": 461,
+                "name": "b",
+                "types": {
+                  "::@id@::": 25,
+                  "value": [
+                    "number",
+                    "null"
+                  ]
+                }
+              }
+            }
           ]
         },
-        {
-          "name": "b",
-          "body": "Big fat number!",
-          "types": [
-            "number"
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "type": "DocComment",
-    "genericType": "Comment",
-    "start": 263,
-    "end": 409,
-    "value": "/ This is type test!\n/ Return:\n/  This returns stuff\n/ Arguments:\n/   a:\n/     Does things, okay?\n/   b:\n/     Will blow your mind",
-    "target": {
-      "type": "FunctionDeclaration",
-      "genericType": "FunctionDeclaration",
-      "start": 418,
-      "end": 499,
-      "name": "test_types",
-      "arguments": [
-        {
-          "type": "Identifier",
-          "genericType": "Identifier",
-          "start": 430,
-          "end": 431,
-          "name": "a",
-          "types": [
-            "string",
-            "null",
-            "undefined"
-          ]
+        "return": {
+          "::@id@::": 26,
+          "value": {
+            "type": "Type",
+            "genericType": "Type",
+            "start": 479,
+            "end": 494,
+            "types": {
+              "::@id@::": 27,
+              "value": [
+                "string",
+                "number"
+              ]
+            },
+            "description": ""
+          }
         },
-        {
-          "type": "Identifier",
-          "genericType": "Identifier",
-          "start": 459,
-          "end": 461,
-          "name": "b",
-          "types": [
-            "number",
-            "null"
-          ]
+        "description": "",
+        "comment": {
+          "::@id@::": 28,
+          "value": {
+            "type": "DocComment",
+            "genericType": "Comment",
+            "start": 263,
+            "end": 409,
+            "value": "/ This is type test!\n/ Return:\n/  This returns stuff\n/ Arguments:\n/   a:\n/     Does things, okay?\n/   b:\n/     Will blow your mind",
+            "definition": {
+              "::@id@::": 29,
+              "value": {
+                "type": "FunctionDeclaration",
+                "description": {
+                  "::@id@::": 30,
+                  "value": {
+                    "name": "description",
+                    "body": "This is type test!"
+                  }
+                },
+                "return": {
+                  "::@id@::": 31,
+                  "value": {
+                    "name": "Return",
+                    "description": "This returns stuff",
+                    "types": "::@27@::"
+                  }
+                },
+                "arguments": {
+                  "::@id@::": 32,
+                  "value": [
+                    {
+                      "::@id@::": 33,
+                      "value": {
+                        "types": "::@23@::"
+                      }
+                    },
+                    {
+                      "::@id@::": 34,
+                      "value": {
+                        "name": "a",
+                        "description": "Does things, okay?",
+                        "types": "::@25@::"
+                      }
+                    },
+                    {
+                      "::@id@::": 35,
+                      "value": {
+                        "name": "b",
+                        "description": "Will blow your mind",
+                        "types": {
+                          "::@id@::": 36,
+                          "value": []
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
         }
-      ],
-      "return": {
-        "type": "Type",
-        "genericType": "Type",
-        "start": 478,
-        "end": 494,
-        "types": [
-          "string",
-          "number"
-        ]
       }
     },
-    "definition": {
-      "description": {
-        "name": "description",
-        "body": "This is type test!"
-      },
-      "return": {
-        "name": "return",
-        "body": "This returns stuff",
-        "types": [
-          "string",
-          "number"
-        ]
-      },
-      "arguments": [
-        {
-          "name": "a",
-          "body": "Does things, okay?",
-          "types": [
-            "string",
-            "null",
-            "undefined"
+    {
+      "::@id@::": 37,
+      "value": {
+        "fileName": "/home/wyatt/Projects/biblo/spec/support/test-files/typescript/func-test-auto-args1.ts",
+        "relativeFileName": "spec/support/test-files/typescript/func-test-auto-args1.ts",
+        "sourceControlFileName": "spec/support/test-files/typescript/func-test-auto-args1.ts",
+        "type": "FunctionDeclaration",
+        "genericType": "FunctionDeclaration",
+        "start": 529,
+        "end": 696,
+        "isConstructor": false,
+        "static": false,
+        "name": "test_inline",
+        "async": false,
+        "generator": false,
+        "access": "public",
+        "arguments": {
+          "::@id@::": 38,
+          "value": [
+            {
+              "::@id@::": 39,
+              "value": {
+                "type": "Identifier",
+                "genericType": "Identifier",
+                "start": 575,
+                "end": 576,
+                "name": "a",
+                "types": {
+                  "::@id@::": 40,
+                  "value": [
+                    "string",
+                    "null",
+                    "undefined"
+                  ]
+                },
+                "description": "\"a\" does things..."
+              }
+            },
+            {
+              "::@id@::": 41,
+              "value": {
+                "type": "Identifier",
+                "genericType": "Identifier",
+                "start": 636,
+                "end": 637,
+                "name": "b",
+                "types": {
+                  "::@id@::": 42,
+                  "value": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "description": "b does some other things"
+              }
+            }
           ]
         },
-        {
-          "name": "b",
-          "body": "Will blow your mind",
-          "types": [
-            "number",
-            "null"
-          ]
-        }
-      ]
-    }
-  },
-  {
-    "type": "DocComment",
-    "genericType": "Comment",
-    "start": 501,
-    "end": 528,
-    "value": "/ This is an inline test!",
-    "target": {
-      "type": "FunctionDeclaration",
-      "genericType": "FunctionDeclaration",
-      "start": 537,
-      "end": 696,
-      "name": "test_inline",
-      "arguments": [
-        {
-          "type": "Identifier",
-          "genericType": "Identifier",
-          "start": 550,
-          "end": 576,
-          "name": "a",
-          "types": [
-            "string",
-            "null",
-            "undefined"
-          ],
-          "description": "\"a\" does things..."
+        "return": {
+          "::@id@::": 43,
+          "value": {
+            "type": "Type",
+            "genericType": "Type",
+            "start": 655,
+            "end": 661,
+            "types": {
+              "::@id@::": 44,
+              "value": [
+                "string"
+              ]
+            },
+            "description": "Return a string please!"
+          }
         },
-        {
-          "type": "Identifier",
-          "genericType": "Identifier",
-          "start": 604,
-          "end": 637,
-          "name": "b",
-          "types": [
-            "number",
-            "null"
-          ],
-          "description": "b does some other things"
+        "description": "",
+        "comment": {
+          "::@id@::": 45,
+          "value": {
+            "type": "DocComment",
+            "genericType": "Comment",
+            "start": 501,
+            "end": 528,
+            "value": "/ This is an inline test!",
+            "definition": {
+              "::@id@::": 46,
+              "value": {
+                "type": "FunctionDeclaration",
+                "description": {
+                  "::@id@::": 47,
+                  "value": {
+                    "name": "description",
+                    "body": "This is an inline test!"
+                  }
+                },
+                "arguments": {
+                  "::@id@::": 48,
+                  "value": [
+                    {
+                      "::@id@::": 49,
+                      "value": {
+                        "name": "a",
+                        "description": "\"a\" does things...",
+                        "types": "::@40@::"
+                      }
+                    },
+                    {
+                      "::@id@::": 50,
+                      "value": {
+                        "name": "b",
+                        "description": "b does some other things",
+                        "types": "::@42@::"
+                      }
+                    }
+                  ]
+                },
+                "return": {
+                  "::@id@::": 51,
+                  "value": {
+                    "name": "return",
+                    "description": "Return a string please!",
+                    "types": "::@44@::"
+                  }
+                }
+              }
+            }
+          }
         }
-      ],
-      "return": {
-        "type": "Type",
-        "genericType": "Type",
-        "start": 654,
-        "end": 661,
-        "types": [
-          "string"
-        ],
-        "description": "Return a string please!"
       }
-    },
-    "definition": {
-      "description": {
-        "name": "description",
-        "body": "This is an inline test!"
-      },
-      "arguments": [
-        {
-          "name": "a",
-          "body": "\"a\" does things...",
-          "types": [
-            "string",
-            "null",
-            "undefined"
-          ]
-        },
-        {
-          "name": "b",
-          "body": "b does some other things",
-          "types": [
-            "number",
-            "null"
-          ]
-        }
-      ],
-      "return": {
-        "name": "return",
-        "body": "Return a string please!",
-        "types": [
-          "string"
-        ]
-      }
     }
-  }
-]
+  ]
+}

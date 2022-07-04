@@ -1,0 +1,393 @@
+{
+  "::@id@::": 0,
+  "value": [
+    {
+      "::@id@::": 1,
+      "value": {
+        "fileName": "/home/wyatt/Projects/biblo/spec/support/test-files/typescript/class-test-1.ts",
+        "relativeFileName": "spec/support/test-files/typescript/class-test-1.ts",
+        "sourceControlFileName": "spec/support/test-files/typescript/class-test-1.ts",
+        "type": "FunctionDeclaration",
+        "genericType": "FunctionDeclaration",
+        "start": 33,
+        "end": 60,
+        "isConstructor": false,
+        "static": false,
+        "name": "test",
+        "async": true,
+        "generator": true,
+        "access": "public",
+        "arguments": {
+          "::@id@::": 2,
+          "value": []
+        },
+        "description": "This is a test",
+        "comment": {
+          "::@id@::": 3,
+          "value": {
+            "type": "DocComment",
+            "genericType": "Comment",
+            "start": 15,
+            "end": 32,
+            "value": " This is a test",
+            "definition": {
+              "::@id@::": 4,
+              "value": {
+                "type": "FunctionDeclaration",
+                "description": {
+                  "::@id@::": 5,
+                  "value": {
+                    "name": "description",
+                    "body": "This is a test"
+                  }
+                },
+                "arguments": {
+                  "::@id@::": 6,
+                  "value": []
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "::@id@::": 7,
+      "value": {
+        "fileName": "/home/wyatt/Projects/biblo/spec/support/test-files/typescript/class-test-1.ts",
+        "relativeFileName": "spec/support/test-files/typescript/class-test-1.ts",
+        "sourceControlFileName": "spec/support/test-files/typescript/class-test-1.ts",
+        "type": "ClassDeclaration",
+        "genericType": "ClassDeclaration",
+        "start": 135,
+        "end": 466,
+        "name": "Animal",
+        "properties": {
+          "::@id@::": 8,
+          "value": [
+            {
+              "::@id@::": 9,
+              "value": {
+                "type": "PropertyDeclaration",
+                "genericType": "PropertyDeclaration",
+                "start": 216,
+                "end": 225,
+                "name": "feetCount",
+                "types": {
+                  "::@id@::": 10,
+                  "value": [
+                    "number"
+                  ]
+                },
+                "parentClass": "::@7@::"
+              }
+            }
+          ]
+        },
+        "methods": {
+          "::@id@::": 11,
+          "value": [
+            {
+              "::@id@::": 12,
+              "value": {
+                "fileName": "/home/wyatt/Projects/biblo/spec/support/test-files/typescript/class-test-1.ts",
+                "relativeFileName": "spec/support/test-files/typescript/class-test-1.ts",
+                "sourceControlFileName": "spec/support/test-files/typescript/class-test-1.ts",
+                "type": "FunctionDeclaration",
+                "genericType": "FunctionDeclaration",
+                "start": 187,
+                "end": 212,
+                "isConstructor": false,
+                "static": true,
+                "name": "test",
+                "async": false,
+                "generator": false,
+                "access": "private",
+                "parentClass": "::@7@::",
+                "arguments": {
+                  "::@id@::": 13,
+                  "value": []
+                },
+                "description": "This is just a test... I promise"
+              }
+            },
+            {
+              "::@id@::": 14,
+              "value": {
+                "fileName": "/home/wyatt/Projects/biblo/spec/support/test-files/typescript/class-test-1.ts",
+                "relativeFileName": "spec/support/test-files/typescript/class-test-1.ts",
+                "sourceControlFileName": "spec/support/test-files/typescript/class-test-1.ts",
+                "type": "FunctionDeclaration",
+                "genericType": "FunctionDeclaration",
+                "start": 396,
+                "end": 464,
+                "isConstructor": true,
+                "static": false,
+                "name": "constructor",
+                "async": false,
+                "generator": false,
+                "access": "public",
+                "parentClass": "::@7@::",
+                "arguments": {
+                  "::@id@::": 15,
+                  "value": [
+                    {
+                      "::@id@::": 16,
+                      "value": {
+                        "type": "Identifier",
+                        "genericType": "Identifier",
+                        "start": 408,
+                        "end": 417,
+                        "name": "feetCount",
+                        "types": {
+                          "::@id@::": 17,
+                          "value": [
+                            "number"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                },
+                "return": {
+                  "::@id@::": 18,
+                  "value": {
+                    "type": "Type",
+                    "genericType": "Type",
+                    "start": 396,
+                    "end": 464,
+                    "types": {
+                      "::@id@::": 19,
+                      "value": [
+                        "Animal"
+                      ]
+                    },
+                    "description": ""
+                  }
+                },
+                "description": "",
+                "comment": {
+                  "::@id@::": 20,
+                  "value": {
+                    "type": "DocComment",
+                    "genericType": "Comment",
+                    "start": 238,
+                    "end": 393,
+                    "value": "/ Some of us have a hundred feet... so what?\n/ Are you feetist?\n/ Arguments:\n/   feetCount:\n/     Specify the number of feet the fish has",
+                    "definition": {
+                      "::@id@::": 21,
+                      "value": {
+                        "type": "FunctionDeclaration",
+                        "description": {
+                          "::@id@::": 22,
+                          "value": {
+                            "name": "description",
+                            "body": "Some of us have a hundred feet... so what?\nAre you feetist?"
+                          }
+                        },
+                        "arguments": {
+                          "::@id@::": 23,
+                          "value": [
+                            {
+                              "::@id@::": 24,
+                              "value": {
+                                "types": "::@17@::"
+                              }
+                            },
+                            {
+                              "::@id@::": 25,
+                              "value": {
+                                "name": "feetCount",
+                                "description": "Specify the number of feet the fish has",
+                                "types": {
+                                  "::@id@::": 26,
+                                  "value": []
+                                }
+                              }
+                            }
+                          ]
+                        },
+                        "return": {
+                          "::@id@::": 27,
+                          "value": {
+                            "name": "return",
+                            "description": "",
+                            "types": "::@19@::"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "comment": {
+          "::@id@::": 28,
+          "value": {
+            "type": "DocComment",
+            "genericType": "Comment",
+            "start": 62,
+            "end": 128,
+            "value": "/ This class is such an animal!\n/ Who left the barn door open?",
+            "definition": {
+              "::@id@::": 29,
+              "value": {
+                "type": "ClassDeclaration",
+                "description": {
+                  "::@id@::": 30,
+                  "value": {
+                    "name": "description",
+                    "body": "This class is such an animal!\nWho left the barn door open?"
+                  }
+                },
+                "arguments": {
+                  "::@id@::": 31,
+                  "value": []
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "::@12@::",
+    "::@9@::",
+    "::@14@::",
+    {
+      "::@id@::": 32,
+      "value": {
+        "fileName": "/home/wyatt/Projects/biblo/spec/support/test-files/typescript/class-test-1.ts",
+        "relativeFileName": "spec/support/test-files/typescript/class-test-1.ts",
+        "sourceControlFileName": "spec/support/test-files/typescript/class-test-1.ts",
+        "type": "ClassDeclaration",
+        "genericType": "ClassDeclaration",
+        "start": 556,
+        "end": 691,
+        "name": "Human",
+        "properties": {
+          "::@id@::": 33,
+          "value": [
+            {
+              "::@id@::": 34,
+              "value": {
+                "type": "PropertyDeclaration",
+                "genericType": "PropertyDeclaration",
+                "start": 607,
+                "end": 615,
+                "name": "soulless",
+                "types": {
+                  "::@id@::": 35,
+                  "value": [
+                    "boolean"
+                  ]
+                },
+                "parentClass": "::@32@::",
+                "comment": {
+                  "::@id@::": 36,
+                  "value": {
+                    "type": "DocComment",
+                    "genericType": "Comment",
+                    "start": 581,
+                    "end": 604,
+                    "value": "/ Do you have a soul?",
+                    "definition": {
+                      "::@id@::": 37,
+                      "value": {
+                        "type": "PropertyDeclaration",
+                        "description": {
+                          "::@id@::": 38,
+                          "value": {
+                            "name": "description",
+                            "body": "Do you have a soul?"
+                          }
+                        },
+                        "arguments": {
+                          "::@id@::": 39,
+                          "value": []
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "methods": {
+          "::@id@::": 40,
+          "value": [
+            {
+              "::@id@::": 41,
+              "value": {
+                "fileName": "/home/wyatt/Projects/biblo/spec/support/test-files/typescript/class-test-1.ts",
+                "relativeFileName": "spec/support/test-files/typescript/class-test-1.ts",
+                "sourceControlFileName": "spec/support/test-files/typescript/class-test-1.ts",
+                "type": "FunctionDeclaration",
+                "genericType": "FunctionDeclaration",
+                "start": 629,
+                "end": 689,
+                "isConstructor": true,
+                "static": false,
+                "name": "constructor",
+                "async": false,
+                "generator": false,
+                "access": "public",
+                "parentClass": "::@32@::",
+                "arguments": {
+                  "::@id@::": 42,
+                  "value": []
+                },
+                "return": {
+                  "::@id@::": 43,
+                  "value": {
+                    "type": "Type",
+                    "genericType": "Type",
+                    "start": 629,
+                    "end": 689,
+                    "types": {
+                      "::@id@::": 44,
+                      "value": [
+                        "Human"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        "comment": {
+          "::@id@::": 45,
+          "value": {
+            "type": "DocComment",
+            "genericType": "Comment",
+            "start": 468,
+            "end": 549,
+            "value": "/ Humans are the most animal of animals\n/ They also bark when they are stupid",
+            "definition": {
+              "::@id@::": 46,
+              "value": {
+                "type": "ClassDeclaration",
+                "description": {
+                  "::@id@::": 47,
+                  "value": {
+                    "name": "description",
+                    "body": "Humans are the most animal of animals\nThey also bark when they are stupid"
+                  }
+                },
+                "arguments": {
+                  "::@id@::": 48,
+                  "value": []
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "::@34@::",
+    "::@41@::"
+  ]
+}

@@ -9,7 +9,7 @@ const {
 
 module.exports = createParser(
   function(result, args) {
-    let targetReturn = this.target.return;
+    let targetReturn = this['return'];
     let types;
 
     if (Nife.isNotEmpty(args.extra))
@@ -26,7 +26,7 @@ module.exports = createParser(
     };
   },
   function(result) {
-    let targetReturn = this.target['return'];
+    let targetReturn = this['return'];
     if (!targetReturn)
       return;
 

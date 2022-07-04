@@ -1,5 +1,6 @@
 'use strict';
 
+const Nife          = require('nife');
 const jsDiff        = require('diff');
 const colors        = require('colors/safe');
 const Path          = require('path');
@@ -40,7 +41,7 @@ function serialize(value) {
   if (typeof value === 'string' || value instanceof String)
     return `"${value.replace(/"/g, '\\"')}"`;
 
-  return JSON.stringify(value, undefined, 2);
+  return Nife.safeJSONStringify(value, undefined, 2);
 }
 
 const specFileCache = {};

@@ -50,28 +50,26 @@ function removeDuplicateArtifacts(artifacts) {
   return Array.from(Object.values(artifactMap));
 }
 
-function collectArtifactsIntoComments(_artifacts) {
+function collectCommentsIntoArtifacts(_artifacts) {
   let artifacts = removeDuplicateArtifacts(_artifacts);
   artifacts = sortArtifacts(artifacts);
 
   // console.log('Final artifacts: ', artifacts);
 
+  let finalArtifacts = [];
   for (let i = 1, il = artifacts.length; i < il; i++) {
     let artifact = artifacts[i];
-    if (artifact.type !== 'DocComment') {
-      let lastArtifact = artifacts[i - 1];
-      if (!lastArtifact || lastArtifact.type !== 'DocComment')
-        continue;
+    if (artifact.type === 'DocComment')
+      continue;
 
-      lastArtifact.target = artifact;
-    }
+    let lastArtifact = artifacts[i - 1];
+    if (lastArtifact && lastArtifact.type === 'DocComment')
+      artifact.comment = lastArtifact;
+
+    finalArtifacts.push(artifact);
   }
 
-  artifacts = artifacts.filter((artifact) => {
-    return (artifact.type === 'DocComment');
-  });
-
-  return artifacts;
+  return finalArtifacts;
 }
 
 function parseDocComment(comment, artifact) {
@@ -90,10 +88,14 @@ function parseDocComments(_artifacts) {
 
   for (let i = 0, il = artifacts.length; i < il; i++) {
     let artifact = artifacts[i];
-    if (artifact.type !== 'DocComment')
+    if (artifact.type === 'DocComment')
       continue;
 
-    artifact.definition = parseDocComment(artifact.value, artifact);
+    let comment = artifact.comment;
+    if (!comment)
+      continue;
+
+    comment.definition = parseDocComment(comment.value, artifact);
   }
 
   return artifacts;
@@ -196,7 +198,7 @@ function getSourceControlFileName(fullFileName, options) {
 }
 
 module.exports = {
-  collectArtifactsIntoComments,
+  collectCommentsIntoArtifacts,
   collectComments,
   parseDocComment,
   parseDocComments,

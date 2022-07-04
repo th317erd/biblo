@@ -37,9 +37,7 @@ describe('biblo', () => {
           fileName: path,
         });
 
-        console.log('Result: ', Util.inspect(result, { colors: true, depth: Infinity }));
-
-        // expect(matchesSnapshot(result)).toEqual(true);
+        expect(matchesSnapshot(result)).toEqual(true);
       });
     });
   });
@@ -56,16 +54,14 @@ describe('biblo', () => {
         expect(matchesSnapshot(result)).toEqual(true);
       });
 
-      fit('can parse classes', async () => {
+      it('can parse classes', async () => {
         const path = TestHelpers.getTestFilePath('typescript/class-test-1.ts');
         let result = await Biblo.compileFile(path, {
           parser:   'typescript',
           fileName: path,
         });
 
-        console.log('Result: ', Util.inspect(result, { colors: true, depth: Infinity }));
-
-        //expect(matchesSnapshot(result)).toEqual(true);
+        expect(matchesSnapshot(result)).toEqual(true);
       });
     });
   });

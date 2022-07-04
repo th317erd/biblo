@@ -32,8 +32,7 @@ function iterateFiles(callback, options) {
   if (!options)
     throw new TypeError('iterateFiles: "options" argument is required.');
 
-  let inputPath   = Path.resolve(options.input);
-  let outputPath  = Path.resolve(options.output);
+  let inputPath   = Path.resolve(options.inputDir);
   let filter      = createFileNameFilter(options.includePatterns, options.excludePatterns);
 
   if (!FileSystem.existsSync(inputPath))

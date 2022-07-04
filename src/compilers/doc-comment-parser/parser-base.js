@@ -81,9 +81,6 @@ function handleDocCommentProperty(parsers, result, currentProperty, currentBody)
     body,
   };
 
-  if (!this.target)
-    this.target = {};
-
   let lowerName = currentName.toLowerCase();
   let outputName = lowerName;
   let parserResult;
@@ -114,10 +111,7 @@ function handleDocCommentProperty(parsers, result, currentProperty, currentBody)
 }
 
 function parseDocCommentSection(parsers, lines, propRE, defaultProp) {
-  if (!this.target)
-    this.target = {};
-
-  let result          = { type: this.target.type };
+  let result          = { type: this.type };
   let currentBody     = [];
   let currentProperty = defaultProp;
 

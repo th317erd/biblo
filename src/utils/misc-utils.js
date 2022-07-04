@@ -139,6 +139,44 @@ function getCompiler(options) {
   return {};
 }
 
+function getGeneratorByName(type, _name) {
+  let name = ('' + _name).replace(/[^\w_.-]+/g, '').replace(/\.+/g, '.');
+
+  if (name === 'babel')
+    name = 'typescript';
+
+  try {
+    return require(Path.resolve(__dirname, '..', 'generators', type, name));
+  } catch (error) {
+    console.error(error);
+    return;
+  }
+}
+
+function getGenerator(type, options) {
+  let generator = (options && options.generator && options.generator[type]);
+  if (generator && typeof generator.generate === 'function') {
+    return generator;
+  } else if (typeof generator === 'function') {
+    return {
+      generate: generator,
+    };
+  } else if (typeof generator === 'string') {
+    generator = getGeneratorByName(generator);
+    if (generator)
+      return generator;
+  }
+
+  let parser = (options && options.parser);
+  if (Nife.instanceOf(parser, 'string')) {
+    generator = getGeneratorByName(options.parser);
+    if (generator)
+      return generator;
+  }
+
+  return {};
+}
+
 function getRootDirsFromOptions(options) {
   let rootDir;
   let sourceControlRootDir;
@@ -162,10 +200,12 @@ function getRootDirsFromOptions(options) {
 
 module.exports = {
   collectPromises,
-  runMiddleware,
-  getParserByName,
-  getParser,
-  getCompilerByName,
   getCompiler,
+  getCompilerByName,
+  getGenerator,
+  getGeneratorByName,
+  getParser,
+  getParserByName,
   getRootDirsFromOptions,
+  runMiddleware,
 };

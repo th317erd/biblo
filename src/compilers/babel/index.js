@@ -161,7 +161,7 @@ async function compile(parsed, options) {
     if (parentClass)
       parentClass.properties.push(propertyArtifact);
 
-    console.log('CLASS PROPERTY: ', parentClassName, path.node);
+    // console.log('CLASS PROPERTY: ', parentClassName, path.node);
     artifacts.push(propertyArtifact);
   }
 
@@ -190,7 +190,7 @@ async function compile(parsed, options) {
     },
   });
 
-  artifacts = CompilerUtils.collectArtifactsIntoComments(artifacts);
+  artifacts = CompilerUtils.collectCommentsIntoArtifacts(artifacts);
   artifacts = CompilerUtils.parseDocComments(artifacts);
 
   return artifacts;
