@@ -1,5 +1,6 @@
 'use strict';
 
+const Nife        = require('nife');
 const FileSystem  = require('fs');
 const Utils       = require('./utils');
 
@@ -23,7 +24,7 @@ async function compileStrings(strings, _options) {
     return compileString(string, options);
   });
 
-  return await Utils.collectPromises(artifacts);
+  return Nife.arrayFlatten(await Utils.collectPromises(artifacts));
 }
 
 async function compileFile(fullFileName, _options) {
@@ -41,7 +42,7 @@ async function compileFiles(_options) {
     artifacts.push(compileFile(fullFileName, options));
   }, options);
 
-  return await Utils.collectPromises(artifacts);
+  return Nife.arrayFlatten(await Utils.collectPromises(artifacts));
 }
 
 module.exports = {

@@ -6,8 +6,8 @@ const Nife                = require('nife');
 const janap               = require('janap');
 const Path                = require('path');
 const FileSystem          = require('fs');
-const { constructConfig } = require('./utils');
-const { compileFiles }    = require('../src/index');
+const { constructConfig } = require('../utils');
+const { compileFiles }    = require('../index');
 
 const HELP_CONTENT = `
 Usage: biblo -i {input directory} -o {output directory} -r {root directory}
@@ -41,34 +41,36 @@ Usage: biblo -i {input directory} -o {output directory} -r {root directory}
     'compiler':   String,
   });
 
-  if (Nife.isEmpty(args.inputDir))
-    exitWithHelp();
-
-  if (Nife.isEmpty(args.outputDir))
-    exitWithHelp();
-
-  if (Nife.isEmpty(args.rootDir))
-    exitWithHelp();
-
-  args.inputDir   = Path.resolve(args.inputDir);
-  args.outputDir  = Path.resolve(args.outputDir);
-  args.rootDir    = Path.resolve(args.rootDir);
-
-  if (!FileSystem.existsSync(args.inputDir)) {
-    console.error(`Specified input directory "${args.inputDir}" does not exist.`);
-    process.exit(1);
-  }
-
-  if (!FileSystem.existsSync(args.outputDir)) {
-    console.error(`Specified output directory "${args.outputDir}" does not exist.`);
-    process.exit(1);
-  }
-
-  if (!FileSystem.existsSync(args.rootDir)) {
-    console.error(`Specified root directory "${args.rootDir}" does not exist.`);
-    process.exit(1);
-  }
-
   let options = constructConfig(args);
-  await compileFiles(options);
+
+  if (Nife.isEmpty(options.inputDir))
+    exitWithHelp();
+
+  if (Nife.isEmpty(options.outputDir))
+    exitWithHelp();
+
+  if (Nife.isEmpty(options.rootDir))
+    exitWithHelp();
+
+  options.inputDir   = Path.resolve(options.inputDir);
+  options.outputDir  = Path.resolve(options.outputDir);
+  options.rootDir    = Path.resolve(options.rootDir);
+
+  if (!FileSystem.existsSync(options.inputDir)) {
+    console.error(`Specified input directory "${options.inputDir}" does not exist.`);
+    process.exit(1);
+  }
+
+  if (!FileSystem.existsSync(options.outputDir)) {
+    console.error(`Specified output directory "${options.outputDir}" does not exist.`);
+    process.exit(1);
+  }
+
+  if (!FileSystem.existsSync(options.rootDir)) {
+    console.error(`Specified root directory "${options.rootDir}" does not exist.`);
+    process.exit(1);
+  }
+
+  let artifacts = await compileFiles(options);
+  console.log(artifacts);
 })();

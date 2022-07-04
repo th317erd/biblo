@@ -17,14 +17,19 @@ function walkFiles(path, callback, _opts) {
     let fullFileName  = Path.join(path, fileName);
     let stats          = FileSystem.lstatSync(fullFileName);
 
-    let filterResult = (typeof filter === 'function') ? filter({ fullFileName, fileName, stats, path }) : undefined;
-    if (filterResult === false)
-      continue;
+    if (stats.isDirectory()) {
+      let filterResult = (typeof filter === 'function') ? filter({ fullFileName, fileName, stats, path, excludeFiltersOnly: true }) : undefined;
+      if (filterResult === false)
+        continue;
 
-    if (stats.isDirectory())
       walkFiles(fullFileName, callback, opts);
-    else if (stats.isFile())
+    } else if (stats.isFile()) {
+      let filterResult = (typeof filter === 'function') ? filter({ fullFileName, fileName, stats, path }) : undefined;
+      if (filterResult === false)
+        continue;
+
       callback({ fullFileName, fileName, stats, path });
+    }
   }
 }
 

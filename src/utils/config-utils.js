@@ -174,7 +174,9 @@ function constructConfig(_options) {
   if (FileSystem.existsSync(bibloRCPath)) {
     try {
       let bibloRC = require(bibloRCPath);
-      options = Nife.extend(true, {}, options, bibloRC);
+      options = Nife.extend(true, {
+        inputDir: Path.dirname(bibloRCPath),
+      }, options, bibloRC);
     } catch (error) {
       console.error(`Error while attempting to load Biblo config "${bibloRCPath}": `, error);
       throw error;
