@@ -157,8 +157,6 @@ function constructConfig(_options) {
   let options = Nife.extend(
     true,
     {
-      parser:     'typescript',
-      compiler:   'typescript',
       generator:  {
         layout:   'github-wiki',
         language: 'typescript',
@@ -183,19 +181,27 @@ function constructConfig(_options) {
     }
   }
 
-  let parser    = getParser(options);
-  let compiler  = getCompiler(options);
+  let files = options.files;
+  if (Nife.isEmpty(files))
+    throw new Error('constructConfig: "files" is required, but not found.');
+
+  for (let i = 0, il = files.length; i < il; i++) {
+    let fileGroup = files[i];
+    let parser    = getParser(fileGroup);
+    let compiler  = getCompiler(fileGroup);
+
+    fileGroup.parser    = parser;
+    fileGroup.compiler  = compiler;
+
+    if (!fileGroup.parser || !fileGroup.parser.parse || !fileGroup.parser.traverse)
+      throw new Error(`constructConfig: "files[${i}].parser" is required, but not found.`);
+
+    if (!fileGroup.compiler || !fileGroup.compiler.compile)
+      throw new Error(`constructConfig: "files[${i}].compiler" is required, but not found.`);
+  }
+
   let generator = getGenerator(options);
-
-  options.parser    = parser;
-  options.compiler  = compiler;
   options.generator = generator;
-
-  if (!options.parser || !options.parser.parse || !options.parser.traverse)
-    throw new Error('constructConfig: "parser" is required, but not found.');
-
-  if (!options.compiler || !options.compiler.compile)
-    throw new Error('constructConfig: "compiler" is required, but not found.');
 
   if (!options.generator || !options.generator.layout)
     throw new Error('constructConfig: "generator" is required, but not found.');

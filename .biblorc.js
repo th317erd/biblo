@@ -6,13 +6,22 @@ const Path = require('path');
 
 module.exports = {
   rootDir:    __dirname,
-  inputDir:   Path.join(__dirname, 'src'),
-  outputDir:  Path.join(__dirname, '..', 'biblo.wiki'),
-  includePatterns: [
-    /\/src\/.*js$/
+  inputDir:   Path.resolve(__dirname),
+  outputDir:  Path.resolve(__dirname, '..', 'biblo.wiki'),
+  files: [
+    {
+      include:  /\/src\/.*\.js$/,
+      parser:   'typescript',
+      compiler: 'typescript',
+    },
+    {
+      include:  /\/docs\/.*\.md$/,
+      parser:   'markdown',
+      compiler: 'markdown',
+    },
   ],
-  excludePatterns: [
-    /node_modules|bin\/main\.js|colors\//
+  exclude: [
+    /node_modules|bin\/main\.js|colors\/|\/spec\//
   ],
   generatorOptions: {
     baseURL: 'https://github.com/th317erd/biblo/wiki',

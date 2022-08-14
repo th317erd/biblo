@@ -45,7 +45,7 @@ function getPageNameFromArtifact(artifact) {
     return Nife.get(artifact, 'comment.definition.docScope', 'global');
   };
 
-  if (artifact.type === 'ClassDeclaration')
+  if (artifact.type === 'ClassDeclaration' || artifact.type === 'Page')
     return artifact.name;
 
   return getArtifactScopeName(artifact);
@@ -64,7 +64,9 @@ function groupArtifactsIntoPages(artifacts, options) {
       artifacts:  [],
     };
 
-    if (artifact.type === 'ClassDeclaration')
+    if (artifact.type === 'Page')
+      page.type = 'page';
+    else if (artifact.type === 'ClassDeclaration')
       page.type = 'class';
     else
       page.type = 'namespace';
@@ -171,7 +173,7 @@ function findArtifactByReference(pages, reference) {
   return { page, artifact };
 }
 
-function generateSeeAlso({ languageGenerator, pages, artifact: currentArtifact, content, options }) {
+function generateSeeAlso({ pages, artifact: currentArtifact, content, options }) {
   let seeAlso = Nife.get(currentArtifact, 'comment.definition.see');
   if (Nife.isEmpty(seeAlso))
     return;
@@ -199,12 +201,17 @@ function generateSeeAlso({ languageGenerator, pages, artifact: currentArtifact, 
 }
 
 function generatePage(languageGenerator, pages, page, sidebarContent, options) {
-  let artifacts     = page.artifacts;
+  let artifacts     = page.artifacts.filter((artifact) => artifact.comment);
   let content       = [];
-  let headerContent = [ `# ${page.name}\n\n` ];
+  let headerContent = [];
   let sidebarItems  = [];
 
   artifacts = sortArtifacts(artifacts);
+
+  if (Nife.isNotEmpty(artifacts))
+    headerContent = [ `# ${page.name}\n\n` ];
+  else if (page.type === 'page')
+    content = [ page.artifacts[0].value ];
 
   sidebarItems.push(`* [${page.name}](${buildPageURL(page, options)})`);
 
@@ -240,9 +247,13 @@ function generatePage(languageGenerator, pages, page, sidebarContent, options) {
   if (Nife.isNotEmpty(sidebarItems))
     sidebarContent.push(`${sidebarItems.join('\n')}\n`);
 
-  content.push('\n\n');
+  if (Nife.isNotEmpty(artifacts))
+    content.push('\n\n');
 
-  return headerContent.concat([ '\n\n' ], content).join('');
+  if (Nife.isNotEmpty(headerContent))
+    content = headerContent.concat([ '\n\n' ], content);
+
+  return content.join('');
 }
 
 async function generatePages(pages, options) {

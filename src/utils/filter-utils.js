@@ -12,6 +12,8 @@ function createFileNameFilter(_includePatterns, _excludePatterns) {
     let args    = Object.assign({}, _args, { fullFileName: _args.fullFileName.replace(new RegExp(`${Path.sep}+`, 'g'), '/') });
 
     if (args.excludeFiltersOnly !== true) {
+      result = false;
+
       // Run include patterns first
       for (let i = 0, il = includePatterns.length; i < il; i++) {
         let pattern = includePatterns[i];
@@ -29,19 +31,21 @@ function createFileNameFilter(_includePatterns, _excludePatterns) {
       }
     }
 
-    // Exclude patterns run second
-    for (let i = 0, il = excludePatterns.length; i < il; i++) {
-      let pattern = excludePatterns[i];
-      let matchResult;
+    if (result) {
+      // Exclude patterns run second
+      for (let i = 0, il = excludePatterns.length; i < il; i++) {
+        let pattern = excludePatterns[i];
+        let matchResult;
 
-      if (typeof pattern === 'function')
-        matchResult = pattern(args);
-      else if (pattern instanceof RegExp)
-        matchResult = pattern.test(args.fullFileName);
+        if (typeof pattern === 'function')
+          matchResult = pattern(args);
+        else if (pattern instanceof RegExp)
+          matchResult = pattern.test(args.fullFileName);
 
-      if (matchResult) {
-        result = false;
-        break;
+        if (matchResult) {
+          result = false;
+          break;
+        }
       }
     }
 

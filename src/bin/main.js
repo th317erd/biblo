@@ -52,6 +52,9 @@ Usage: biblo -i {input directory} -o {output directory} -r {root directory}
   if (Nife.isEmpty(options.rootDir))
     exitWithHelp();
 
+  if (Nife.isEmpty(options.files))
+    exitWithHelp();
+
   options.inputDir   = Path.resolve(options.inputDir);
   options.outputDir  = Path.resolve(options.outputDir);
   options.rootDir    = Path.resolve(options.rootDir);

@@ -38,7 +38,7 @@ async function compileFiles(_options) {
   let options   = Utils.constructConfig(_options);
   let artifacts = [];
 
-  Utils.iterateFiles(({ fullFileName }) => {
+  Utils.iterateFiles(({ fullFileName, options }) => {
     artifacts.push(compileFile(fullFileName, options));
   }, options);
 
