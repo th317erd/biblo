@@ -1,13 +1,13 @@
 ///! `CompilerUtils` is a collection of misc
 ///! utility functions used by the AST
-///! compilers. The AST cmpilers take
+///! compilers. The AST compilers take
 ///! the parsed AST to find the comments
 ///! and attach them to their respective
 ///! artifacts.
 ///!
 ///! An "Artifact" is any given chunk of
-///! code, such as a ClassDeclaration, a
-///! FunctionDeclaration, etc...
+///! code, such as a "ClassDeclaration", a
+///! "FunctionDeclaration", etc...
 ///! "Comment Artifacts" are also internally
 ///! generated from the comments found in
 ///! the source code.
@@ -24,12 +24,25 @@ const {
 
 const docCommentParsers = require('./doc-comment-parser');
 
-function sortArtifacts(artifacts, _key) {
-  let key = _key || 'start';
+/// Sort all artifacts by source code position.
+///
+/// Return: Array<Artifact>
+///   Return a new array of artifacts, where
+///   the artifacts have been sorted based on
+///   their position in the source code.
+/// Arguments:
+///   artifacts: Array<Artifact>
+///     A list of artifacts and comment artifacts
+///     to sort.
+///   startPositionKey?: string = 'start'
+///     An optional key to pull from each artifact to specify
+///     its start position in the code.
+function sortArtifacts(artifacts, _startPositionKey) {
+  let startPositionKey = _startPositionKey || 'start';
 
   return artifacts.sort((a, b) => {
-    let x = a[key];
-    let y = b[key];
+    let x = a[startPositionKey];
+    let y = b[startPositionKey];
 
     if (x === y) {
       x = a['end'];
@@ -45,6 +58,19 @@ function sortArtifacts(artifacts, _key) {
   });
 }
 
+/// Remove duplicate artifacts from the list of artifacts.
+///
+/// An artifact is considered a duplicate if its "type",
+/// "start" position, and "end" position properties are
+/// the same.
+///
+/// Return: Array<Artifact>
+///   Return a new array of artifacts, where
+///   duplicate artifacts have been removed.
+/// Arguments:
+///   artifacts: Array<Artifact>
+///     A list of artifacts and comment artifacts
+///     to process.
 function removeDuplicateArtifacts(artifacts) {
   let artifactMap = {};
 
@@ -61,6 +87,32 @@ function removeDuplicateArtifacts(artifacts) {
   return Array.from(Object.values(artifactMap));
 }
 
+/// Check if the specified artifact is a global comment.
+///
+/// Global comments take the form:
+/// ```
+///   ///! This is a global comment.
+///   ///! There can only be one global comment per-file.
+///   ///! A global comment is designated by putting an
+///   ///! exclamation point after the triple forward
+///   ///! slashes. A global comment will appear at the
+///   ///! top of the page it specifies via the "DocScope"
+///   ///! property. All other comments in the same file
+///   ///! will also inherit any other properties defined
+///   ///! in a global comment automatically. For example,
+///   ///! all remaining comments in this file will also
+///   ///! inherit my "DocScope" property that I specify.
+///   ///!
+///   ///! DocScope: MyCustomPageName
+/// ```
+///
+/// Return: boolean
+///   Return `true` if the specified artifact is
+///   a global comment, or `false` otherwise.
+/// Arguments:
+///   artifacts: Artifact
+///     An artifact to check.
+/// See: CompilerUtils.getGlobalComment
 function isGlobalComment(artifact) {
   if (!artifact)
     return false;
@@ -77,6 +129,16 @@ function isGlobalComment(artifact) {
   return true;
 }
 
+/// Search all provided artifacts and find the first global
+/// comment. If no global comment is found, then return `undefined`.
+///
+/// Return: Artifact | undefined
+///   Return the global comment artifact specified in
+///   the source file if one exists, `undefined` otherwise.
+/// Arguments:
+///   artifacts: Array<Artifact>
+///     A list of artifacts to search.
+/// See: CompilerUtils.isGlobalComment
 function getGlobalComment(artifacts) {
   for (let i = 0, il = artifacts.length; i < il; i++) {
     let artifact = artifacts[i];
@@ -143,12 +205,22 @@ function parseDocComments(_artifacts) {
   let globalArtifact  = getGlobalComment(artifacts);
   let globalComment;
 
-  if (globalArtifact)
+  if (globalArtifact) {
     globalComment = parseDocComment(globalArtifact.value, globalArtifact);
+    artifacts = [
+      {
+        type:       'GlobalDocComment',
+        global:     true,
+        comment: Object.assign({}, globalArtifact, {
+          definition: globalComment,
+        }),
+      },
+    ].concat(artifacts);
+  }
 
   for (let i = 0, il = artifacts.length; i < il; i++) {
     let artifact = artifacts[i];
-    if (artifact.type === 'DocComment')
+    if (artifact.type === 'DocComment' || artifact.type === 'GlobalDocComment')
       continue;
 
     let comment = artifact.comment;

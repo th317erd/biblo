@@ -25,7 +25,7 @@ module.exports = createParser(
       let targetArg   = targetProperties[index];
       let targetTypes = (targetArg && targetArg.types);
 
-      let types = (!Nife.isEmpty(arg.extra)) ? parseTypes(arg.extra) : targetTypes;
+      let { types, assignment } = (!Nife.isEmpty(arg.extra)) ? parseTypes(arg.extra) : targetTypes;
 
       delete arg.extra;
 
@@ -34,6 +34,7 @@ module.exports = createParser(
         name:         arg.name,
         description:  arg.body,
         types:        types || [],
+        assignment,
       };
     });
 

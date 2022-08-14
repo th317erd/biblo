@@ -21,7 +21,7 @@
             {
               "::@id@::": 3,
               "value": {
-                "type": "Identifier",
+                "type": "FunctionArgument",
                 "start": 304,
                 "end": 305,
                 "name": "a",
@@ -31,7 +31,7 @@
             {
               "::@id@::": 4,
               "value": {
-                "type": "Identifier",
+                "type": "FunctionArgument",
                 "start": 318,
                 "end": 319,
                 "name": "b",
@@ -56,12 +56,14 @@
                   "::@id@::": 7,
                   "value": {
                     "name": "Description",
-                    "body": "\nThis is a function!\nIt does things. Who'd have thought?"
+                    "body": "\nThis is a function!\nIt does things. Who'd have thought?",
+                    "type": "Description"
                   }
                 },
                 "return": {
                   "::@id@::": 8,
                   "value": {
+                    "type": "ReturnType",
                     "name": "Return",
                     "description": "Will return a string... who knows what it will be?",
                     "types": {
@@ -78,17 +80,23 @@
                     {
                       "::@id@::": 11,
                       "value": {
+                        "type": "FunctionArgument",
+                        "name": "a",
+                        "description": "This is crazy sir!",
                         "types": {
                           "::@id@::": 12,
-                          "value": []
+                          "value": [
+                            "string"
+                          ]
                         }
                       }
                     },
                     {
                       "::@id@::": 13,
                       "value": {
-                        "name": "a",
-                        "description": "This is crazy sir!",
+                        "type": "FunctionArgument",
+                        "name": "b",
+                        "description": "Some other pointless argument",
                         "types": {
                           "::@id@::": 14,
                           "value": [
@@ -96,22 +104,10 @@
                           ]
                         }
                       }
-                    },
-                    {
-                      "::@id@::": 15,
-                      "value": {
-                        "name": "b",
-                        "description": "Some other pointless argument",
-                        "types": {
-                          "::@id@::": 16,
-                          "value": [
-                            "string"
-                          ]
-                        }
-                      }
                     }
                   ]
-                }
+                },
+                "global": false
               }
             }
           }

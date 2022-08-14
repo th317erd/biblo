@@ -23,8 +23,8 @@
             {
               "::@id@::": 3,
               "value": {
-                "type": "Identifier",
-                "genericType": "Identifier",
+                "type": "FunctionArgument",
+                "genericType": "FunctionArgument",
                 "start": 192,
                 "end": 193,
                 "name": "a",
@@ -41,8 +41,8 @@
             {
               "::@id@::": 5,
               "value": {
-                "type": "Identifier",
-                "genericType": "Identifier",
+                "type": "FunctionArgument",
+                "genericType": "FunctionArgument",
                 "start": 222,
                 "end": 223,
                 "name": "b",
@@ -91,12 +91,14 @@
                   "::@id@::": 11,
                   "value": {
                     "name": "description",
-                    "body": "This is standard test!"
+                    "body": "This is standard test!",
+                    "type": "Description"
                   }
                 },
                 "return": {
                   "::@id@::": 12,
                   "value": {
+                    "type": "ReturnType",
                     "name": "Return",
                     "description": "Gives ya a result man",
                     "types": {
@@ -113,16 +115,11 @@
                     {
                       "::@id@::": 15,
                       "value": {
-                        "types": "::@4@::"
-                      }
-                    },
-                    {
-                      "::@id@::": 16,
-                      "value": {
+                        "type": "FunctionArgument",
                         "name": "a",
                         "description": "Wacky, right?",
                         "types": {
-                          "::@id@::": 17,
+                          "::@id@::": 16,
                           "value": [
                             "string"
                           ]
@@ -130,12 +127,13 @@
                       }
                     },
                     {
-                      "::@id@::": 18,
+                      "::@id@::": 17,
                       "value": {
+                        "type": "FunctionArgument",
                         "name": "b",
                         "description": "Big fat number!",
                         "types": {
-                          "::@id@::": 19,
+                          "::@id@::": 18,
                           "value": [
                             "number"
                           ]
@@ -143,7 +141,8 @@
                       }
                     }
                   ]
-                }
+                },
+                "global": false
               }
             }
           }
@@ -151,7 +150,7 @@
       }
     },
     {
-      "::@id@::": 20,
+      "::@id@::": 19,
       "value": {
         "fileName": "/home/wyatt/Projects/biblo/spec/support/test-files/typescript/func-test-auto-args1.ts",
         "relativeFileName": "spec/support/test-files/typescript/func-test-auto-args1.ts",
@@ -167,18 +166,18 @@
         "generator": false,
         "access": "public",
         "arguments": {
-          "::@id@::": 21,
+          "::@id@::": 20,
           "value": [
             {
-              "::@id@::": 22,
+              "::@id@::": 21,
               "value": {
-                "type": "Identifier",
-                "genericType": "Identifier",
+                "type": "FunctionArgument",
+                "genericType": "FunctionArgument",
                 "start": 430,
                 "end": 431,
                 "name": "a",
                 "types": {
-                  "::@id@::": 23,
+                  "::@id@::": 22,
                   "value": [
                     "string",
                     "null",
@@ -188,15 +187,15 @@
               }
             },
             {
-              "::@id@::": 24,
+              "::@id@::": 23,
               "value": {
-                "type": "Identifier",
-                "genericType": "Identifier",
+                "type": "FunctionArgument",
+                "genericType": "FunctionArgument",
                 "start": 460,
                 "end": 461,
                 "name": "b",
                 "types": {
-                  "::@id@::": 25,
+                  "::@id@::": 24,
                   "value": [
                     "number",
                     "null"
@@ -207,14 +206,14 @@
           ]
         },
         "return": {
-          "::@id@::": 26,
+          "::@id@::": 25,
           "value": {
             "type": "Type",
             "genericType": "Type",
             "start": 479,
             "end": 494,
             "types": {
-              "::@id@::": 27,
+              "::@id@::": 26,
               "value": [
                 "string",
                 "number"
@@ -225,7 +224,7 @@
         },
         "description": "",
         "comment": {
-          "::@id@::": 28,
+          "::@id@::": 27,
           "value": {
             "type": "DocComment",
             "genericType": "Comment",
@@ -233,54 +232,50 @@
             "end": 409,
             "value": "/ This is type test!\n/ Return:\n/  This returns stuff\n/ Arguments:\n/   a:\n/     Does things, okay?\n/   b:\n/     Will blow your mind",
             "definition": {
-              "::@id@::": 29,
+              "::@id@::": 28,
               "value": {
                 "type": "FunctionDeclaration",
                 "description": {
-                  "::@id@::": 30,
+                  "::@id@::": 29,
                   "value": {
                     "name": "description",
-                    "body": "This is type test!"
+                    "body": "This is type test!",
+                    "type": "Description"
                   }
                 },
                 "return": {
-                  "::@id@::": 31,
+                  "::@id@::": 30,
                   "value": {
+                    "type": "ReturnType",
                     "name": "Return",
                     "description": "This returns stuff",
-                    "types": "::@27@::"
+                    "types": "::@26@::"
                   }
                 },
                 "arguments": {
-                  "::@id@::": 32,
+                  "::@id@::": 31,
                   "value": [
+                    {
+                      "::@id@::": 32,
+                      "value": {
+                        "type": "FunctionArgument",
+                        "name": "a",
+                        "description": "Does things, okay?",
+                        "types": "::@22@::"
+                      }
+                    },
                     {
                       "::@id@::": 33,
                       "value": {
-                        "types": "::@23@::"
-                      }
-                    },
-                    {
-                      "::@id@::": 34,
-                      "value": {
-                        "name": "a",
-                        "description": "Does things, okay?",
-                        "types": "::@25@::"
-                      }
-                    },
-                    {
-                      "::@id@::": 35,
-                      "value": {
+                        "type": "FunctionArgument",
                         "name": "b",
                         "description": "Will blow your mind",
-                        "types": {
-                          "::@id@::": 36,
-                          "value": []
-                        }
+                        "types": "::@24@::"
                       }
                     }
                   ]
-                }
+                },
+                "global": false
               }
             }
           }
@@ -288,7 +283,7 @@
       }
     },
     {
-      "::@id@::": 37,
+      "::@id@::": 34,
       "value": {
         "fileName": "/home/wyatt/Projects/biblo/spec/support/test-files/typescript/func-test-auto-args1.ts",
         "relativeFileName": "spec/support/test-files/typescript/func-test-auto-args1.ts",
@@ -304,18 +299,18 @@
         "generator": false,
         "access": "public",
         "arguments": {
-          "::@id@::": 38,
+          "::@id@::": 35,
           "value": [
             {
-              "::@id@::": 39,
+              "::@id@::": 36,
               "value": {
-                "type": "Identifier",
-                "genericType": "Identifier",
+                "type": "FunctionArgument",
+                "genericType": "FunctionArgument",
                 "start": 575,
                 "end": 576,
                 "name": "a",
                 "types": {
-                  "::@id@::": 40,
+                  "::@id@::": 37,
                   "value": [
                     "string",
                     "null",
@@ -326,15 +321,15 @@
               }
             },
             {
-              "::@id@::": 41,
+              "::@id@::": 38,
               "value": {
-                "type": "Identifier",
-                "genericType": "Identifier",
+                "type": "FunctionArgument",
+                "genericType": "FunctionArgument",
                 "start": 636,
                 "end": 637,
                 "name": "b",
                 "types": {
-                  "::@id@::": 42,
+                  "::@id@::": 39,
                   "value": [
                     "number",
                     "null"
@@ -346,14 +341,14 @@
           ]
         },
         "return": {
-          "::@id@::": 43,
+          "::@id@::": 40,
           "value": {
             "type": "Type",
             "genericType": "Type",
             "start": 655,
             "end": 661,
             "types": {
-              "::@id@::": 44,
+              "::@id@::": 41,
               "value": [
                 "string"
               ]
@@ -363,7 +358,7 @@
         },
         "description": "",
         "comment": {
-          "::@id@::": 45,
+          "::@id@::": 42,
           "value": {
             "type": "DocComment",
             "genericType": "Comment",
@@ -371,45 +366,50 @@
             "end": 528,
             "value": "/ This is an inline test!",
             "definition": {
-              "::@id@::": 46,
+              "::@id@::": 43,
               "value": {
                 "type": "FunctionDeclaration",
                 "description": {
-                  "::@id@::": 47,
+                  "::@id@::": 44,
                   "value": {
                     "name": "description",
-                    "body": "This is an inline test!"
+                    "body": "This is an inline test!",
+                    "type": "Description"
                   }
                 },
                 "arguments": {
-                  "::@id@::": 48,
+                  "::@id@::": 45,
                   "value": [
                     {
-                      "::@id@::": 49,
+                      "::@id@::": 46,
                       "value": {
+                        "type": "FunctionArgument",
                         "name": "a",
                         "description": "\"a\" does things...",
-                        "types": "::@40@::"
+                        "types": "::@37@::"
                       }
                     },
                     {
-                      "::@id@::": 50,
+                      "::@id@::": 47,
                       "value": {
+                        "type": "FunctionArgument",
                         "name": "b",
                         "description": "b does some other things",
-                        "types": "::@42@::"
+                        "types": "::@39@::"
                       }
                     }
                   ]
                 },
                 "return": {
-                  "::@id@::": 51,
+                  "::@id@::": 48,
                   "value": {
+                    "type": "ReturnType",
                     "name": "return",
                     "description": "Return a string please!",
-                    "types": "::@44@::"
+                    "types": "::@41@::"
                   }
-                }
+                },
+                "global": false
               }
             }
           }

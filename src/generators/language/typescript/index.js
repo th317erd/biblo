@@ -23,7 +23,8 @@ function generateDescription(artifact) {
   return description;
 }
 
-function generateFunctionSignature(artifact) {
+function generateFunctionSignature(artifact, _options) {
+  let options     = _options || {};
   let parts       = [ (artifact.parentClass) ? `\`${artifact.parentClass.name}::${artifact.name}\`` : `function \`${artifact.name}\``, '(' ];
   let args        = Nife.get(artifact, 'comment.definition.arguments');
   let outputArgs  = [];
@@ -56,8 +57,9 @@ function generateFunctionSignature(artifact) {
   return parts.join('');
 }
 
-function generateArgumentSignature(artifact) {
-  let parts = [ '`', artifact.name, '`' ];
+function generateArgumentSignature(artifact, _options) {
+  let options = _options || {};
+  let parts   = [ '`', artifact.name, '`' ];
   if (artifact.optional)
     parts.push('?');
 
@@ -67,14 +69,19 @@ function generateArgumentSignature(artifact) {
     parts.push(typeStr);
   }
 
+  if (options.fullDescription && artifact.assignment) {
+    parts.push(' ');
+    parts.push(`*(Default: \`${artifact.assignment}\`)*`);
+  }
+
   return parts.join('');
 }
 
-function generateSignature(artifact) {
+function generateSignature(artifact, options) {
   if (artifact.type === 'FunctionDeclaration')
-    return generateFunctionSignature(artifact);
+    return generateFunctionSignature(artifact, options);
   else if (artifact.type === 'FunctionArgument')
-    return generateArgumentSignature(artifact);
+    return generateArgumentSignature(artifact, options);
 
   throw new Error(`Unsupported type: ${artifact.type}`);
 }

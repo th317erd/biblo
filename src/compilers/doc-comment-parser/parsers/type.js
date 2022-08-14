@@ -11,11 +11,15 @@ module.exports = createParser(
   function(result, args) {
     let targetType = this.types;
     let types;
+    let assignment;
 
-    if (Nife.isNotEmpty(args.extra))
-      types = parseTypes(args.extra);
-    else if (targetType)
+    if (Nife.isNotEmpty(args.extra)) {
+      let { types: _types, assignment: _assignment } = parseTypes(args.extra);
+      types = _types;
+      assignment = _assignment;
+    } else if (targetType) {
       types = targetType.types;
+    }
 
     delete args.extra;
 

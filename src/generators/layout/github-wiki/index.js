@@ -1,5 +1,6 @@
 'use strict';
 
+const Util        = require('util');
 const Nife        = require('nife');
 const Path        = require('path');
 const FileSystem  = require('fs');
@@ -99,46 +100,108 @@ function sortArtifacts(artifacts) {
   });
 }
 
-function hasArguments(artifact) {
-  let args = Nife.get(artifact, 'comment.definition.arguments');
-  if (Nife.isEmpty(args))
-    args = artifact.arguments;
-
-  if (Nife.isEmpty(args))
-    return false;
-
-  return true;
-}
-
-function iterateArguments(artifact, callback) {
-  let args = Nife.get(artifact, 'comment.definition.arguments');
-  if (Nife.isEmpty(args))
-    args = artifact.arguments;
-
-  if (Nife.isEmpty(args))
-    return;
-
-  for (let i = 0, il = args.length; i < il; i++) {
-    let arg = args[i];
-    callback(arg, i);
-  }
-}
-
 function punctuate(_description) {
   if (!_description)
     return '';
 
   let description = _description.trim();
 
-  if (!(/[!?.]$/).test(description))
+  if (!(/[!?.`]$/).test(description))
     return `${description}.`;
 
   return description;
 }
 
-function generatePage(languageGenerator, page, sidebarContent, options) {
+function generateArgs({ languageGenerator, artifact, content }) {
+  let args = Nife.get(artifact, 'comment.definition.arguments');
+  if (Nife.isEmpty(args))
+    args = artifact.arguments;
+
+  if (Nife.isNotEmpty(args)) {
+    content.push('>\n> Arguments:\n');
+    for (let i = 0, il = args.length; i < il; i++) {
+      let arg       = args[i];
+      let signature = languageGenerator.generateSignature(arg, { fullDescription: true });
+
+      content.push(`>   * ${signature}\n`);
+
+      let description = arg.description;
+      if (Nife.isNotEmpty(description))
+        content.push(`>      > ${punctuate(description).replace(/\n/g, '\n>      > ')}\n`);
+    }
+  }
+}
+
+function generateReturn({ languageGenerator, artifact, content }) {
+  let returnType = Nife.get(artifact, 'comment.definition.return');
+  if (Nife.isEmpty(returnType))
+    returnType = artifact['return'];
+
+  if (Nife.isNotEmpty(returnType)) {
+    let typeStr = languageGenerator.generateTypes(returnType.types);
+    let description = returnType.description;
+
+    if (Nife.isNotEmpty(typeStr))
+      content.push(`>\n> Return value: ${typeStr}\n`);
+    else
+      content.push('>\n> Return value:\n');
+
+    if (Nife.isNotEmpty(description))
+      content.push(`>  > ${punctuate(description).replace(/\n/g, '\n>  > ')}\n`);
+  }
+}
+
+function findArtifactByReference(pages, reference) {
+  let parts     = reference.split(/[:.]+/g).map((part) => part.trim()).filter(Boolean);
+  let pageName  = parts[0];
+  let page      = pages[pageName];
+
+  if (!page)
+    return;
+
+  let referenceName = parts[1];
+  if (!referenceName)
+    return page;
+
+  let artifacts = page.artifacts;
+  let artifact  = artifacts.find((artifact) => {
+    return (artifact.name === referenceName);
+  });
+
+  return { page, artifact };
+}
+
+function generateSeeAlso({ languageGenerator, pages, artifact: currentArtifact, content, options }) {
+  let seeAlso = Nife.get(currentArtifact, 'comment.definition.see');
+  if (Nife.isEmpty(seeAlso))
+    return;
+
+  let subContent = [];
+  for (let i = 0, il = seeAlso.length; i < il; i++) {
+    let arg = seeAlso[i];
+    if (!arg || !arg.name)
+      continue;
+
+    let { page, artifact } = findArtifactByReference(pages, arg.name);
+    if (!page && !artifact) {
+      console.warn(`Unable to find "See Also" reference: "${arg.name}"`);
+      continue;
+    }
+
+    if (!artifact)
+      subContent.push(`[${page.name}](${buildPageURL(page, options)})`);
+    else
+      subContent.push(`[${artifact.name}](${buildArtifactURL(page, artifact, options)})`);
+  }
+
+  if (Nife.isNotEmpty(subContent))
+    content.push(`>\n> See also: ${subContent.join(', ')}\n`);
+}
+
+function generatePage(languageGenerator, pages, page, sidebarContent, options) {
   let artifacts     = page.artifacts;
   let content       = [];
+  let headerContent = [ `# ${page.name}\n\n` ];
   let sidebarItems  = [];
 
   artifacts = sortArtifacts(artifacts);
@@ -152,6 +215,14 @@ function generatePage(languageGenerator, page, sidebarContent, options) {
     if (!comment)
       continue;
 
+    if (artifact.type === 'GlobalDocComment') {
+      let descriptionBody = Nife.get(comment, 'definition.description.body');
+      if (!Nife.isEmpty(descriptionBody))
+        headerContent.push(descriptionBody);
+
+      continue;
+    }
+
     sidebarItems.push(`  * [${artifact.name}](${buildArtifactURL(page, artifact, options)})`);
 
     content.push(`#### <a name="${buildArtifactID(artifact)}"></a>${languageGenerator.generateSignature(artifact)}\n`);
@@ -159,36 +230,11 @@ function generatePage(languageGenerator, page, sidebarContent, options) {
     let description = punctuate(languageGenerator.generateDescription(artifact)).replace(/\n/g, '\n> ');
     content.push(`> ${description}\n`);
 
-    if (hasArguments(artifact)) {
-      content.push('>\n> Arguments:\n');
-      iterateArguments(artifact, (arg) => {
-        let signature = languageGenerator.generateSignature(arg);
-        content.push(`>   * ${signature}\n`);
+    generateArgs({ languageGenerator, artifact, content });
+    generateReturn({ languageGenerator, artifact, content });
+    generateSeeAlso({ languageGenerator, pages, artifact, content });
 
-        let description = arg.description;
-        if (Nife.isNotEmpty(description))
-          content.push(`>      > ${punctuate(description).replace(/\n/g, '\n>      > ')}\n`);
-      });
-    }
-
-    let returnType = Nife.get(artifact, 'comment.definition.return');
-    if (Nife.isEmpty(returnType))
-      returnType = artifact['return'];
-
-    if (Nife.isNotEmpty(returnType)) {
-      let typeStr = languageGenerator.generateTypes(returnType.types);
-      let description = returnType.description;
-
-      if (Nife.isNotEmpty(typeStr))
-        content.push(`>\n> Return value: ${typeStr}\n`);
-      else
-        content.push('>\n> Return value:\n');
-
-      if (Nife.isNotEmpty(description))
-        content.push(`>  > ${punctuate(description).replace(/\n/g, '\n>  > ')}\n`);
-    }
-
-    content.push('\n');
+    content.push('> \n> <br> \n\n<br>\n\n');
   }
 
   if (Nife.isNotEmpty(sidebarItems))
@@ -196,7 +242,7 @@ function generatePage(languageGenerator, page, sidebarContent, options) {
 
   content.push('\n\n');
 
-  return content.join('');
+  return headerContent.concat([ '\n\n' ], content).join('');
 }
 
 async function generatePages(pages, options) {
@@ -211,8 +257,9 @@ async function generatePages(pages, options) {
   for (let i = 0, il = pageNames.length; i < il; i++) {
     let pageName        = pageNames[i];
     let page            = pages[pageName];
+
     let outputFileName  = Path.join(outputDir, `${page.fileName}.md`);
-    let outputContent   = generatePage(languageGenerator, page, sidebarContent, options);
+    let outputContent   = generatePage(languageGenerator, pages, page, sidebarContent, options);
 
     FileSystem.writeFileSync(outputFileName, outputContent, 'utf8');
   }

@@ -12,10 +12,12 @@ module.exports = createParser(
     let targetReturn = this['return'];
     let types;
 
-    if (Nife.isNotEmpty(args.extra))
-      types = parseTypes(args.extra);
-    else if (targetReturn)
+    if (Nife.isNotEmpty(args.extra)) {
+      let { types: _types } = parseTypes(args.extra);
+      types = _types;
+    } else if (targetReturn) {
       types = targetReturn.types;
+    }
 
     delete args.extra;
 

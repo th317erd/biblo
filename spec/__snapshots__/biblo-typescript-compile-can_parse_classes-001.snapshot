@@ -38,13 +38,15 @@
                   "::@id@::": 5,
                   "value": {
                     "name": "description",
-                    "body": "This is a test"
+                    "body": "This is a test",
+                    "type": "Description"
                   }
                 },
                 "arguments": {
                   "::@id@::": 6,
                   "value": []
-                }
+                },
+                "global": false
               }
             }
           }
@@ -134,8 +136,8 @@
                     {
                       "::@id@::": 16,
                       "value": {
-                        "type": "Identifier",
-                        "genericType": "Identifier",
+                        "type": "FunctionArgument",
+                        "genericType": "FunctionArgument",
                         "start": 408,
                         "end": 417,
                         "name": "feetCount",
@@ -182,7 +184,8 @@
                           "::@id@::": 22,
                           "value": {
                             "name": "description",
-                            "body": "Some of us have a hundred feet... so what?\nAre you feetist?"
+                            "body": "Some of us have a hundred feet... so what?\nAre you feetist?",
+                            "type": "Description"
                           }
                         },
                         "arguments": {
@@ -191,30 +194,24 @@
                             {
                               "::@id@::": 24,
                               "value": {
-                                "types": "::@17@::"
-                              }
-                            },
-                            {
-                              "::@id@::": 25,
-                              "value": {
+                                "type": "FunctionArgument",
                                 "name": "feetCount",
                                 "description": "Specify the number of feet the fish has",
-                                "types": {
-                                  "::@id@::": 26,
-                                  "value": []
-                                }
+                                "types": "::@17@::"
                               }
                             }
                           ]
                         },
                         "return": {
-                          "::@id@::": 27,
+                          "::@id@::": 25,
                           "value": {
+                            "type": "ReturnType",
                             "name": "return",
                             "description": "",
                             "types": "::@19@::"
                           }
-                        }
+                        },
+                        "global": false
                       }
                     }
                   }
@@ -224,7 +221,7 @@
           ]
         },
         "comment": {
-          "::@id@::": 28,
+          "::@id@::": 26,
           "value": {
             "type": "DocComment",
             "genericType": "Comment",
@@ -232,20 +229,22 @@
             "end": 128,
             "value": "/ This class is such an animal!\n/ Who left the barn door open?",
             "definition": {
-              "::@id@::": 29,
+              "::@id@::": 27,
               "value": {
                 "type": "ClassDeclaration",
                 "description": {
-                  "::@id@::": 30,
+                  "::@id@::": 28,
                   "value": {
                     "name": "description",
-                    "body": "This class is such an animal!\nWho left the barn door open?"
+                    "body": "This class is such an animal!\nWho left the barn door open?",
+                    "type": "Description"
                   }
                 },
                 "arguments": {
-                  "::@id@::": 31,
+                  "::@id@::": 29,
                   "value": []
-                }
+                },
+                "global": false
               }
             }
           }
@@ -256,7 +255,7 @@
     "::@9@::",
     "::@14@::",
     {
-      "::@id@::": 32,
+      "::@id@::": 30,
       "value": {
         "fileName": "/home/wyatt/Projects/biblo/spec/support/test-files/typescript/class-test-1.ts",
         "relativeFileName": "spec/support/test-files/typescript/class-test-1.ts",
@@ -267,10 +266,10 @@
         "end": 691,
         "name": "Human",
         "properties": {
-          "::@id@::": 33,
+          "::@id@::": 31,
           "value": [
             {
-              "::@id@::": 34,
+              "::@id@::": 32,
               "value": {
                 "type": "PropertyDeclaration",
                 "genericType": "PropertyDeclaration",
@@ -278,14 +277,14 @@
                 "end": 615,
                 "name": "soulless",
                 "types": {
-                  "::@id@::": 35,
+                  "::@id@::": 33,
                   "value": [
                     "boolean"
                   ]
                 },
-                "parentClass": "::@32@::",
+                "parentClass": "::@30@::",
                 "comment": {
-                  "::@id@::": 36,
+                  "::@id@::": 34,
                   "value": {
                     "type": "DocComment",
                     "genericType": "Comment",
@@ -293,20 +292,22 @@
                     "end": 604,
                     "value": "/ Do you have a soul?",
                     "definition": {
-                      "::@id@::": 37,
+                      "::@id@::": 35,
                       "value": {
                         "type": "PropertyDeclaration",
                         "description": {
-                          "::@id@::": 38,
+                          "::@id@::": 36,
                           "value": {
                             "name": "description",
-                            "body": "Do you have a soul?"
+                            "body": "Do you have a soul?",
+                            "type": "Description"
                           }
                         },
                         "arguments": {
-                          "::@id@::": 39,
+                          "::@id@::": 37,
                           "value": []
-                        }
+                        },
+                        "global": false
                       }
                     }
                   }
@@ -316,10 +317,10 @@
           ]
         },
         "methods": {
-          "::@id@::": 40,
+          "::@id@::": 38,
           "value": [
             {
-              "::@id@::": 41,
+              "::@id@::": 39,
               "value": {
                 "fileName": "/home/wyatt/Projects/biblo/spec/support/test-files/typescript/class-test-1.ts",
                 "relativeFileName": "spec/support/test-files/typescript/class-test-1.ts",
@@ -334,20 +335,20 @@
                 "async": false,
                 "generator": false,
                 "access": "public",
-                "parentClass": "::@32@::",
+                "parentClass": "::@30@::",
                 "arguments": {
-                  "::@id@::": 42,
+                  "::@id@::": 40,
                   "value": []
                 },
                 "return": {
-                  "::@id@::": 43,
+                  "::@id@::": 41,
                   "value": {
                     "type": "Type",
                     "genericType": "Type",
                     "start": 629,
                     "end": 689,
                     "types": {
-                      "::@id@::": 44,
+                      "::@id@::": 42,
                       "value": [
                         "Human"
                       ]
@@ -359,7 +360,7 @@
           ]
         },
         "comment": {
-          "::@id@::": 45,
+          "::@id@::": 43,
           "value": {
             "type": "DocComment",
             "genericType": "Comment",
@@ -367,27 +368,29 @@
             "end": 549,
             "value": "/ Humans are the most animal of animals\n/ They also bark when they are stupid",
             "definition": {
-              "::@id@::": 46,
+              "::@id@::": 44,
               "value": {
                 "type": "ClassDeclaration",
                 "description": {
-                  "::@id@::": 47,
+                  "::@id@::": 45,
                   "value": {
                     "name": "description",
-                    "body": "Humans are the most animal of animals\nThey also bark when they are stupid"
+                    "body": "Humans are the most animal of animals\nThey also bark when they are stupid",
+                    "type": "Description"
                   }
                 },
                 "arguments": {
-                  "::@id@::": 48,
+                  "::@id@::": 46,
                   "value": []
-                }
+                },
+                "global": false
               }
             }
           }
         }
       }
     },
-    "::@34@::",
-    "::@41@::"
+    "::@32@::",
+    "::@39@::"
   ]
 }

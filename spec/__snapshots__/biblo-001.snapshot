@@ -50,13 +50,15 @@
                           "::@id@::": 7,
                           "value": {
                             "name": "description",
-                            "body": "Specify the number of feet for this animal"
+                            "body": "Specify the number of feet for this animal",
+                            "type": "Description"
                           }
                         },
                         "arguments": {
                           "::@id@::": 8,
                           "value": []
-                        }
+                        },
+                        "global": false
                       }
                     }
                   }
@@ -105,7 +107,7 @@
                     {
                       "::@id@::": 14,
                       "value": {
-                        "type": "Identifier",
+                        "type": "FunctionArgument",
                         "start": 343,
                         "end": 352,
                         "name": "feetCount",
@@ -130,7 +132,8 @@
                           "::@id@::": 17,
                           "value": {
                             "name": "description",
-                            "body": "Some of us have a hundred feet... so what?\nAre you feetist?"
+                            "body": "Some of us have a hundred feet... so what?\nAre you feetist?",
+                            "type": "Description"
                           }
                         },
                         "arguments": {
@@ -139,19 +142,11 @@
                             {
                               "::@id@::": 19,
                               "value": {
-                                "types": {
-                                  "::@id@::": 20,
-                                  "value": []
-                                }
-                              }
-                            },
-                            {
-                              "::@id@::": 21,
-                              "value": {
+                                "type": "FunctionArgument",
                                 "name": "feetCount",
                                 "description": "Specify the number of feet the fish has",
                                 "types": {
-                                  "::@id@::": 22,
+                                  "::@id@::": 20,
                                   "value": [
                                     "number"
                                   ]
@@ -161,12 +156,14 @@
                           ]
                         },
                         "return": {
-                          "::@id@::": 23,
+                          "::@id@::": 21,
                           "value": {
+                            "type": "ReturnType",
                             "name": "return",
                             "types": "::@12@::"
                           }
-                        }
+                        },
+                        "global": false
                       }
                     }
                   }
@@ -176,7 +173,7 @@
           ]
         },
         "comment": {
-          "::@id@::": 24,
+          "::@id@::": 22,
           "value": {
             "type": "DocComment",
             "genericType": "Comment",
@@ -184,20 +181,22 @@
             "end": 81,
             "value": "/ This class is such an animal!\n/ Who left the barn door open?",
             "definition": {
-              "::@id@::": 25,
+              "::@id@::": 23,
               "value": {
                 "type": "ClassDeclaration",
                 "description": {
-                  "::@id@::": 26,
+                  "::@id@::": 24,
                   "value": {
                     "name": "description",
-                    "body": "This class is such an animal!\nWho left the barn door open?"
+                    "body": "This class is such an animal!\nWho left the barn door open?",
+                    "type": "Description"
                   }
                 },
                 "arguments": {
-                  "::@id@::": 27,
+                  "::@id@::": 25,
                   "value": []
-                }
+                },
+                "global": false
               }
             }
           }
@@ -207,7 +206,7 @@
     "::@3@::",
     "::@10@::",
     {
-      "::@id@::": 28,
+      "::@id@::": 26,
       "value": {
         "fileName": "/home/wyatt/Projects/biblo/spec/support/test-files/javascript/class-test-1.js",
         "relativeFileName": "spec/support/test-files/javascript/class-test-1.js",
@@ -218,10 +217,10 @@
         "end": 659,
         "name": "Human",
         "properties": {
-          "::@id@::": 29,
+          "::@id@::": 27,
           "value": [
             {
-              "::@id@::": 30,
+              "::@id@::": 28,
               "value": {
                 "type": "PropertyDeclaration",
                 "genericType": "PropertyDeclaration",
@@ -231,23 +230,23 @@
                 "static": false,
                 "access": "public",
                 "types": {
-                  "::@id@::": 31,
+                  "::@id@::": 29,
                   "value": [
                     "boolean"
                   ]
                 },
                 "defaultValue": "false",
-                "parentClass": "::@28@::",
+                "parentClass": "::@26@::",
                 "description": ""
               }
             }
           ]
         },
         "methods": {
-          "::@id@::": 32,
+          "::@id@::": 30,
           "value": [
             {
-              "::@id@::": 33,
+              "::@id@::": 31,
               "value": {
                 "fileName": "/home/wyatt/Projects/biblo/spec/support/test-files/javascript/class-test-1.js",
                 "relativeFileName": "spec/support/test-files/javascript/class-test-1.js",
@@ -261,16 +260,16 @@
                 "async": false,
                 "generator": false,
                 "isConstructor": true,
-                "parentClass": "::@28@::",
+                "parentClass": "::@26@::",
                 "return": {
-                  "::@id@::": 34,
+                  "::@id@::": 32,
                   "value": {
                     "type": "Type",
                     "genericType": "Type",
                     "start": 597,
                     "end": 657,
                     "types": {
-                      "::@id@::": 35,
+                      "::@id@::": 33,
                       "value": [
                         "Human"
                       ]
@@ -278,7 +277,7 @@
                   }
                 },
                 "arguments": {
-                  "::@id@::": 36,
+                  "::@id@::": 34,
                   "value": []
                 }
               }
@@ -286,7 +285,7 @@
           ]
         },
         "comment": {
-          "::@id@::": 37,
+          "::@id@::": 35,
           "value": {
             "type": "DocComment",
             "genericType": "Comment",
@@ -294,32 +293,28 @@
             "end": 544,
             "value": "/ Humans are the most animal of animals\n/ They also bark when they are stupid\n/ Properties:\n/   soulless: boolean\n/     Do you have a soul?",
             "definition": {
-              "::@id@::": 38,
+              "::@id@::": 36,
               "value": {
                 "type": "ClassDeclaration",
                 "description": {
-                  "::@id@::": 39,
+                  "::@id@::": 37,
                   "value": {
                     "name": "description",
-                    "body": "Humans are the most animal of animals\nThey also bark when they are stupid"
+                    "body": "Humans are the most animal of animals\nThey also bark when they are stupid",
+                    "type": "Description"
                   }
                 },
                 "properties": {
-                  "::@id@::": 40,
+                  "::@id@::": 38,
                   "value": [
                     {
-                      "::@id@::": 41,
+                      "::@id@::": 39,
                       "value": {
-                        "types": "::@31@::"
-                      }
-                    },
-                    {
-                      "::@id@::": 42,
-                      "value": {
+                        "type": "PropertyDeclaration",
                         "name": "soulless",
                         "description": "Do you have a soul?",
                         "types": {
-                          "::@id@::": 43,
+                          "::@id@::": 40,
                           "value": [
                             "boolean"
                           ]
@@ -329,16 +324,17 @@
                   ]
                 },
                 "arguments": {
-                  "::@id@::": 44,
+                  "::@id@::": 41,
                   "value": []
-                }
+                },
+                "global": false
               }
             }
           }
         }
       }
     },
-    "::@30@::",
-    "::@33@::"
+    "::@28@::",
+    "::@31@::"
   ]
 }

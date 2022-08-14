@@ -21,7 +21,7 @@
             {
               "::@id@::": 3,
               "value": {
-                "type": "Identifier",
+                "type": "FunctionArgument",
                 "start": 190,
                 "end": 191,
                 "name": "a",
@@ -31,7 +31,7 @@
             {
               "::@id@::": 4,
               "value": {
-                "type": "Identifier",
+                "type": "FunctionArgument",
                 "start": 218,
                 "end": 219,
                 "name": "b",
@@ -56,12 +56,14 @@
                   "::@id@::": 7,
                   "value": {
                     "name": "Description",
-                    "body": "\nThis is a function!\nIt does things. Who'd have thought?"
+                    "body": "\nThis is a function!\nIt does things. Who'd have thought?",
+                    "type": "Description"
                   }
                 },
                 "return": {
                   "::@id@::": 8,
                   "value": {
+                    "type": "ReturnType",
                     "name": "Return",
                     "description": "Will return a string... who knows what it will be?",
                     "types": {
@@ -78,6 +80,7 @@
                     {
                       "::@id@::": 11,
                       "value": {
+                        "type": "FunctionArgument",
                         "name": "a",
                         "description": ""
                       }
@@ -85,12 +88,14 @@
                     {
                       "::@id@::": 12,
                       "value": {
+                        "type": "FunctionArgument",
                         "name": "b",
                         "description": ""
                       }
                     }
                   ]
-                }
+                },
+                "global": false
               }
             }
           }

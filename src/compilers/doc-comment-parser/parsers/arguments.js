@@ -15,8 +15,17 @@ module.exports = createParser(
       return;
 
     let lines       = body.split(/\n+/g);
-    let parsedArgs  = parseDocCommentSection.call(this, {}, lines, /^\s*(\w+):(.*)$/);
-    let targetArgs  = this.arguments || [];
+    let parsedArgs  = parseDocCommentSection.call(this,
+      {},
+      lines,
+      /^\s*([\w$]+)\s*(\?)?\s*:(.*)$/,
+      null,
+      (name, optional, extra) => {
+        return { name: name.trim(), extra: extra.trim(), optional: (optional === '?') };
+      },
+    );
+
+    let targetArgs = this.arguments || [];
 
     delete parsedArgs.type;
     parsedArgs = Nife.arrayFlatten(Array.from(Object.values(parsedArgs)));
@@ -25,7 +34,7 @@ module.exports = createParser(
       let targetArg   = targetArgs[index];
       let targetTypes = (targetArg && targetArg.types);
 
-      let types = (!Nife.isEmpty(arg.extra)) ? parseTypes(arg.extra) : targetTypes;
+      let { types, assignment } = (!Nife.isEmpty(arg.extra)) ? parseTypes(arg.extra) : targetTypes;
 
       delete arg.extra;
 
@@ -33,7 +42,9 @@ module.exports = createParser(
         type:         'FunctionArgument',
         name:         arg.name,
         description:  arg.body,
+        optional:     arg.optional,
         types:        types || [],
+        assignment,
       };
     });
 

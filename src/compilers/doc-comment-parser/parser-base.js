@@ -2,7 +2,7 @@
 
 const Nife = require('nife');
 
-const DEFAULT_PROP_REGEX = (/^\/!?[\s\t]{0,1}(\w+)\s*:(.*)$/);
+const DEFAULT_PROP_REGEX = (/^\/!?[\s\t]{0,1}([\w$]+)\s*:(.*)$/);
 
 function createParser(parserFunc, defaultFunc, name, injectDefault) {
   parserFunc.defaultHandler = defaultFunc;
@@ -59,31 +59,33 @@ function expand(_str, parts) {
   return result;
 }
 
-function parseTypes(str) {
-  if (Nife.isEmpty(str))
-    return [];
+function parseTypes(_str) {
+  let str = _str;
+  if (Nife.isEmpty(_str))
+    return { types: [], assignment: undefined };
+
+  let equalsIndex = str.indexOf('=');
+  let assignment;
+
+  if (equalsIndex >= 0) {
+    assignment = str.substring(equalsIndex + 1).trim();
+    str = str.substring(0, equalsIndex).trim();
+  }
 
   let result  = substitute(str, /<[^>]+>/g);
   let types   = result.result.split(/\|/g).map((part) => {
-    console.log('Expanding type: ', part, result.parts);
     return expand(part, result.parts);
   });
 
-  console.log(types);
-
   types = types.map((type) => type.trim()).filter(Boolean);
 
-  return types;
+  return { types, assignment };
 }
 
 function handleDocCommentProperty(parsers, result, currentProperty, currentBody) {
   let body        = currentBody.join('\n').trim();
   let currentName = currentProperty.name;
-  let args        = {
-    name:   currentName,
-    extra:  currentProperty.extra,
-    body,
-  };
+  let args        = Object.assign({}, currentProperty, { body });
 
   let lowerName = currentName.toLowerCase();
   let outputName = lowerName;
@@ -114,16 +116,17 @@ function handleDocCommentProperty(parsers, result, currentProperty, currentBody)
     result[outputName] = parserResult;
 }
 
-function parseDocCommentSection(parsers, lines, propRE, defaultProp) {
+function parseDocCommentSection(parsers, lines, propRE, defaultProp, _propertyFetcher) {
   let result          = { type: this.type };
   let currentBody     = [];
   let currentProperty = defaultProp;
+  let propertyFetcher = (_propertyFetcher) ? _propertyFetcher : (name, extra) => ({ name: name.trim(), extra: extra.trim() });
 
   for (let i = 0, il = lines.length; i < il; i++) {
     let line        = lines[i];
     let isProperty  = false;
 
-    line.replace(propRE, (m, name, extra) => {
+    line.replace(propRE, (m, ...args) => {
       isProperty = true;
 
       if ((/^\/!/).test(m))
@@ -134,7 +137,7 @@ function parseDocCommentSection(parsers, lines, propRE, defaultProp) {
         currentBody = [];
       }
 
-      currentProperty = { name: name.trim(), extra: extra.trim() };
+      currentProperty = propertyFetcher(...args);
     });
 
     if (isProperty)
