@@ -6,7 +6,7 @@ function generateTypes(types) {
   if (Nife.isEmpty(types))
     return '';
 
-  return types.join(' | ').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return types.join(' | ');//.replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 function generateDescription(artifact) {
@@ -51,7 +51,7 @@ function generateFunctionSignature(artifact, _options) {
   if (returnType) {
     let typeStr = generateTypes(returnType.types);
     if (typeStr)
-      parts.push(`: ${typeStr}`);
+      parts.push(`: \`${typeStr}\``);
   }
 
   return parts.join('');
@@ -66,7 +66,7 @@ function generateArgumentSignature(artifact, _options) {
   let typeStr = generateTypes(artifact.types);
   if (Nife.isNotEmpty(typeStr)) {
     parts.push(': ');
-    parts.push(typeStr);
+    parts.push(`\`${typeStr}\``);
   }
 
   if (options.fullDescription && artifact.assignment) {

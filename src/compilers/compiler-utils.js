@@ -189,6 +189,61 @@ function collectCommentsIntoArtifacts(_artifacts) {
   return finalArtifacts;
 }
 
+/// Parse a document comment into its parts.
+/// This right here is a document comment.
+/// They are the comments in the code that
+/// begin with triple forward slash.
+///
+/// Example return "ParsedComment" object:
+/// ```javascript
+/// {
+///   "description": {
+///     "type": "Description",
+///     "body": "Parse a document comment into its parts. This right here is a document comment..."
+///   },
+///   "arguments": [
+///     {
+///       "type":         "FunctionArgument",
+///       "name":         "comment",
+///       "description":  "The document comment to parse.",
+///       "types":        [ "string" ]
+///     },
+///     ...
+///   ],
+///   "docScope": "CompilerUtils",
+///   "return": {
+///     "type":         "ReturnType",
+///     "name":         "return",
+///     "description":  "A parsed document comment object.",
+///     "types":        [ "ParsedComment" ]
+///   },
+///   "properties": [
+///     {
+///       "type":         "PropertyDeclaration",
+///       "name":         "ThePropertyOfAClass",
+///       "description":  "Some description for this property.",
+///       "types":        [ "boolean" ]
+///     }
+///   ],
+///   "see": [
+///     {
+///       "type":         "SeeAlso",
+///       "name":         "CompilerUtils.parseDocComments",
+///     }
+///   ],
+///   "types": [ "string", "Array<number>" ],
+///   ...,
+/// }
+/// ```
+///
+/// Return: Array<Artifact>
+///   A parsed document comment object.
+/// Arguments:
+///   comment: string
+///     The document comment to parse.
+///   artifact: Artifact
+///     The artifact that is related to this comment.
+/// See: CompilerUtils.parseDocComments
 function parseDocComment(comment, artifact) {
   let lines = comment.split(/\n+/g);
   return parseDocCommentSection.call(
@@ -200,6 +255,23 @@ function parseDocComment(comment, artifact) {
   );
 }
 
+/// Iterate all artifacts, finding the comment
+/// artifacts. When a comment artifact is found
+/// parse it using <see>CompilerUtils.parseDocComment</see>.
+/// Parsed comments are injected into the related
+/// artifact under the "comment" key. After all
+/// comment artifacts have been parsed and stored
+/// on "comment" keys inside the artifacts, then
+/// this function returns an array of the original
+/// artifacts.
+///
+/// Return: Array<Artifact>
+///   All artifacts, with their related comments parsed and stored inside them via the "comment" key.
+/// Arguments:
+///   artifacts: Array<Artifact>
+///     All artifacts to process.
+/// See: CompilerUtils.parseDocComment
+/// Note: This will mutate the incoming "artifacts" by adding a "comment" key to some
 function parseDocComments(_artifacts) {
   let artifacts       = _artifacts;
   let globalArtifact  = getGlobalComment(artifacts);

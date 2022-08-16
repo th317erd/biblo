@@ -1,6 +1,7 @@
 'use strict';
 
-const Util        = require('util');
+const HTMLParser  = require('htmlparser2');
+const renderHTML  = require('dom-serializer').default;
 const Nife        = require('nife');
 const Path        = require('path');
 const FileSystem  = require('fs');
@@ -102,11 +103,75 @@ function sortArtifacts(artifacts) {
   });
 }
 
-function punctuate(_description) {
+function punctuate(_description, context) {
+  let {
+    page,
+    artifacts,
+  } = context;
+
+  let tags = [];
+
+  const subContentTag = (value) => {
+    tags.push(value);
+    return `@@@@@BLIBLO_TAG[${tags.length - 1}]@@@@@`;
+  };
+
+  const unsubContentTag = (value, _index) => {
+    let index = parseInt(_index, 10);
+    return tags[index];
+  };
+
+  const filterTags = (node, finalContent) => {
+    if (!node)
+      return node;
+
+    if (node.type === 'text') {
+      finalContent.push(node.data);
+      return node;
+    }
+
+    if (node.type === 'tag') {
+      let reference = Nife.get(node, 'children[0].data');
+      if (reference) {
+        let link = buildReferenceLink(reference.trim(), context);
+        if (!link)
+          return null;
+
+        return {
+          parent:     node.parent,
+          prev:       node.prev,
+          next:       node.next,
+          startIndex: node.startIndex,
+          endIndex:   node.endIndex,
+          data:       link,
+          type:       'text',
+        };
+      }
+
+      return null;
+    }
+
+    let children = node.children;
+    if (children && children.length) {
+      node.children = children.map((childNode) => {
+        if (childNode.type === 'text')
+          return childNode;
+
+        return filterTags(childNode);
+      }).filter(Boolean);
+    }
+
+    return node;
+  };
+
   if (!_description)
     return '';
 
   let description = _description.trim();
+  let DOM         = HTMLParser.parseDocument(description.replace(/```[\s\S]*?```/g, subContentTag));
+
+  description = renderHTML(filterTags(DOM)).trim();
+  description = description.replace(/@@@@@BLIBLO_TAG\[(\d+)\]@@@@@/g, unsubContentTag);
 
   if (!(/[!?.`]$/).test(description))
     return `${description}.`;
@@ -114,13 +179,19 @@ function punctuate(_description) {
   return description;
 }
 
-function generateArgs({ languageGenerator, artifact, content }) {
+function generateArgs(context) {
+  let {
+    languageGenerator,
+    artifact,
+    content,
+  } = context;
+
   let args = Nife.get(artifact, 'comment.definition.arguments');
   if (Nife.isEmpty(args))
     args = artifact.arguments;
 
   if (Nife.isNotEmpty(args)) {
-    content.push('>\n> Arguments:\n');
+    content.push('>\n> **Arguments**:\n');
     for (let i = 0, il = args.length; i < il; i++) {
       let arg       = args[i];
       let signature = languageGenerator.generateSignature(arg, { fullDescription: true });
@@ -129,12 +200,18 @@ function generateArgs({ languageGenerator, artifact, content }) {
 
       let description = arg.description;
       if (Nife.isNotEmpty(description))
-        content.push(`>      > ${punctuate(description).replace(/\n/g, '\n>      > ')}\n`);
+        content.push(`>      > ${punctuate(description, context).replace(/\n/g, '\n>      > ')}\n`);
     }
   }
 }
 
-function generateReturn({ languageGenerator, artifact, content }) {
+function generateReturn(context) {
+  let {
+    languageGenerator,
+    artifact,
+    content,
+  } = context;
+
   let returnType = Nife.get(artifact, 'comment.definition.return');
   if (Nife.isEmpty(returnType))
     returnType = artifact['return'];
@@ -144,12 +221,12 @@ function generateReturn({ languageGenerator, artifact, content }) {
     let description = returnType.description;
 
     if (Nife.isNotEmpty(typeStr))
-      content.push(`>\n> Return value: ${typeStr}\n`);
+      content.push(`>\n> **Return value**: \`${typeStr}\`\n`);
     else
-      content.push('>\n> Return value:\n');
+      content.push('>\n> **Return value**: `undefined`\n');
 
     if (Nife.isNotEmpty(description))
-      content.push(`>  > ${punctuate(description).replace(/\n/g, '\n>  > ')}\n`);
+      content.push(`>  > ${punctuate(description, context).replace(/\n/g, '\n>  > ')}\n`);
   }
 }
 
@@ -159,11 +236,11 @@ function findArtifactByReference(pages, reference) {
   let page      = pages[pageName];
 
   if (!page)
-    return;
+    return {};
 
   let referenceName = parts[1];
   if (!referenceName)
-    return page;
+    return { page };
 
   let artifacts = page.artifacts;
   let artifact  = artifacts.find((artifact) => {
@@ -171,6 +248,19 @@ function findArtifactByReference(pages, reference) {
   });
 
   return { page, artifact };
+}
+
+function buildReferenceLink(referenceName, { pages, options }) {
+  let { page, artifact } = findArtifactByReference(pages, referenceName);
+  if (!page && !artifact) {
+    console.warn(`Warning: Unable to find "See Also" reference: "${referenceName}"`);
+    return '';
+  }
+
+  if (!artifact)
+    return `[${page.name}](${buildPageURL(page, options)})`;
+  else
+    return `[${artifact.name}](${buildArtifactURL(page, artifact, options)})`;
 }
 
 function generateSeeAlso({ pages, artifact: currentArtifact, content, options }) {
@@ -184,23 +274,38 @@ function generateSeeAlso({ pages, artifact: currentArtifact, content, options })
     if (!arg || !arg.name)
       continue;
 
-    let { page, artifact } = findArtifactByReference(pages, arg.name);
-    if (!page && !artifact) {
-      console.warn(`Unable to find "See Also" reference: "${arg.name}"`);
-      continue;
-    }
-
-    if (!artifact)
-      subContent.push(`[${page.name}](${buildPageURL(page, options)})`);
-    else
-      subContent.push(`[${artifact.name}](${buildArtifactURL(page, artifact, options)})`);
+    subContent.push(buildReferenceLink(arg.name, { pages, options }));
   }
 
   if (Nife.isNotEmpty(subContent))
-    content.push(`>\n> See also: ${subContent.join(', ')}\n`);
+    content.push(`>\n> **See also**: ${subContent.join(', ')}\n`);
 }
 
-function generatePage(languageGenerator, pages, page, sidebarContent, options) {
+function generateNotes(context) {
+  let {
+    artifact,
+    content,
+  } = context;
+
+  let notes = Nife.get(artifact, 'comment.definition.notes', []).filter(Nife.isNotEmpty);
+  if (Nife.isEmpty(notes))
+    return;
+
+  content.push('>\n> **Notes**:\n');
+  for (let i = 0, il = notes.length; i < il; i++) {
+    let note = notes[i];
+    content.push(`>   * ${punctuate(note, context)}\n`);
+  }
+}
+
+function generatePage(context) {
+  let {
+    languageGenerator,
+    page,
+    sidebarContent,
+    options,
+  } = context;
+
   let artifacts     = page.artifacts.filter((artifact) => artifact.comment);
   let content       = [];
   let headerContent = [];
@@ -218,6 +323,7 @@ function generatePage(languageGenerator, pages, page, sidebarContent, options) {
   for (let i = 0, il = artifacts.length; i < il; i++) {
     let artifact = artifacts[i];
     let comment = artifact.comment;
+    let subContext = Object.assign({}, context, { artifact, content });
 
     if (!comment)
       continue;
@@ -234,14 +340,15 @@ function generatePage(languageGenerator, pages, page, sidebarContent, options) {
 
     content.push(`#### <a name="${buildArtifactID(artifact)}"></a>${languageGenerator.generateSignature(artifact)}\n`);
 
-    let description = punctuate(languageGenerator.generateDescription(artifact)).replace(/\n/g, '\n> ');
+    let description = punctuate(languageGenerator.generateDescription(artifact), subContext).replace(/\n/g, '\n> ');
     content.push(`> ${description}\n`);
 
-    generateArgs({ languageGenerator, artifact, content });
-    generateReturn({ languageGenerator, artifact, content });
-    generateSeeAlso({ languageGenerator, pages, artifact, content });
+    generateArgs(subContext);
+    generateReturn(subContext);
+    generateNotes(subContext);
+    generateSeeAlso(subContext);
 
-    content.push('> \n> <br> \n\n<br>\n\n');
+    content.push('\n\n<br>\n\n');
   }
 
   if (Nife.isNotEmpty(sidebarItems))
@@ -270,7 +377,7 @@ async function generatePages(pages, options) {
     let page            = pages[pageName];
 
     let outputFileName  = Path.join(outputDir, `${page.fileName}.md`);
-    let outputContent   = generatePage(languageGenerator, pages, page, sidebarContent, options);
+    let outputContent   = generatePage({ languageGenerator, pages, page, sidebarContent, options });
 
     FileSystem.writeFileSync(outputFileName, outputContent, 'utf8');
   }

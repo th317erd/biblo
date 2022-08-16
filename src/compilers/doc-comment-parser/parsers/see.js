@@ -7,7 +7,7 @@ const {
 module.exports = createParser(
   function(result, args) {
     return (result['see'] || []).concat({
-      type:         'See',
+      type:         'SeeAlso',
       name:         args.extra,
     });
   },

@@ -24,6 +24,6 @@ module.exports = {
     /node_modules|bin\/main\.js|colors\/|\/spec\//
   ],
   generatorOptions: {
-    baseURL: 'https://github.com/th317erd/biblo/wiki',
+    baseURL: './',
   },
 };
