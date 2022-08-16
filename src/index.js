@@ -3,6 +3,8 @@
 const Nife        = require('nife');
 const FileSystem  = require('fs');
 const Utils       = require('./utils');
+const Compilers   = require('./compilers');
+const Parsers     = require('./parsers');
 
 async function compileString(string, _options) {
   let options = Utils.constructConfig(_options);
@@ -46,6 +48,8 @@ async function compileFiles(_options) {
 }
 
 module.exports = {
+  Compilers,
+  Parsers,
   Utils,
   compileString,
   compileStrings,

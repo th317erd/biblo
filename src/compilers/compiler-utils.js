@@ -1,3 +1,5 @@
+///! `const { CompilerUtils } = require('biblo').Compilers;`
+///!
 ///! `CompilerUtils` is a collection of misc
 ///! utility functions used by the AST
 ///! compilers. The AST compilers take
