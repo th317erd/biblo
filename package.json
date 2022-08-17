@@ -5,7 +5,7 @@
   "main": "src/index.js",
   "type": "commonjs",
   "bin": {
-    "biblo": "./bin/main.js"
+    "biblo": "./src/bin/main.js"
   },
   "scripts": {
     "test": "node ./node_modules/.bin/jasmine",
