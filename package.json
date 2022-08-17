@@ -4,6 +4,9 @@
   "description": "Biblo is a Javascript documentation generator",
   "main": "src/index.js",
   "type": "commonjs",
+  "bin": {
+    "biblo": "./bin/main.js"
+  },
   "scripts": {
     "test": "node ./node_modules/.bin/jasmine",
     "test-debug": "node --inspect-brk ./node_modules/.bin/jasmine",
