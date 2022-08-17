@@ -1,6 +1,6 @@
 {
   "name": "biblo",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Biblo is a Javascript documentation generator",
   "main": "src/index.js",
   "type": "commonjs",
