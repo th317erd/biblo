@@ -114,7 +114,72 @@ function compile(parsed, options) {
     return (Array.isArray(_artifacts)) ? artifacts : artifacts[0];
   };
 
-  const buildClassDeclarationArtifact = (node) => {
+  const isAsync = (node) => {
+    if (Nife.isNotEmpty(node.modifiers)) {
+      for (let i = 0, il = node.modifiers.length; i < il; i++) {
+        let modifier = node.modifiers[i];
+        if (modifier.kind === SK.AsyncKeyword)
+          return true;
+      }
+    }
+
+    return false;
+  };
+
+  const isStatic = (node) => {
+    if (Nife.isNotEmpty(node.modifiers)) {
+      for (let i = 0, il = node.modifiers.length; i < il; i++) {
+        let modifier = node.modifiers[i];
+        if (modifier.kind === SK.StaticKeyword)
+          return true;
+      }
+    }
+
+    return false;
+  };
+
+  const isGenerator = (node) => {
+    return !!node.asteriskToken;
+  };
+
+  const getAccessLevel = (node) => {
+    if (Nife.isNotEmpty(node.modifiers)) {
+      for (let i = 0, il = node.modifiers.length; i < il; i++) {
+        let modifier = node.modifiers[i];
+        if (modifier.kind === SK.PrivateKeyword)
+          return 'private';
+        else if (modifier.kind === SK.ProtectedKeyword)
+          return 'protected';
+        else if (modifier.kind === SK.PublicKeyword)
+          return 'public';
+      }
+    }
+
+    return 'public';
+  };
+
+  const getInitializerValueFromNode = (node) => {
+    if (!node)
+      return;
+
+    if (node.kind === SK.NullKeyword)
+      return 'null';
+
+    if (node.kind === SK.TrueKeyword)
+      return 'true';
+
+    if (node.kind === SK.FalseKeyword)
+      return 'false';
+
+    if (node.kind === SK.StringLiteral)
+      return `"${node.text}"`;
+
+    return ('' + node.text);
+  };
+
+  const buildClassDeclarationArtifact = (_node) => {
+    let node = adjustNodeStartPos(_node);
+
     let parentClass = {
       'fileName':               options.fileName,
       'relativeFileName':       CompilerUtils.getRelativeFileName(options.fileName, options),
@@ -125,6 +190,11 @@ function compile(parsed, options) {
       'end':                    node.end,
       'name':                   node.name.escapedText,
     };
+
+    if (node.heritageClauses) {
+      let extendsFromClass = node.heritageClauses[0].types[0].expression.escapedText;
+      parentClass.extendsFromClass = extendsFromClass;
+    }
 
     if (node.members) {
       parentClass.properties = node.members.filter((memberNode) => memberNode.kind === SK.PropertyDeclaration).map((_memberNode) => {
@@ -138,7 +208,10 @@ function compile(parsed, options) {
           'end':          memberNode.name.end,
           'name':         memberNode.name.escapedText,
           'types':        (typeStr) ? parseTypes(typeStr) : undefined,
+          'assignment':   getInitializerValueFromNode(memberNode.initializer),
           'parentClass':  parentClass,
+          'static':       isStatic(memberNode),
+          'access':       getAccessLevel(memberNode),
         });
       });
 
@@ -153,51 +226,7 @@ function compile(parsed, options) {
   };
 
   const buildFunctionDeclarationArtifact = (_node, parentClass) => {
-    let node  = adjustNodeStartPos(_node);
-
-    const isAsync = () => {
-      if (Nife.isNotEmpty(node.modifiers)) {
-        for (let i = 0, il = node.modifiers.length; i < il; i++) {
-          let modifier = node.modifiers[i];
-          if (modifier.kind === SK.AsyncKeyword)
-            return true;
-        }
-      }
-
-      return false;
-    };
-
-    const isStatic = () => {
-      if (Nife.isNotEmpty(node.modifiers)) {
-        for (let i = 0, il = node.modifiers.length; i < il; i++) {
-          let modifier = node.modifiers[i];
-          if (modifier.kind === SK.StaticKeyword)
-            return true;
-        }
-      }
-
-      return false;
-    };
-
-    const isGenerator = () => {
-      return !!node.asteriskToken;
-    };
-
-    const getAccessLevel = () => {
-      if (Nife.isNotEmpty(node.modifiers)) {
-        for (let i = 0, il = node.modifiers.length; i < il; i++) {
-          let modifier = node.modifiers[i];
-          if (modifier.kind === SK.PrivateKeyword)
-            return 'private';
-          else if (modifier.kind === SK.ProtectedKeyword)
-            return 'protected';
-          else if (modifier.kind === SK.PublicKeyword)
-            return 'public';
-        }
-      }
-
-      return 'public';
-    };
+    let node = adjustNodeStartPos(_node);
 
     let returnTypeStr = (node.type) ? source.substring(node.type.getStart(), node.type.getEnd()) : undefined;
     let isConstructor = false;
@@ -217,7 +246,7 @@ function compile(parsed, options) {
         'genericType':  'Type',
         'start':        node.type.pos,
         'end':          node.type.end,
-        'types':        parseTypes(returnTypeStr),
+        'types':        parseTypes(returnTypeStr).types,
       });
     } else if (isConstructor) {
       returnNode = assignFloatingComments({
@@ -225,7 +254,7 @@ function compile(parsed, options) {
         'genericType':  'Type',
         'start':        node.pos,
         'end':          node.end,
-        'types':        parseTypes(node.parent.name.escapedText),
+        'types':        parseTypes(node.parent.name.escapedText).types,
       });
     }
 
@@ -238,14 +267,26 @@ function compile(parsed, options) {
       'start':                  node.pos,
       'end':                    node.end,
       'isConstructor':          isConstructor,
-      'static':                 isStatic(),
+      'static':                 isStatic(node),
       'name':                   name,
-      'async':                  isAsync(),
-      'generator':              isGenerator(),
-      'access':                 getAccessLevel(),
+      'async':                  isAsync(node),
+      'generator':              isGenerator(node),
+      'access':                 getAccessLevel(node),
       'parentClass':            parentClass,
       'arguments':              node.parameters.map((arg) => {
         let typeStr = (arg.type) ? source.substring(arg.type.getFullStart(), arg.type.getFullStart() + arg.type.getFullWidth()) : undefined;
+        let types   = [];
+        let assignment;
+
+        if (typeStr) {
+          let result = parseTypes(typeStr);
+
+          types = result.types;
+          assignment = result.assignment;
+        }
+
+        if (arg.initializer)
+          assignment = getInitializerValueFromNode(arg.initializer);
 
         return assignFloatingComments({
           'type':         'FunctionArgument',
@@ -253,7 +294,8 @@ function compile(parsed, options) {
           'start':        arg.name.pos,
           'end':          arg.name.end,
           'name':         arg.name.escapedText,
-          'types':        (typeStr) ? parseTypes(typeStr) : undefined,
+          'types':        types,
+          'assignment':   assignment,
         });
       }),
       'return': returnNode,

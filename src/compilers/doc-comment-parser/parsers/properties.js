@@ -27,8 +27,6 @@ module.exports = createParser(
 
       let { types, assignment } = (!Nife.isEmpty(arg.extra)) ? parseTypes(arg.extra) : targetTypes;
 
-      delete arg.extra;
-
       return {
         type:         'PropertyDeclaration',
         name:         arg.name,

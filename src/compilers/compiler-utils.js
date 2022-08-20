@@ -26,6 +26,30 @@ const {
 
 const docCommentParsers = require('./doc-comment-parser');
 
+class Derp {}
+
+/// A test class that does things
+class Test extends Derp {
+  /// Run a test
+  static doTest() {
+
+  }
+
+  /// Max age of test
+  ///
+  /// Type: string
+  static maxAge = 10n;
+
+  /// Create a new Test
+  ///
+  /// Arguments:
+  ///   age: number
+  ///     Provide an age for something
+  constructor(age = "5") {
+
+  }
+}
+
 /// Sort all artifacts by source code position.
 ///
 /// Return: Array<Artifact>
@@ -60,6 +84,22 @@ function sortArtifacts(artifacts, _startPositionKey) {
   });
 }
 
+function isCommentInsideFunction(commentArtifact, artifacts) {
+  let { start, end } = commentArtifact;
+
+  for (let i = 0, il = artifacts.length; i < il; i++) {
+    let artifact = artifacts[i];
+
+    if (artifact.genericType !== 'FunctionDeclaration')
+      continue;
+
+    if (start > artifact.start && end < artifact.end)
+      return true;
+  }
+
+  return false;
+}
+
 /// Remove duplicate artifacts from the list of artifacts.
 ///
 /// An artifact is considered a duplicate if its "type",
@@ -73,12 +113,18 @@ function sortArtifacts(artifacts, _startPositionKey) {
 ///   artifacts: Array<Artifact>
 ///     A list of artifacts and comment artifacts
 ///     to process.
-function removeDuplicateArtifacts(artifacts) {
+function removePointlessArtifacts(artifacts) {
   let artifactMap = {};
 
   for (let i = 0, il = artifacts.length; i < il; i++) {
     let artifact  = artifacts[i];
-    let key       = `${artifact.type}:${artifact.start}:${artifact.end}`;
+
+    if (artifact.genericType === 'Comment') {
+      if (isCommentInsideFunction(artifact, artifacts))
+        continue;
+    }
+
+    let key = `${artifact.type}:${artifact.start}:${artifact.end}`;
 
     if (artifactMap[key])
       continue;
@@ -168,7 +214,7 @@ function getGlobalComment(artifacts) {
 ///     A list of artifacts and comment artifacts
 ///     to mutate.
 function collectCommentsIntoArtifacts(_artifacts) {
-  let artifacts = removeDuplicateArtifacts(_artifacts);
+  let artifacts = removePointlessArtifacts(_artifacts);
   artifacts = sortArtifacts(artifacts);
 
   let finalArtifacts = [];
@@ -277,10 +323,10 @@ function parseDocComment(comment, artifact) {
 function parseDocComments(_artifacts) {
   let artifacts       = _artifacts;
   let globalArtifact  = getGlobalComment(artifacts);
-  let globalComment;
+  let globalComment   = {};
 
   if (globalArtifact) {
-    globalComment = parseDocComment(globalArtifact.value, globalArtifact);
+    globalComment = parseDocComment(globalArtifact.value, globalArtifact) || {};
     artifacts = [
       {
         type:       'GlobalDocComment',
@@ -301,9 +347,18 @@ function parseDocComments(_artifacts) {
     if (!comment)
       continue;
 
+    let docScope;
+
+    if (artifact.parentClass)
+      docScope = `class-${artifact.parentClass.name}`;
+
+    if (!docScope)
+      docScope = globalComment.docScope;
+
     comment.definition = Object.assign(
       {},
-      globalComment || {},
+      globalComment,
+      { docScope },
       parseDocComment(comment.value, artifact),
       { global: false },
     );

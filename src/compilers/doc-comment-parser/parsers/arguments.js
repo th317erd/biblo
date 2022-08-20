@@ -36,15 +36,13 @@ module.exports = createParser(
 
       let { types, assignment } = (!Nife.isEmpty(arg.extra)) ? parseTypes(arg.extra) : targetTypes;
 
-      delete arg.extra;
-
       return {
         type:         'FunctionArgument',
         name:         arg.name,
         description:  arg.body,
         optional:     arg.optional,
         types:        types || [],
-        assignment,
+        assignment:   assignment || targetArg.assignment,
       };
     });
 
@@ -63,6 +61,7 @@ module.exports = createParser(
         name:         arg.name,
         description:  arg.description || '',
         types:        arg.types,
+        assignment:   arg.assignment,
       };
     });
   },

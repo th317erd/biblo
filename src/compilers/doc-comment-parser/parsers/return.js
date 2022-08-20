@@ -13,13 +13,11 @@ module.exports = createParser(
     let types;
 
     if (Nife.isNotEmpty(args.extra)) {
-      let { types: _types } = parseTypes(args.extra);
-      types = _types;
+      let result = parseTypes(args.extra);
+      types = result.types;
     } else if (targetReturn) {
       types = targetReturn.types;
     }
-
-    delete args.extra;
 
     return {
       type:         'ReturnType',

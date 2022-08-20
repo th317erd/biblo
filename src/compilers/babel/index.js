@@ -27,9 +27,18 @@ async function compile(parsed, options) {
     return CompilerUtils.parseFloatingDescription(body);
   };
 
-  const getDefaultValueFromNode = (node) => {
+  const getInitializerValueFromNode = (node) => {
     if (node.type === 'NullLiteral')
       return 'null';
+
+    if (node.type === 'StringLiteral')
+      return `"${node.value}"`;
+
+    if (node.type === 'BigIntLiteral')
+      return `${node.value}n`;
+
+    if (node.value == null)
+      return;
 
     return ('' + node.value);
   };
@@ -60,6 +69,7 @@ async function compile(parsed, options) {
       'start':                  node.start,
       'end':                    node.end,
       'name':                   node.id.name,
+      'extendsFromClass':       (node.superClass) ? node.superClass.name : undefined,
       'properties':             [],
       'methods':                [],
     };
@@ -70,9 +80,10 @@ async function compile(parsed, options) {
     let name;
     let returnNode;
 
-    if (node.id) {
-      name = node.id.name;
-    } else if (node.kind === 'constructor') {
+    if (node.id || node.key)
+      name = (node.id || node.key).name;
+
+    if (node.kind === 'constructor') {
       name = 'constructor';
       isConstructor = true;
 
@@ -108,7 +119,8 @@ async function compile(parsed, options) {
           'type':         'FunctionArgument',
           'start':        arg.start,
           'end':          arg.end,
-          'name':         arg.name,
+          'name':         (arg.left) ? arg.left.name : arg.name,
+          'assignment':   (arg.right) ? getInitializerValueFromNode(arg.right) : undefined,
           'description':  parseArgumentDescription(arg),
         };
       }),
@@ -125,7 +137,7 @@ async function compile(parsed, options) {
       'static':                 node.static,
       'access':                 (node.type === 'ClassPrivateProperty') ? 'private' : 'public',
       'types':                  [ getTypeFromNode(node.value) ].filter(Boolean),
-      'defaultValue':           getDefaultValueFromNode(node.value),
+      'assignment':             getInitializerValueFromNode(node.value),
       'parentClass':            parentClass,
       'description':            parseArgumentDescription(node),
     };

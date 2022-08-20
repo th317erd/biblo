@@ -42,14 +42,24 @@ function buildArtifactURL(page, artifact, options) {
 }
 
 function getPageNameFromArtifact(artifact) {
+  const formatScopeName = (name) => {
+    if (!name)
+      return name;
+
+    return name.replace(/[^\w_-]/g, '-');
+  };
+
   const getArtifactScopeName = (artifact) => {
     return Nife.get(artifact, 'comment.definition.docScope', 'global');
   };
 
-  if (artifact.type === 'ClassDeclaration' || artifact.type === 'Page')
-    return artifact.name;
+  if (artifact.type === 'Page')
+    return formatScopeName(`page-${artifact.name}`);
 
-  return getArtifactScopeName(artifact);
+  if (artifact.type === 'ClassDeclaration')
+    return formatScopeName(`class-${artifact.name}`);
+
+  return formatScopeName(getArtifactScopeName(artifact));
 }
 
 function pageNameToFileName(pageName) {
@@ -59,10 +69,12 @@ function pageNameToFileName(pageName) {
 function groupArtifactsIntoPages(artifacts, options) {
   const createPageFromArtifact = (pageName, artifact) => {
     let page = {
-      name:       pageName,
-      fileName:   pageNameToFileName(pageName),
-      type:       'class',
-      artifacts:  [],
+      artifact:     artifact,
+      artifactName: artifact.name,
+      name:         pageName,
+      fileName:     pageNameToFileName(pageName),
+      type:         'class',
+      artifacts:    [],
     };
 
     if (artifact.type === 'Page')
@@ -103,12 +115,7 @@ function sortArtifacts(artifacts) {
   });
 }
 
-function punctuate(_description, context) {
-  let {
-    page,
-    artifacts,
-  } = context;
-
+function parseAndGenerateDescription(_description, context) {
   let tags = [];
 
   const subContentTag = (value) => {
@@ -172,6 +179,12 @@ function punctuate(_description, context) {
 
   description = renderHTML(filterTags(DOM)).trim();
   description = description.replace(/@@@@@BLIBLO_TAG\[(\d+)\]@@@@@/g, unsubContentTag);
+
+  return description;
+}
+
+function punctuate(_description, context) {
+  let description = parseAndGenerateDescription(_description, context);
 
   if (!(/[!?.`]$/).test(description))
     return `${description}.`;
@@ -298,32 +311,164 @@ function generateNotes(context) {
   }
 }
 
+function generateFunction(context) {
+  let {
+    options,
+    page,
+    artifact,
+    content,
+    sidebarItems,
+    languageGenerator,
+    functionType,
+  } = context;
+
+  sidebarItems.push(`  * ${functionType || 'function'} [${artifact.name}](${buildArtifactURL(page, artifact, options)})`);
+
+  content.push(`#### <a name="${buildArtifactID(artifact)}"></a>${languageGenerator.generateSignature(artifact)}\n`);
+
+  let description = punctuate(languageGenerator.generateDescription(artifact), context).replace(/\n/g, '\n> ');
+  content.push(`> ${description}\n`);
+
+  generateArgs(context);
+  generateReturn(context);
+  generateNotes(context);
+  generateSeeAlso(context);
+}
+
+function generateClassProperty(context) {
+  let {
+    options,
+    page,
+    artifact,
+    content,
+    sidebarItems,
+    languageGenerator,
+  } = context;
+
+  sidebarItems.push(`  * property [${artifact.name}](${buildArtifactURL(page, artifact, options)})`);
+
+  content.push(`#### <a name="${buildArtifactID(artifact)}"></a>${languageGenerator.generateSignature(artifact)}\n`);
+
+  let description = punctuate(languageGenerator.generateDescription(artifact), context).replace(/\n/g, '\n> ');
+  content.push(`> ${description}\n`);
+
+  generateNotes(context);
+  generateSeeAlso(context);
+}
+
+function generateClass(context) {
+  let {
+    options,
+    page,
+    artifact,
+    content,
+    sidebarItems,
+    languageGenerator,
+    headerContent,
+  } = context;
+
+  let description = punctuate(languageGenerator.generateDescription(artifact), context).replace(/\n/g, '\n> ');
+  headerContent.push(`> ${description}\n`);
+
+  let properties = sortArtifacts(artifact.properties || []);
+  for (let i = 0, il = properties.length; i < il; i++) {
+    let propertyArtifact = properties[i];
+    let comment = propertyArtifact.comment;
+    let subContext = Object.assign(
+      {},
+      context,
+      {
+        artifact:     propertyArtifact,
+        functionType: 'method',
+        content,
+        sidebarItems,
+        headerContent,
+      },
+    );
+
+    if (!comment)
+      continue;
+
+    generateClassProperty(subContext);
+
+    content.push('\n\n<br>\n\n');
+  }
+
+  let methods = sortArtifacts(artifact.methods || []);
+  for (let i = 0, il = methods.length; i < il; i++) {
+    let methodArtifact = methods[i];
+    let comment = methodArtifact.comment;
+    let subContext = Object.assign(
+      {},
+      context,
+      {
+        artifact:     methodArtifact,
+        functionType: 'method',
+        content,
+        sidebarItems,
+        headerContent,
+      },
+    );
+
+    if (!comment)
+      continue;
+
+    generateFunction(subContext);
+
+    content.push('\n\n<br>\n\n');
+  }
+}
+
+function getPageName(page) {
+  if (page.type === 'namespace')
+    return page.name;
+
+  return page.artifactName || page.name;
+}
+
+function generatePageHeader(context) {
+  let {
+    page,
+    languageGenerator,
+  } = context;
+
+  if (page.type === 'namespace')
+    return `# namespace \`${getPageName(page)}\`\n\n`;
+
+  return `# ${languageGenerator.generateSignature(page.artifact)}\n\n`;
+}
+
 function generatePage(context) {
   let {
-    languageGenerator,
     page,
     sidebarContent,
     options,
   } = context;
 
-  let artifacts     = page.artifacts.filter((artifact) => artifact.comment);
+  let artifacts = page.artifacts.filter((artifact) => artifact.comment);
+  if (Nife.isEmpty(artifacts) && page.type !== 'page')
+    return;
+
   let content       = [];
   let headerContent = [];
   let sidebarItems  = [];
 
+  sidebarItems.push(`* [${(page.type === 'page') ? '' : `${page.type} `}${getPageName(page)}](${buildPageURL(page, options)})`);
+
+  if (page.type === 'page') {
+    sidebarContent.push(`${sidebarItems.join('\n')}\n`);
+    return parseAndGenerateDescription(page.artifacts[0].value, context);
+  }
+
   artifacts = sortArtifacts(artifacts);
 
   if (Nife.isNotEmpty(artifacts))
-    headerContent = [ `# ${page.name}\n\n` ];
-  else if (page.type === 'page')
-    content = [ page.artifacts[0].value ];
-
-  sidebarItems.push(`* [${page.name}](${buildPageURL(page, options)})`);
+    headerContent = [ generatePageHeader(context) ];
 
   for (let i = 0, il = artifacts.length; i < il; i++) {
     let artifact = artifacts[i];
     let comment = artifact.comment;
-    let subContext = Object.assign({}, context, { artifact, content });
+    let subContext = Object.assign({}, context, { artifact, content, sidebarItems, headerContent });
 
     if (!comment)
       continue;
@@ -336,23 +481,19 @@ function generatePage(context) {
       continue;
     }
 
-    sidebarItems.push(`  * [${artifact.name}](${buildArtifactURL(page, artifact, options)})`);
+    if (artifact.type === 'ClassDeclaration') {
+      generateClass(subContext);
+    } else if (artifact.type === 'FunctionDeclaration') {
+      if (artifact.parentClass)
+        continue;
 
-    content.push(`#### <a name="${buildArtifactID(artifact)}"></a>${languageGenerator.generateSignature(artifact)}\n`);
-
-    let description = punctuate(languageGenerator.generateDescription(artifact), subContext).replace(/\n/g, '\n> ');
-    content.push(`> ${description}\n`);
-
-    generateArgs(subContext);
-    generateReturn(subContext);
-    generateNotes(subContext);
-    generateSeeAlso(subContext);
+      generateFunction(subContext);
+    }
 
     content.push('\n\n<br>\n\n');
   }
 
-  if (Nife.isNotEmpty(sidebarItems))
-    sidebarContent.push(`${sidebarItems.join('\n')}\n`);
+  sidebarContent.push(`${sidebarItems.join('\n')}\n`);
 
   if (Nife.isNotEmpty(artifacts))
     content.push('\n\n');
@@ -372,13 +513,40 @@ async function generatePages(pages, options) {
   if (!languageGenerator)
     languageGenerator = TypescriptLanguageGenerator;
 
+  let pageTypeOrder = [
+    'page',
+    'namespace',
+    'class',
+  ];
+
+  pageNames = pageNames.sort((a, b) => {
+    let x = pages[a];
+    let y = pages[b];
+
+    let xOrder = pageTypeOrder.indexOf(x.type);
+    let yOrder = pageTypeOrder.indexOf(y.type);
+
+    if (xOrder !== yOrder)
+      return Math.sign(xOrder - yOrder);
+
+    let xName = x.artifactName || x.name;
+    let yName = y.artifactName || y.name;
+
+    if (xName === yName)
+      return 0;
+
+    return (xName < yName) ? -1 : 1;
+  });
+
   for (let i = 0, il = pageNames.length; i < il; i++) {
-    let pageName        = pageNames[i];
-    let page            = pages[pageName];
+    let pageName      = pageNames[i];
+    let page          = pages[pageName];
+    let outputContent = generatePage({ languageGenerator, pages, page, sidebarContent, options });
 
-    let outputFileName  = Path.join(outputDir, `${page.fileName}.md`);
-    let outputContent   = generatePage({ languageGenerator, pages, page, sidebarContent, options });
+    if (Nife.isEmpty(outputContent))
+      continue;
 
+    let outputFileName = Path.join(outputDir, `${page.fileName}.md`);
     FileSystem.writeFileSync(outputFileName, outputContent, 'utf8');
   }
 
