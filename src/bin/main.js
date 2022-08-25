@@ -80,8 +80,21 @@ Usage: biblo -i {input directory} -o {output directory} -r {root directory}
 
   let artifacts = await compileFiles(options);
   let {
-    layout: layoutGenerator,
+    layout:   LayoutGenerator,
+    language: LanguageGenerator,
   } = options.generator;
 
-  await layoutGenerator(artifacts, options);
+  let languageGenerator = new LanguageGenerator(options);
+  let layoutGenerator = new LayoutGenerator(
+    Object.assign(
+      {},
+      options,
+      {
+        artifacts,
+        languageGenerator,
+      },
+    ),
+  );
+
+  await layoutGenerator.generate();
 })();

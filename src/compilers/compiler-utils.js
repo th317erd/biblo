@@ -26,30 +26,6 @@ const {
 
 const docCommentParsers = require('./doc-comment-parser');
 
-class Derp {}
-
-/// A test class that does things
-class Test extends Derp {
-  /// Run a test
-  static doTest() {
-
-  }
-
-  /// Max age of test
-  ///
-  /// Type: string
-  static maxAge = 10n;
-
-  /// Create a new Test
-  ///
-  /// Arguments:
-  ///   age: number
-  ///     Provide an age for something
-  constructor(age = "5") {
-
-  }
-}
-
 /// Sort all artifacts by source code position.
 ///
 /// Return: Array<Artifact>
@@ -120,6 +96,11 @@ function removePointlessArtifacts(artifacts) {
     let artifact  = artifacts[i];
 
     if (artifact.genericType === 'Comment') {
+      // Ignore comments that don't start
+      // with triple forward slashes
+      if (!(/^\//).test(artifact.value))
+        continue;
+
       if (isCommentInsideFunction(artifact, artifacts))
         continue;
     }

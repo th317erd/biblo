@@ -5,7 +5,7 @@ const Path  = require('path');
 
 function parse({ source, options }, next) {
   let fileName  = Path.basename(options.fileName);
-  let name      = Nife.capitalize(fileName.replace(/^(\w+).*$/, '$1'));
+  let name      = Nife.capitalize(fileName.replace(/\.[^.]*$/, ''));
 
   return next({ source, program: [
     {

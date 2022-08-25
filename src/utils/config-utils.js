@@ -99,7 +99,7 @@ function getGenerator(options) {
     };
   } else if (typeof generator === 'string') {
     generator = {
-      layout:   Nife.get(getGeneratorByName('layout', generator), 'generate'),
+      layout:   getGeneratorByName('layout', generator),
       language: getGeneratorByName('language', generator),
     };
 
@@ -107,7 +107,7 @@ function getGenerator(options) {
       return generator;
   } else if (typeof generator.layout === 'string') {
     generator = {
-      layout:   Nife.get(getGeneratorByName('layout', generator.layout), 'generate'),
+      layout:   getGeneratorByName('layout', generator.layout),
       language: getGeneratorByName('language', generator.language),
     };
 
