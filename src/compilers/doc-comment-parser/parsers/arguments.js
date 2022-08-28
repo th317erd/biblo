@@ -31,6 +31,9 @@ module.exports = createParser(
     parsedArgs = Nife.arrayFlatten(Array.from(Object.values(parsedArgs)));
 
     parsedArgs = parsedArgs.map((arg, index) => {
+      if (index >= targetArgs.length)
+        return;
+
       let targetArg   = targetArgs[index];
       let targetTypes = (targetArg && targetArg.types);
 
@@ -44,7 +47,7 @@ module.exports = createParser(
         types:        types || [],
         assignment:   assignment || targetArg.assignment,
       };
-    });
+    }).filter(Boolean);
 
     return (result['arguments'] || []).concat(parsedArgs);
   },

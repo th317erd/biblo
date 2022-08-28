@@ -230,6 +230,7 @@ function compile(parsed, options) {
 
     let returnTypeStr = (node.type) ? source.substring(node.type.getStart(), node.type.getEnd()) : undefined;
     let isConstructor = false;
+    let namePrefix    = [];
     let name;
     let returnNode;
 
@@ -258,6 +259,10 @@ function compile(parsed, options) {
       });
     }
 
+    let _isStatic = isStatic(node);
+    if (_isStatic)
+      namePrefix.push('static');
+
     return assignFloatingComments({
       'fileName':               options.fileName,
       'relativeFileName':       CompilerUtils.getRelativeFileName(options.fileName, options),
@@ -267,8 +272,8 @@ function compile(parsed, options) {
       'start':                  node.pos,
       'end':                    node.end,
       'isConstructor':          isConstructor,
-      'static':                 isStatic(node),
-      'name':                   name,
+      'static':                 _isStatic,
+      'name':                   `${(namePrefix.length > 0) ? `${namePrefix.sort().join(' ')} ` : ''}${name}`,
       'async':                  isAsync(node),
       'generator':              isGenerator(node),
       'access':                 getAccessLevel(node),

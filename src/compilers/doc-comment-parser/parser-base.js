@@ -143,7 +143,7 @@ function parseDocCommentSection(parsers, lines, propRE, defaultProp, _propertyFe
     if (isProperty)
       continue;
 
-    currentBody.push(line.replace(/^\s*\/!?\s*/, ''));
+    currentBody.push(line.replace(/^\s*\/!?(\s*)/, '$1'));
   }
 
   handleDocCommentProperty.call(this, parsers, result, currentProperty, currentBody);

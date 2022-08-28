@@ -7,6 +7,10 @@ const {
 } = require('../../base');
 
 class TypeScriptLanguageGenerator extends LanguageGeneratorBase {
+  getLanguageType() {
+    return 'typescript';
+  }
+
   generateTypes(context, types) {
     if (Nife.isEmpty(types))
       return '';
@@ -54,7 +58,8 @@ class TypeScriptLanguageGenerator extends LanguageGeneratorBase {
 
   generateFunctionSignature(context, artifact, _options) {
     let options     = _options || {};
-    let parts       = [ artifact.static && 'static ', (artifact.parentClass) ? `method \`${artifact.parentClass.name}::${artifact.name}\`` : `function \`${artifact.name}\``, '(' ];
+    let name        = artifact.name.split(/\W/g).pop();
+    let parts       = [ artifact.static && 'static ', (artifact.parentClass) ? `method \`${artifact.parentClass.name}::${name}\`` : `function \`${name}\``, '(' ];
     let args        = Nife.get(artifact, 'comment.definition.arguments');
     let outputArgs  = [];
 

@@ -95,17 +95,46 @@ class GitHubWikiGenerator extends GeneratorBase {
     let {
       artifact,
       content,
+      notesPrefix,
     } = context;
 
     let notes = Nife.get(artifact, 'comment.definition.notes', []).filter(Nife.isNotEmpty);
     if (Nife.isEmpty(notes))
       return;
 
-    content.push('>\n> **Notes**:\n');
+    let _notesPrefix = (notesPrefix != null) ? notesPrefix : '> ';
+
+    content.push(`${(notesPrefix != null) ? '' : `>\n${_notesPrefix}`}**Notes**:\n`);
     for (let i = 0, il = notes.length; i < il; i++) {
       let note = notes[i];
-      content.push(`>   * ${this.punctuate(note, context)}\n`);
+
+      content.push(`${_notesPrefix}  * ${this.punctuate(note, context)}\n`);
     }
+  }
+
+  generateExamples(context) {
+    let {
+      artifact,
+      content,
+      examplesPrefix,
+    } = context;
+
+    let examples = Nife.get(artifact, 'comment.definition.examples', []).filter(Nife.isNotEmpty);
+    if (Nife.isEmpty(examples))
+      return;
+
+    let _examplesPrefix = (examplesPrefix != null) ? examplesPrefix : '> ';
+
+    content.push(`${(examplesPrefix != null) ? '' : `>\n${_examplesPrefix}`}**Examples**:\n`);
+    for (let i = 0, il = examples.length; i < il; i++) {
+      let example = examples[i];
+
+      example = example.replace(/\n/g, `\n${_examplesPrefix}`);
+
+      content.push(`${_examplesPrefix} * \`\`\`${this.getLanguageGenerator().getLanguageType()}\n${_examplesPrefix}   ${example}\n>    \`\`\`\n`);
+    }
+
+    // content.push('> <br>\n');
   }
 
   generateFunction(context) {
@@ -125,6 +154,7 @@ class GitHubWikiGenerator extends GeneratorBase {
     let description = this.punctuate(this.getLanguageGenerator().generateDescription(context, artifact), context).replace(/\n/g, '\n> ');
     content.push(`> ${description}\n`);
 
+    this.generateExamples(context);
     this.generateArgs(context);
     this.generateReturn(context);
     this.generateNotes(context);
@@ -147,6 +177,7 @@ class GitHubWikiGenerator extends GeneratorBase {
     let description = this.punctuate(this.getLanguageGenerator().generateDescription(context, artifact), context).replace(/\n/g, '\n> ');
     content.push(`> ${description}\n`);
 
+    this.generateExamples(context);
     this.generateNotes(context);
     this.generateSeeAlso(context);
   }
@@ -161,6 +192,9 @@ class GitHubWikiGenerator extends GeneratorBase {
 
     let description = this.punctuate(this.getLanguageGenerator().generateDescription(context, artifact), context);
     headerContent.push(`${description}\n`);
+
+    this.generateExamples({ ...context, examplesPrefix: '' });
+    this.generateNotes({ ...context, notesPrefix: '' });
 
     let properties = this.sortArtifacts(artifact.properties || []);
     for (let i = 0, il = properties.length; i < il; i++) {
