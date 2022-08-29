@@ -40,7 +40,7 @@ class GitHubWikiGenerator extends GeneratorBase {
         let arg       = args[i];
         let signature = this.getLanguageGenerator().generateSignature(context, arg, { fullDescription: true });
 
-        content.push(`>   * ${signature}\n`);
+        content.push(`>  * ${signature}\n`);
 
         let description = arg.description;
         if (Nife.isNotEmpty(description))

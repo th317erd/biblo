@@ -276,6 +276,9 @@ class GeneratorBase {
       return (artifact.name === referenceName);
     });
 
+    if (!artifact)
+      return {};
+
     return { page, artifact };
   }
 
