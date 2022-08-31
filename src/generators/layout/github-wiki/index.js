@@ -11,7 +11,7 @@ const {
 
 class GitHubWikiGenerator extends GeneratorBase {
   onGenerateType(context, type) {
-    let newType = type.replace(/<see\s+(?:name\s*=\s*"([^"]+)")?>\s*([\w.]+)\s*<\/see>/, (m, nameOverride, reference) => {
+    let newType = type.replace(/<see(?:\s+name\s*=\s*"([^"]+)")?>\s*([\w.]+)\s*<\/see>/, (m, nameOverride, reference) => {
       let link = this.buildReferenceLink(reference.trim(), { ...context, nameOverride });
       if (!link)
         return reference;
@@ -125,8 +125,9 @@ class GitHubWikiGenerator extends GeneratorBase {
       return;
 
     let _examplesPrefix = (examplesPrefix != null) ? examplesPrefix : '> ';
+    let title = (examples.length === 1) ? 'Example' : 'Examples';
 
-    content.push(`${(examplesPrefix != null) ? '' : `>\n${_examplesPrefix}`}**Examples**:\n`);
+    content.push(`${(examplesPrefix != null) ? '' : `>\n${_examplesPrefix}`}**${title}**:\n`);
     for (let i = 0, il = examples.length; i < il; i++) {
       let example = examples[i];
 
@@ -134,8 +135,30 @@ class GitHubWikiGenerator extends GeneratorBase {
 
       content.push(`${_examplesPrefix} * \`\`\`${this.getLanguageGenerator().getLanguageType()}\n${_examplesPrefix}   ${example}\n${_examplesPrefix}   \`\`\`\n`);
     }
+  }
 
-    // content.push('> <br>\n');
+  generateInterfaces(context) {
+    let {
+      artifact,
+      content,
+      interfacesPrefix,
+    } = context;
+
+    let interfaces = Nife.get(artifact, 'comment.definition.interfaces', []).filter(Nife.isNotEmpty);
+    if (Nife.isEmpty(interfaces))
+      return;
+
+    let _interfacesPrefix = (interfacesPrefix != null) ? interfacesPrefix : '> ';
+    let title = (interfaces.length === 1) ? 'Interface' : 'Interfaces';
+
+    content.push(`${(interfacesPrefix != null) ? '' : `>\n${_interfacesPrefix}`}**${title}**:\n`);
+    for (let i = 0, il = interfaces.length; i < il; i++) {
+      let thisInterface = interfaces[i];
+
+      thisInterface = thisInterface.replace(/\n/g, `\n${_interfacesPrefix}`);
+
+      content.push(`${_interfacesPrefix} * \`\`\`${this.getLanguageGenerator().getLanguageType()}\n${_interfacesPrefix}   ${thisInterface}\n${_interfacesPrefix}   \`\`\`\n`);
+    }
   }
 
   generateFunction(context) {
@@ -156,6 +179,7 @@ class GitHubWikiGenerator extends GeneratorBase {
     content.push(`> ${description}\n`);
 
     this.generateExamples(context);
+    this.generateInterfaces(context);
     this.generateArgs(context);
     this.generateReturn(context);
     this.generateNotes(context);
@@ -179,6 +203,7 @@ class GitHubWikiGenerator extends GeneratorBase {
     content.push(`> ${description}\n`);
 
     this.generateExamples(context);
+    this.generateInterfaces(context);
     this.generateNotes(context);
     this.generateSeeAlso(context);
   }
@@ -195,6 +220,7 @@ class GitHubWikiGenerator extends GeneratorBase {
     headerContent.push(`${description}\n`);
 
     this.generateExamples({ ...context, examplesPrefix: '' });
+    this.generateInterfaces({ ...context, interfacesPrefix: '' });
     this.generateNotes({ ...context, notesPrefix: '' });
 
     let properties        = this.sortArtifacts(artifact.properties || []);

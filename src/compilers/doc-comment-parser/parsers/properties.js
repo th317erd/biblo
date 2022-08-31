@@ -28,11 +28,12 @@ module.exports = createParser(
       let { types, assignment } = (!Nife.isEmpty(arg.extra)) ? parseTypes(arg.extra) : targetTypes;
 
       return {
+        parentClass:  this,
         type:         'PropertyDeclaration',
         name:         arg.name,
         description:  arg.body,
         types:        types || [],
-        assignment:   assignment || targetArg.assignment,
+        assignment:   assignment || (targetArg && targetArg.assignment),
       };
     });
 
