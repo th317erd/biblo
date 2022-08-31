@@ -18,7 +18,6 @@ module.exports = createParser(
     let parsedTypes       = parseDocCommentSection.call(this, {}, lines, /^\s*([\w\s]+):(.*)$/);
     let targetProperties  = this.properties || [];
 
-    delete parsedTypes.type;
     parsedTypes = Nife.arrayFlatten(Array.from(Object.values(parsedTypes)));
 
     parsedTypes = parsedTypes.map((arg, index) => {

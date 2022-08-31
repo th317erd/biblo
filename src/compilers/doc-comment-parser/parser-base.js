@@ -120,7 +120,7 @@ function handleDocCommentProperty(parsers, result, currentProperty, currentBody)
 }
 
 function parseDocCommentSection(parsers, lines, propRE, defaultProp, _propertyFetcher) {
-  let result          = { type: this.type };
+  let result          = (Nife.isEmpty(parsers)) ? {} : { type: this.type };
   let currentBody     = [];
   let currentProperty = defaultProp;
   let propertyFetcher = (_propertyFetcher) ? _propertyFetcher : (name, extra) => ({ name: name.trim(), extra: extra.trim() });

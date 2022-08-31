@@ -27,7 +27,6 @@ module.exports = createParser(
 
     let targetArgs = this.arguments || [];
 
-    delete parsedArgs.type;
     parsedArgs = Nife.arrayFlatten(Array.from(Object.values(parsedArgs)));
 
     parsedArgs = parsedArgs.map((arg, index) => {
