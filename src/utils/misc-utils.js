@@ -75,7 +75,28 @@ async function runMiddleware(type, callback, data, options) {
   return result;
 }
 
+function smartAssign(target, ...args) {
+  for (let i = 0, il = args.length; i < il; i++) {
+    let arg = args[i];
+    if (!arg)
+      continue;
+
+    let keys = Object.keys(arg);
+    for (let j = 0, jl = keys.length; j < jl; j++) {
+      let key   = keys[j];
+      let value = arg[key];
+      if (value == null)
+        continue;
+
+      target[key] = value;
+    }
+  }
+
+  return target;
+}
+
 module.exports = {
   collectPromises,
   runMiddleware,
+  smartAssign,
 };

@@ -3,6 +3,7 @@
 const Nife        = require('nife');
 const Path        = require('path');
 const FileSystem  = require('fs');
+const MiscUtils   = require('../../../utils/misc-utils');
 
 const {
   GeneratorBase,
@@ -10,8 +11,8 @@ const {
 
 class GitHubWikiGenerator extends GeneratorBase {
   onGenerateType(context, type) {
-    let newType = type.replace(/<see>\s*([\w.]+)\s*<\/see>/, (m, reference) => {
-      let link = this.buildReferenceLink(reference.trim(), context);
+    let newType = type.replace(/<see\s+(?:name\s*=\s*"([^"]+)")?>\s*([\w.]+)\s*<\/see>/, (m, nameOverride, reference) => {
+      let link = this.buildReferenceLink(reference.trim(), { ...context, nameOverride });
       if (!link)
         return reference;
 
@@ -131,7 +132,7 @@ class GitHubWikiGenerator extends GeneratorBase {
 
       example = example.replace(/\n/g, `\n${_examplesPrefix}`);
 
-      content.push(`${_examplesPrefix} * \`\`\`${this.getLanguageGenerator().getLanguageType()}\n${_examplesPrefix}   ${example}\n>    \`\`\`\n`);
+      content.push(`${_examplesPrefix} * \`\`\`${this.getLanguageGenerator().getLanguageType()}\n${_examplesPrefix}   ${example}\n${_examplesPrefix}   \`\`\`\n`);
     }
 
     // content.push('> <br>\n');
@@ -196,11 +197,26 @@ class GitHubWikiGenerator extends GeneratorBase {
     this.generateExamples({ ...context, examplesPrefix: '' });
     this.generateNotes({ ...context, notesPrefix: '' });
 
-    let properties = this.sortArtifacts(artifact.properties || []);
+    let properties        = this.sortArtifacts(artifact.properties || []);
+    let commentProperties = Nife.get(artifact, 'comment.definition.properties', []);
+
+    // Merge comments and parsed properties
+    for (let i = 0, il = commentProperties.length; i < il; i++) {
+      let commentProperty = commentProperties[i];
+      let index           = properties.findIndex((property) => (property.name === commentProperty.name));
+      let property        = (index < 0) ? null : properties[index];
+
+      if (!property) {
+        properties.push(commentProperty);
+        continue;
+      }
+
+      properties[index] = MiscUtils.smartAssign({}, property, commentProperty);
+    }
+
     for (let i = 0, il = properties.length; i < il; i++) {
-      let propertyArtifact = properties[i];
-      let comment = propertyArtifact.comment;
-      let subContext = Object.assign(
+      let propertyArtifact  = properties[i];
+      let subContext        = Object.assign(
         {},
         context,
         {
@@ -211,9 +227,6 @@ class GitHubWikiGenerator extends GeneratorBase {
           headerContent,
         },
       );
-
-      if (!comment)
-        continue;
 
       this.generateClassProperty(subContext);
 

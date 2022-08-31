@@ -36,7 +36,7 @@ class TypeScriptLanguageGenerator extends LanguageGeneratorBase {
     let options = _options || {};
     let parts   = [ artifact.static && 'static ', `property \`${artifact.parentClass.name}::${artifact.name}\`` ];
 
-    let types = Nife.get(artifact, 'comment.definition.types');
+    let types = Nife.get(artifact, 'comment.definition.types', artifact.types);
     if (Nife.isNotEmpty(types))
       parts.push(`: \`${types.join(' | ')}\``);
 

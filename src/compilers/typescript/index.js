@@ -162,6 +162,9 @@ function compile(parsed, options) {
     if (!node)
       return;
 
+    if (node.text == null)
+      return;
+
     if (node.kind === SK.NullKeyword)
       return 'null';
 

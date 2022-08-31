@@ -15,7 +15,7 @@ module.exports = createParser(
       return;
 
     let lines             = body.split(/\n+/g);
-    let parsedTypes       = parseDocCommentSection.call(this, {}, lines, /^\s*(\w+):(.*)$/);
+    let parsedTypes       = parseDocCommentSection.call(this, {}, lines, /^\s*([\w\s]+):(.*)$/);
     let targetProperties  = this.properties || [];
 
     delete parsedTypes.type;
@@ -32,7 +32,7 @@ module.exports = createParser(
         name:         arg.name,
         description:  arg.body,
         types:        types || [],
-        assignment,
+        assignment:   assignment || targetArg.assignment,
       };
     });
 
@@ -51,6 +51,7 @@ module.exports = createParser(
         name:         arg.name,
         description:  arg.description || '',
         types:        arg.types,
+        assignment:   arg.assignment,
       };
     });
   },

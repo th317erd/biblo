@@ -194,7 +194,7 @@ class GeneratorBase {
       if (node.type === 'tag' && node.name === 'see') {
         let reference = Nife.get(node, 'children[0].data');
         if (reference) {
-          let link = this.buildReferenceLink(reference.trim(), context);
+          let link = this.buildReferenceLink(reference.trim(), { ...context, nameOverride: node.attribs.name });
           if (!link)
             link = reference; // Just fallback to the text
 
@@ -282,17 +282,17 @@ class GeneratorBase {
     return { page, artifact };
   }
 
-  buildReferenceLink(referenceName, { pages, options }) {
+  buildReferenceLink(referenceName, { pages, options, nameOverride }) {
     let { page, artifact } = this.findArtifactByReference(pages, referenceName);
     if (!page && !artifact) {
       console.warn(`Warning: Unable to find "See Also" reference: "${referenceName}"`);
-      return '';
+      return (nameOverride) ? nameOverride : referenceName;
     }
 
     if (!artifact)
-      return `[${this.getPageName(page)}](${this.buildPageURL(page, options)})`;
+      return `[${(nameOverride) ? nameOverride : this.getPageName(page)}](${this.buildPageURL(page, options)})`;
     else
-      return `[${artifact.name}](${this.buildArtifactURL(page, artifact, options)})`;
+      return `[${(nameOverride) ? nameOverride : `${this.getPageName(page)}.${artifact.name}`}](${this.buildArtifactURL(page, artifact, options)})`;
   }
 }
 

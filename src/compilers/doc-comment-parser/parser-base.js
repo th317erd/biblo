@@ -64,6 +64,10 @@ function parseTypes(_str) {
   if (Nife.isEmpty(_str))
     return { types: [], assignment: undefined };
 
+  let result = substitute(str, /<[^>]+>/g);
+
+  str = result.result;
+
   let equalsIndex = str.indexOf('=');
   let assignment;
 
@@ -72,8 +76,7 @@ function parseTypes(_str) {
     str = str.substring(0, equalsIndex).trim();
   }
 
-  let result  = substitute(str, /<[^>]+>/g);
-  let types   = result.result.split(/\|/g).map((part) => {
+  let types = str.split(/\|/g).map((part) => {
     return expand(part, result.parts);
   });
 
