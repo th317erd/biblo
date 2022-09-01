@@ -180,9 +180,9 @@ class GitHubWikiGenerator extends GeneratorBase {
 
     this.generateExamples(context);
     this.generateInterfaces(context);
+    this.generateNotes(context);
     this.generateArgs(context);
     this.generateReturn(context);
-    this.generateNotes(context);
     this.generateSeeAlso(context);
   }
 

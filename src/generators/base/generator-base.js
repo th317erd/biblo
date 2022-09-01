@@ -240,7 +240,7 @@ class GeneratorBase {
   punctuate(_description, context) {
     let description = this.parseAndGenerateDescription(_description, context);
 
-    if (!(/[!?.`:]$/).test(description))
+    if ((/\w$/).test(description))
       return `${description}.`;
 
     return description;
