@@ -36,7 +36,7 @@ class TypeScriptLanguageGenerator extends LanguageGeneratorBase {
     let options = _options || {};
     let parts   = [ artifact.static && 'static ', `property \`${(artifact.parentClass) ? `${artifact.parentClass.name}::` : ''}${artifact.name}\`` ];
 
-    let types = Nife.get(artifact, 'comment.definition.types', artifact.types);
+    let types = Nife.get(artifact, 'comment.definition.types', (artifact.types && artifact.types.types || artifact.types));
     if (Nife.isNotEmpty(types))
       parts.push(`: \`${types.join(' | ')}\``);
 
@@ -83,7 +83,7 @@ class TypeScriptLanguageGenerator extends LanguageGeneratorBase {
       returnType = artifact['return'];
 
     if (returnType) {
-      let typeStr = this.generateTypes(context, returnType.types.types);
+      let typeStr = this.generateTypes(context, returnType.types.types || returnType.types);
       if (typeStr)
         parts.push(`: ${typeStr}`);
     }

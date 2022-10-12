@@ -281,6 +281,8 @@ function parseDocComment(comment, artifact) {
     lines,
     DEFAULT_PROP_REGEX,
     { name: 'description', extra: '' },
+    null,
+    true,
   );
 }
 

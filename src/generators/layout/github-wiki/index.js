@@ -11,7 +11,7 @@ const {
 
 class GitHubWikiGenerator extends GeneratorBase {
   onGenerateType(context, type) {
-    let newType = type.replace(/<see(?:\s+name\s*=\s*"([^"]+)")?>\s*([\w.]+)\s*<\/see>/, (m, nameOverride, reference) => {
+    let newType = type.replace(/<see(?:\s+name\s*=\s*"([^"]+)")?>\s*([\w.]+)\s*<\/see>/g, (m, nameOverride, reference) => {
       let link = this.buildReferenceLink(reference.trim(), { ...context, nameOverride });
       if (!link)
         return reference;
@@ -45,7 +45,7 @@ class GitHubWikiGenerator extends GeneratorBase {
 
         let description = arg.description;
         if (Nife.isNotEmpty(description))
-          content.push(`>      > ${this.punctuate(description, context).replace(/\n/g, '\n>      > ')}\n`);
+          content.push(`>      > ${this.punctuate(description, context).replace(/\n/g, '\n>      > ').replace(/^> {6}>\s+\|/gm, '>      > |')}\n`);
       }
     }
   }
@@ -70,7 +70,7 @@ class GitHubWikiGenerator extends GeneratorBase {
         content.push('>\n> **Return value**: `undefined`\n');
 
       if (Nife.isNotEmpty(description))
-        content.push(`>  > ${this.punctuate(description, context).replace(/\n/g, '\n>  > ')}\n`);
+        content.push(`>  > ${this.punctuate(description, context).replace(/\n\s+/g, '\n>  > ')}\n`);
     }
   }
 
@@ -85,7 +85,8 @@ class GitHubWikiGenerator extends GeneratorBase {
       if (!arg || !arg.name)
         continue;
 
-      subContent.push(this.buildReferenceLink(arg.name, { pages, options }));
+      let link = this.buildReferenceLink(arg.name, { pages, options, nameOverride: arg.altName });
+      subContent.push(`${(arg['static']) ? '**static** ' : ''}${link}`);
     }
 
     if (Nife.isNotEmpty(subContent))
@@ -173,10 +174,11 @@ class GitHubWikiGenerator extends GeneratorBase {
 
     sidebarItems.push(`  * ${functionType || 'function'} [${artifact.name}](${this.buildArtifactURL(page, artifact, options)})`);
 
-    content.push(`#### <a name="${this.buildArtifactID(artifact)}"></a>${this.getLanguageGenerator().generateSignature(context, artifact)}\n`);
+    content.push(`#### **<a name="${this.buildArtifactID(artifact)}"></a>${this.getLanguageGenerator().generateSignature(context, artifact)}**\n`);
 
-    let description = this.punctuate(this.getLanguageGenerator().generateDescription(context, artifact), context).replace(/\n/g, '\n> ');
-    content.push(`> ${description}\n`);
+    let description = this.punctuate(this.getLanguageGenerator().generateDescription(context, artifact), context);
+    //content.push(`> ${description.replace(/\n/g, '\n> ')}\n`);
+    content.push(`${description}\n`);
 
     this.generateExamples(context);
     this.generateInterfaces(context);
@@ -197,10 +199,11 @@ class GitHubWikiGenerator extends GeneratorBase {
 
     sidebarItems.push(`  * property [${artifact.name}](${this.buildArtifactURL(page, artifact, options)})`);
 
-    content.push(`#### <a name="${this.buildArtifactID(artifact)}"></a>${this.getLanguageGenerator().generateSignature(context, artifact)}\n`);
+    content.push(`#### **<a name="${this.buildArtifactID(artifact)}"></a>${this.getLanguageGenerator().generateSignature(context, artifact)}**\n`);
 
-    let description = this.punctuate(this.getLanguageGenerator().generateDescription(context, artifact), context).replace(/\n/g, '\n> ');
-    content.push(`> ${description}\n`);
+    let description = this.punctuate(this.getLanguageGenerator().generateDescription(context, artifact), context);
+    // content.push(`> ${description.replace(/\n/g, '\n> ')}\n`);
+    content.push(`${description}\n`);
 
     this.generateExamples(context);
     this.generateInterfaces(context);
@@ -223,7 +226,7 @@ class GitHubWikiGenerator extends GeneratorBase {
     this.generateInterfaces({ ...context, interfacesPrefix: '' });
     this.generateNotes({ ...context, notesPrefix: '' });
 
-    let properties        = this.sortArtifacts(artifact.properties || []);
+    let properties        = artifact.properties || [];
     let commentProperties = Nife.get(artifact, 'comment.definition.properties', []);
 
     // Merge comments and parsed properties
@@ -239,6 +242,8 @@ class GitHubWikiGenerator extends GeneratorBase {
 
       properties[index] = MiscUtils.smartAssign({}, property, commentProperty);
     }
+
+    properties = this.sortArtifacts(properties);
 
     for (let i = 0, il = properties.length; i < il; i++) {
       let propertyArtifact  = properties[i];

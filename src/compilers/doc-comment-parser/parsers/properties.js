@@ -25,14 +25,21 @@ module.exports = createParser(
       let targetTypes = (targetArg && targetArg.types);
 
       let { types, assignment } = (!Nife.isEmpty(arg.extra)) ? parseTypes(arg.extra) : targetTypes;
+      let isStatic = false;
+
+      let name = arg.name.replace(/^static\s+/g, () => {
+        isStatic = true;
+        return '';
+      });
 
       return {
-        parentClass:  this,
-        type:         'PropertyDeclaration',
-        name:         arg.name,
-        description:  arg.body,
-        types:        types || [],
-        assignment:   assignment || (targetArg && targetArg.assignment),
+        'static':       isStatic,
+        'parentClass':  this,
+        'type':         'PropertyDeclaration',
+        'name':         name,
+        'description':  arg.body,
+        'types':        types || [],
+        'assignment':   assignment || (targetArg && targetArg.assignment),
       };
     });
 

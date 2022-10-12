@@ -6,9 +6,18 @@ const {
 
 module.exports = createParser(
   function(result, args) {
+    let isStatic = false;
+
+    let altName = args.extra.replace(/\.static\s+/, () => {
+      isStatic = true;
+      return '.';
+    });
+
     return (result['see'] || []).concat({
-      type:         'SeeAlso',
-      name:         args.extra,
+      'static':   isStatic,
+      'type':     'SeeAlso',
+      'name':     args.extra,
+      'altName':  altName,
     });
   },
   null,

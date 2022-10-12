@@ -30,7 +30,7 @@ function compile(parsed, options) {
   const SK = Typescript.SyntaxKind;
 
   const adjustNodeStartPos = (node) => {
-    if (node.kind < 0)
+    if (node.kind < 0 || typeof node.getStart !== 'function')
       return node;
 
     node.pos = node.getStart();
@@ -200,7 +200,7 @@ function compile(parsed, options) {
     }
 
     if (node.members) {
-      parentClass.properties = node.members.filter((memberNode) => memberNode.kind === SK.PropertyDeclaration).map((_memberNode) => {
+      parentClass.properties = node.members.filter((memberNode) => memberNode.kind === (SK.PropertyDeclaration && !(memberNode.initializer && memberNode.initializer.kind !== SK.ArrowFunction))).map((_memberNode) => {
         let memberNode  = adjustNodeStartPos(_memberNode);
         let typeStr     = (memberNode.type) ? source.substring(memberNode.type.getFullStart(), memberNode.type.getFullStart() + memberNode.type.getFullWidth()) : undefined;
 
@@ -219,8 +219,19 @@ function compile(parsed, options) {
       });
 
       parentClass.methods = node.members
-        .filter((memberNode) => (memberNode.kind === SK.Constructor || memberNode.kind === SK.MethodDeclaration))
-        .map((memberNode) => buildFunctionDeclarationArtifact(memberNode, parentClass));
+        .filter((memberNode) => (memberNode.kind === SK.Constructor || memberNode.kind === SK.MethodDeclaration || (memberNode.initializer && memberNode.initializer.kind === SK.ArrowFunction)))
+        .map((_memberNode) => {
+          let memberNode = adjustNodeStartPos(_memberNode);
+          if (memberNode.initializer && memberNode.initializer.kind === SK.ArrowFunction) {
+            let funcNode = memberNode.initializer;
+            funcNode.parent = memberNode.parent;
+            funcNode.modifiers = (memberNode.modifiers || []).concat(funcNode.modifiers || []);
+            funcNode.name = memberNode.name;
+            memberNode = funcNode;
+          }
+
+          return buildFunctionDeclarationArtifact(memberNode, parentClass);
+        });
 
       artifacts = artifacts.concat(parentClass.properties, parentClass.methods);
     }

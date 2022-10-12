@@ -68,13 +68,11 @@ function parseTypes(_str) {
 
   str = result.result;
 
-  let equalsIndex = str.indexOf('=');
   let assignment;
-
-  if (equalsIndex >= 0) {
-    assignment = str.substring(equalsIndex + 1).trim();
-    str = str.substring(0, equalsIndex).trim();
-  }
+  str = str.replace(/=\s+(.*)$/, (m, a) => {
+    assignment = a;
+    return '';
+  }).trim();
 
   let types = str.split(/\|/g).map((part) => {
     return expand(part, result.parts);
@@ -119,7 +117,7 @@ function handleDocCommentProperty(parsers, result, currentProperty, currentBody)
     result[outputName] = parserResult;
 }
 
-function parseDocCommentSection(parsers, lines, propRE, defaultProp, _propertyFetcher) {
+function parseDocCommentSection(parsers, lines, propRE, defaultProp, _propertyFetcher, rootLevel) {
   let result          = (Nife.isEmpty(parsers)) ? {} : { type: this.type };
   let currentBody     = [];
   let currentProperty = defaultProp;
@@ -128,20 +126,26 @@ function parseDocCommentSection(parsers, lines, propRE, defaultProp, _propertyFe
   for (let i = 0, il = lines.length; i < il; i++) {
     let line        = lines[i];
     let isProperty  = false;
+    let shouldCheckRegExp = (rootLevel) ? (lines[i - 1] === undefined || lines[i - 1] === '/') : true;
 
-    line.replace(propRE, (m, ...args) => {
-      isProperty = true;
+    // if (currentProperty && currentProperty.name === 'description')
+    //   shouldCheckRegExp = (lines[i - 1] === undefined || lines[i - 1] === '/');
 
-      if ((/^\/!/).test(m))
-        result['global'] = true;
+    if (shouldCheckRegExp) {
+      line.replace(propRE, (m, ...args) => {
+        isProperty = true;
 
-      if (currentProperty) {
-        handleDocCommentProperty.call(this, parsers, result, currentProperty, currentBody);
-        currentBody = [];
-      }
+        if ((/^\/!/).test(m))
+          result['global'] = true;
 
-      currentProperty = propertyFetcher(...args);
-    });
+        if (currentProperty) {
+          handleDocCommentProperty.call(this, parsers, result, currentProperty, currentBody);
+          currentBody = [];
+        }
+
+        currentProperty = propertyFetcher(...args);
+      });
+    }
 
     if (isProperty)
       continue;
