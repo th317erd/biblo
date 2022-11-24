@@ -1,7 +1,6 @@
 /* eslint-disable no-magic-numbers */
 'use strict';
 
-const Util          = require('util');
 const Nife          = require('nife');
 const Typescript    = require('typescript');
 const CompilerUtils = require('../compiler-utils');
@@ -9,10 +8,6 @@ const CompilerUtils = require('../compiler-utils');
 const {
   parseTypes,
 } = require('../doc-comment-parser/parser-base');
-
-function stripParents(node) {
-  return Nife.extend(Nife.extend.DEEP | Nife.extend.FILTER | Nife.extend.INSTANCES, (key) => (key !== 'parent'), {}, node);
-}
 
 function compile(parsed, options) {
   let {
@@ -28,6 +23,11 @@ function compile(parsed, options) {
   let nodes     = [];
 
   const SK = Typescript.SyntaxKind;
+
+  const getLineNumber = (start) => {
+    let substr = source.substring(0, start);
+    return substr.split(/^/mg).length || 1;
+  };
 
   const adjustNodeStartPos = (node) => {
     if (node.kind < 0 || typeof node.getStart !== 'function')
@@ -189,6 +189,7 @@ function compile(parsed, options) {
       'sourceControlFileName':  CompilerUtils.getSourceControlFileName(options.fileName, options),
       'type':                   'ClassDeclaration',
       'genericType':            'ClassDeclaration',
+      'lineNumber':             getLineNumber(node.name.pos),
       'start':                  node.name.pos,
       'end':                    node.end,
       'name':                   node.name.escapedText,
@@ -200,21 +201,25 @@ function compile(parsed, options) {
     }
 
     if (node.members) {
-      parentClass.properties = node.members.filter((memberNode) => memberNode.kind === (SK.PropertyDeclaration && !(memberNode.initializer && memberNode.initializer.kind !== SK.ArrowFunction))).map((_memberNode) => {
+      parentClass.properties = node.members.filter((memberNode) => (memberNode.kind === SK.PropertyDeclaration && !(memberNode.initializer && memberNode.initializer.kind === SK.ArrowFunction))).map((_memberNode) => {
         let memberNode  = adjustNodeStartPos(_memberNode);
         let typeStr     = (memberNode.type) ? source.substring(memberNode.type.getFullStart(), memberNode.type.getFullStart() + memberNode.type.getFullWidth()) : undefined;
 
         return assignFloatingComments({
-          'type':         'PropertyDeclaration',
-          'genericType':  'PropertyDeclaration',
-          'start':        memberNode.name.pos,
-          'end':          memberNode.name.end,
-          'name':         memberNode.name.escapedText,
-          'types':        (typeStr) ? parseTypes(typeStr) : undefined,
-          'assignment':   getInitializerValueFromNode(memberNode.initializer),
-          'parentClass':  parentClass,
-          'static':       isStatic(memberNode),
-          'access':       getAccessLevel(memberNode),
+          'fileName':               parentClass.fileName,
+          'relativeFileName':       parentClass.relativeFileName,
+          'sourceControlFileName':  parentClass.sourceControlFileName,
+          'type':                   'PropertyDeclaration',
+          'genericType':            'PropertyDeclaration',
+          'lineNumber':             getLineNumber(memberNode.name.pos),
+          'start':                  memberNode.name.pos,
+          'end':                    memberNode.name.end,
+          'name':                   memberNode.name.escapedText,
+          'types':                  (typeStr) ? parseTypes(typeStr) : undefined,
+          'assignment':             getInitializerValueFromNode(memberNode.initializer),
+          'parentClass':            parentClass,
+          'static':                 isStatic(memberNode),
+          'access':                 getAccessLevel(memberNode),
         });
       });
 
@@ -267,6 +272,7 @@ function compile(parsed, options) {
       returnNode = assignFloatingComments({
         'type':         'Type',
         'genericType':  'Type',
+        'lineNumber':   getLineNumber(node.pos),
         'start':        node.pos,
         'end':          node.end,
         'types':        parseTypes(node.parent.name.escapedText).types,
@@ -283,6 +289,7 @@ function compile(parsed, options) {
       'sourceControlFileName':  CompilerUtils.getSourceControlFileName(options.fileName, options),
       'type':                   'FunctionDeclaration',
       'genericType':            'FunctionDeclaration',
+      'lineNumber':             getLineNumber(node.pos),
       'start':                  node.pos,
       'end':                    node.end,
       'isConstructor':          isConstructor,
@@ -340,6 +347,7 @@ function compile(parsed, options) {
           'sourceControlFileName':  CompilerUtils.getSourceControlFileName(options.fileName, options),
           'type':                   (node.kind === -2) ? 'CommentBlock' : 'CommentLine',
           'genericType':            'Comment',
+          'lineNumber':             getLineNumber(node.pos),
           'start':                  node.pos,
           'end':                    node.end,
           'value':                  node.value,

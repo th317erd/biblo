@@ -19,6 +19,7 @@ async function collectPromises(_promises, options) {
     if (options && options.logger)
       options.logger.log((options && options.errorMessage) ? options.errorMessage : 'collectPromises: There were errors encountered. Aborting.');
 
+    console.log('Errors: ', errors);
     let error = new Error((options && options.errorMessage) ? options.errorMessage : 'collectPromises: There were errors encountered. Aborting.');
     error.errors = errors;
 

@@ -25,6 +25,18 @@ class GitHubWikiGenerator extends GeneratorBase {
     return `\`${type}\``;
   }
 
+  generateSourceLink(context) {
+    let { artifact, options } = context;
+    if (!artifact.lineNumber || !artifact.sourceControlFileName)
+      return '';
+
+    let repositoryURL = Nife.get(options, 'generatorOptions.repositoryURL');
+    if (!repositoryURL)
+      return '';
+
+    return `[📜](${repositoryURL}/blob/main/${artifact.sourceControlFileName}#L${artifact.lineNumber})`;
+  }
+
   generateArgs(context) {
     let {
       artifact,
@@ -74,10 +86,20 @@ class GitHubWikiGenerator extends GeneratorBase {
     }
   }
 
-  generateSeeAlso({ pages, artifact: currentArtifact, content, options }) {
+  generateSeeAlso(context) {
+    let {
+      pages,
+      artifact: currentArtifact,
+      seeAlsoPrefix,
+      content,
+      options,
+    } = context;
+
     let seeAlso = Nife.get(currentArtifact, 'comment.definition.see');
     if (Nife.isEmpty(seeAlso))
       return;
+
+    let _seeAlsoPrefix = (seeAlsoPrefix != null) ? seeAlsoPrefix : '> ';
 
     let subContent = [];
     for (let i = 0, il = seeAlso.length; i < il; i++) {
@@ -90,7 +112,7 @@ class GitHubWikiGenerator extends GeneratorBase {
     }
 
     if (Nife.isNotEmpty(subContent))
-      content.push(`>\n> **See also**: ${subContent.join(', ')}\n`);
+      content.push(`${(seeAlsoPrefix != null) ? '' : `>\n${_seeAlsoPrefix}`}**See also**: ${subContent.join(', ')}\n`);
   }
 
   generateNotes(context) {
@@ -174,7 +196,8 @@ class GitHubWikiGenerator extends GeneratorBase {
 
     sidebarItems.push(`  * ${functionType || 'function'} [${artifact.name}](${this.buildArtifactURL(page, artifact, options)})`);
 
-    content.push(`#### **<a name="${this.buildArtifactID(artifact)}"></a>${this.getLanguageGenerator().generateSignature(context, artifact)}**\n`);
+    let sourceURL = this.generateSourceLink(context);
+    content.push(`#### **<a name="${this.buildArtifactID(artifact)}"></a>${this.getLanguageGenerator().generateSignature(context, artifact)}** ${sourceURL}\n`);
 
     let description = this.punctuate(this.getLanguageGenerator().generateDescription(context, artifact), context);
     //content.push(`> ${description.replace(/\n/g, '\n> ')}\n`);
@@ -199,7 +222,8 @@ class GitHubWikiGenerator extends GeneratorBase {
 
     sidebarItems.push(`  * property [${artifact.name}](${this.buildArtifactURL(page, artifact, options)})`);
 
-    content.push(`#### **<a name="${this.buildArtifactID(artifact)}"></a>${this.getLanguageGenerator().generateSignature(context, artifact)}**\n`);
+    let sourceURL = this.generateSourceLink(context);
+    content.push(`#### **<a name="${this.buildArtifactID(artifact)}"></a>${this.getLanguageGenerator().generateSignature(context, artifact)}** ${sourceURL}\n`);
 
     let description = this.punctuate(this.getLanguageGenerator().generateDescription(context, artifact), context);
     // content.push(`> ${description.replace(/\n/g, '\n> ')}\n`);
@@ -225,6 +249,7 @@ class GitHubWikiGenerator extends GeneratorBase {
     this.generateExamples({ ...context, examplesPrefix: '' });
     this.generateInterfaces({ ...context, interfacesPrefix: '' });
     this.generateNotes({ ...context, notesPrefix: '' });
+    this.generateSeeAlso({ ...context, seeAlsoPrefix: '' });
 
     let properties        = artifact.properties || [];
     let commentProperties = Nife.get(artifact, 'comment.definition.properties', []);
@@ -297,7 +322,11 @@ class GitHubWikiGenerator extends GeneratorBase {
     if (page.type === 'namespace')
       return `# namespace \`${this.getPageName(page)}\`\n\n`;
 
-    return `# ${this.getLanguageGenerator().generateSignature(context, page.artifact)}\n\n`;
+    let sourceURL = '';
+    if (page.artifact && page.artifact.genericType === 'ClassDeclaration')
+      sourceURL = this.generateSourceLink({ ...context, artifact: page.artifact });
+
+    return `# ${this.getLanguageGenerator().generateSignature(context, page.artifact)} ${sourceURL}\n\n`;
   }
 
   generatePage(context) {

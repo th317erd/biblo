@@ -18,6 +18,11 @@ async function compile(parsed, options) {
   if (Nife.isEmpty(artifacts))
     return [];
 
+  const getLineNumber = (start) => {
+    let substr = source.substring(0, start);
+    return substr.split(/^/mg).length || 1;
+  };
+
   const parseArgumentDescription = (arg) => {
     let body = [].concat(
       arg.leadingComments,
@@ -66,6 +71,7 @@ async function compile(parsed, options) {
       'sourceControlFileName':  CompilerUtils.getSourceControlFileName(options.fileName, options),
       'type':                   'ClassDeclaration',
       'genericType':            'ClassDeclaration',
+      'lineNumber':             getLineNumber(node.start),
       'start':                  node.start,
       'end':                    node.end,
       'name':                   node.id.name,
@@ -91,6 +97,7 @@ async function compile(parsed, options) {
         returnNode = {
           'type':         'Type',
           'genericType':  'Type',
+          'lineNumber':   getLineNumber(node.start),
           'start':        node.start,
           'end':          node.end,
           'types':        [ parentClass.name ],
@@ -104,6 +111,7 @@ async function compile(parsed, options) {
       'sourceControlFileName':  CompilerUtils.getSourceControlFileName(options.fileName, options),
       'type':                   'FunctionDeclaration',
       'genericType':            'FunctionDeclaration',
+      'lineNumber':             getLineNumber(node.start),
       'start':                  node.start,
       'end':                    node.end,
       'name':                   name,
@@ -131,6 +139,7 @@ async function compile(parsed, options) {
     return {
       'type':                   'PropertyDeclaration',
       'genericType':            'PropertyDeclaration',
+      'lineNumber':             getLineNumber(node.start),
       'start':                  node.start,
       'end':                    node.end,
       'name':                   node.key.name || node.key.id.name,

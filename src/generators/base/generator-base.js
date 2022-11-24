@@ -229,9 +229,9 @@ class GeneratorBase {
       return '';
 
     let description = _description.trim();
-    let DOM         = HTMLParser.parseDocument(description.replace(/```[\s\S]*?```/g, subContentTag));
+    let DOM         = HTMLParser.parseDocument(description.replace(/```[\s\S]*?```|`[^\n\r]+?`/g, subContentTag), { decodeEntities: false });
 
-    description = renderHTML(filterTags(DOM), { encodeEntities: false }).trim();
+    description = renderHTML(filterTags(DOM), { decodeEntities: false, encodeEntities: false }).trim();
     description = description.replace(/@@@@@BLIBLO_TAG\[(\d+)\]@@@@@/g, unsubContentTag);
 
     return description;

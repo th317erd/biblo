@@ -36,7 +36,7 @@ module.exports = createParser(
       let targetArg   = targetArgs[index];
       let targetTypes = (targetArg && targetArg.types);
 
-      let { types, assignment } = (!Nife.isEmpty(arg.extra)) ? parseTypes(arg.extra) : targetTypes;
+      let { types, assignment } = ((!Nife.isEmpty(arg.extra)) ? parseTypes(arg.extra) : targetTypes) || {};
 
       return {
         type:         'FunctionArgument',

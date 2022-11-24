@@ -92,13 +92,24 @@ function isCommentInsideFunction(commentArtifact, artifacts) {
 function removePointlessArtifacts(artifacts) {
   let artifactMap = {};
 
+  const isValidComment = (comment) => {
+    let lines = comment.split(/\r\n|\r|\n/g).filter((line) => {
+      if (!(/^\//).test(line))
+        return false;
+
+      return true;
+    }).filter(Nife.isNotEmpty);
+
+    return Nife.isNotEmpty(lines);
+  };
+
   for (let i = 0, il = artifacts.length; i < il; i++) {
     let artifact  = artifacts[i];
 
     if (artifact.genericType === 'Comment') {
       // Ignore comments that don't start
       // with triple forward slashes
-      if (!(/^\//).test(artifact.value))
+      if (!isValidComment(artifact.value))
         continue;
 
       if (isCommentInsideFunction(artifact, artifacts))
@@ -274,7 +285,10 @@ function collectCommentsIntoArtifacts(_artifacts) {
 ///     The artifact that is related to this comment.
 /// See: CompilerUtils.parseDocComments
 function parseDocComment(comment, artifact) {
-  let lines = comment.split(/\n+/g);
+  let lines = comment.split(/\n+/g).filter((line) => {
+    return (/^\//).test(line);
+  });
+
   return parseDocCommentSection.call(
     artifact,
     docCommentParsers,
