@@ -18,7 +18,7 @@ module.exports = createParser(
     let parsedArgs  = parseDocCommentSection.call(this,
       {},
       lines,
-      /^\s*([\w$]+)\s*(\?)?\s*:(.*)$/,
+      /^\s*([\w$.]+)\s*(\?)?\s*:(.*)$/,
       null,
       (name, optional, extra) => {
         return { name: name.trim(), extra: extra.trim(), optional: (optional === '?') };

@@ -324,11 +324,14 @@ function parseDocComments(_artifacts) {
 
   if (globalArtifact) {
     globalComment = parseDocComment(globalArtifact.value, globalArtifact) || {};
+    globalArtifact.name = globalComment.docScope;
+
     artifacts = [
       {
         type:       'GlobalDocComment',
         global:     true,
-        comment: Object.assign({}, globalArtifact, {
+        name:       globalComment.docScope,
+        comment: Nife.extend(true, {}, globalArtifact, {
           definition: globalComment,
         }),
       },

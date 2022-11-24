@@ -124,9 +124,9 @@ function parseDocCommentSection(parsers, lines, propRE, defaultProp, _propertyFe
   let propertyFetcher = (_propertyFetcher) ? _propertyFetcher : (name, extra) => ({ name: name.trim(), extra: extra.trim() });
 
   for (let i = 0, il = lines.length; i < il; i++) {
-    let line        = lines[i];
-    let isProperty  = false;
-    let shouldCheckRegExp = (rootLevel) ? (lines[i - 1] === undefined || lines[i - 1] === '/') : true;
+    let line              = lines[i];
+    let isProperty        = false;
+    let shouldCheckRegExp = (rootLevel) ? (lines[i - 1] == null || (/^\/!?\s*$/).test(lines[i - 1])) : true;
 
     // if (currentProperty && currentProperty.name === 'description')
     //   shouldCheckRegExp = (lines[i - 1] === undefined || lines[i - 1] === '/');

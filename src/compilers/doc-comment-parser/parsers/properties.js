@@ -34,7 +34,7 @@ module.exports = createParser(
 
       return {
         'static':       isStatic,
-        'parentClass':  this,
+        'parentClass':  this,//(this.type === 'ClassDeclaration') ? this : null,
         'type':         'PropertyDeclaration',
         'name':         name,
         'description':  arg.body,

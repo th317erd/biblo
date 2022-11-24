@@ -99,8 +99,6 @@ class GitHubWikiGenerator extends GeneratorBase {
     if (Nife.isEmpty(seeAlso))
       return;
 
-    let _seeAlsoPrefix = (seeAlsoPrefix != null) ? seeAlsoPrefix : '> ';
-
     let subContent = [];
     for (let i = 0, il = seeAlso.length; i < il; i++) {
       let arg = seeAlso[i];
@@ -112,7 +110,7 @@ class GitHubWikiGenerator extends GeneratorBase {
     }
 
     if (Nife.isNotEmpty(subContent))
-      content.push(`${(seeAlsoPrefix != null) ? '' : `>\n${_seeAlsoPrefix}`}**See also**: ${subContent.join(', ')}\n`);
+      content.push(`${(seeAlsoPrefix != null) ? seeAlsoPrefix : '>\n> '}**See also**: ${subContent.join(', ')}\n\n`);
   }
 
   generateNotes(context) {
@@ -211,7 +209,7 @@ class GitHubWikiGenerator extends GeneratorBase {
     this.generateSeeAlso(context);
   }
 
-  generateClassProperty(context) {
+  generateProperty(context) {
     let {
       options,
       page,
@@ -235,21 +233,13 @@ class GitHubWikiGenerator extends GeneratorBase {
     this.generateSeeAlso(context);
   }
 
-  generateClass(context) {
+  generateProperties(context) {
     let {
       artifact,
       content,
       sidebarItems,
       headerContent,
     } = context;
-
-    let description = this.punctuate(this.getLanguageGenerator().generateDescription(context, artifact), context);
-    headerContent.push(`${description}\n`);
-
-    this.generateExamples({ ...context, examplesPrefix: '' });
-    this.generateInterfaces({ ...context, interfacesPrefix: '' });
-    this.generateNotes({ ...context, notesPrefix: '' });
-    this.generateSeeAlso({ ...context, seeAlsoPrefix: '' });
 
     let properties        = artifact.properties || [];
     let commentProperties = Nife.get(artifact, 'comment.definition.properties', []);
@@ -284,10 +274,28 @@ class GitHubWikiGenerator extends GeneratorBase {
         },
       );
 
-      this.generateClassProperty(subContext);
+      this.generateProperty(subContext);
 
       content.push('\n\n<br>\n\n');
     }
+  }
+
+  generateClass(context) {
+    let {
+      artifact,
+      content,
+      sidebarItems,
+      headerContent,
+    } = context;
+
+    let description = this.punctuate(this.getLanguageGenerator().generateDescription(context, artifact), context);
+    headerContent.push(`${description}\n`);
+
+    this.generateExamples({ ...context, examplesPrefix: '' });
+    this.generateInterfaces({ ...context, interfacesPrefix: '' });
+    this.generateNotes({ ...context, notesPrefix: '' });
+    this.generateSeeAlso({ ...context, seeAlsoPrefix: '\n' });
+    this.generateProperties(context);
 
     let methods = this.sortArtifacts(artifact.methods || []);
     for (let i = 0, il = methods.length; i < il; i++) {
@@ -368,6 +376,8 @@ class GitHubWikiGenerator extends GeneratorBase {
         let descriptionBody = Nife.get(comment, 'definition.description.body');
         if (!Nife.isEmpty(descriptionBody))
           headerContent.push(descriptionBody);
+
+        this.generateProperties(subContext);
 
         continue;
       }
