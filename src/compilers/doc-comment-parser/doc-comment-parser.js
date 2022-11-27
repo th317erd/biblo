@@ -11,5 +11,6 @@ module.exports = {
   'properties':   require('./parsers/properties.js'),
   'return':       require('./parsers/return.js'),
   'see':          require('./parsers/see.js'),
+  'syntaxtype':   require('./parsers/syntax-type.js'),
   'type':         require('./parsers/type.js'),
 };

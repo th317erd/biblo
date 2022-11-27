@@ -362,9 +362,24 @@ function parseDocComments(_artifacts) {
       parseDocComment(comment.value, artifact),
       { global: false },
     );
+
+    if (comment.definition.syntaxType) {
+      artifact.type = artifact.genericType = comment.definition.syntaxType;
+      if (artifact.parentClass) {
+        if (comment.definition.syntaxType === 'FunctionDeclaration' && artifact.parentClass.properties) {
+          artifact.parentClass.properties = artifact.parentClass.properties.filter((subArtifact) => {
+            return (subArtifact.name !== artifact.name);
+          });
+
+          artifact.parentClass.methods = (artifact.parentClass.methods || []).concat(artifact);
+
+          artifacts[i] = null;
+        }
+      }
+    }
   }
 
-  return artifacts;
+  return artifacts.filter(Boolean);
 }
 
 function collectComments(source, comments) {
