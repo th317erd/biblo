@@ -373,7 +373,7 @@ function parseDocComments(_artifacts) {
 
           artifact.parentClass.methods = (artifact.parentClass.methods || []).concat(artifact);
 
-          artifacts[i] = null;
+          // artifacts[i] = null;
         }
       }
     }

@@ -372,9 +372,6 @@ class GitHubWikiGenerator extends GeneratorBase {
       if (!comment)
         continue;
 
-      if (artifact.name === 'AND')
-        console.log('Artifact', artifact);
-
       if (artifact.type === 'GlobalDocComment') {
         let descriptionBody = Nife.get(comment, 'definition.description.body');
         if (!Nife.isEmpty(descriptionBody))
