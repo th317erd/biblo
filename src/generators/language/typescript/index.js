@@ -50,8 +50,9 @@ class TypeScriptLanguageGenerator extends LanguageGeneratorBase {
     let options = _options || {};
     let parts   = [ `class \`${artifact.name}\`` ];
 
-    if (artifact.extendsFromClass)
-      parts.push(` extends \`${artifact.extendsFromClass}\``);
+    let extendsFrom = Nife.get(artifact, 'comment.definition.extends', (artifact.extendsFromClass) ? `\`${artifact.extendsFromClass}\`` : '');
+    if (extendsFrom)
+      parts.push(` extends ${extendsFrom}`);
 
     return parts.join('');
   }

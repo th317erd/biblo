@@ -19,6 +19,28 @@ class GitHubWikiGenerator extends GeneratorBase {
       return link;
     });
 
+    let links = [];
+    let parsedLinksResult = newType.replace(/\[[^\]]+\]\([^)]+\)/g, (m) => {
+      let id = links.length;
+      links.push(m);
+      return `@@@LINK[${id}]@@@`;
+    });
+
+    if (links.length > 0) {
+      parsedLinksResult = parsedLinksResult.replace(/@@@LINK\[\d+\]@@@|.*?/g, (m) => {
+        let id = m.match(/@@@LINK\[(\d+)\]@@@/);
+        if (id)
+          return links[id[1]];
+
+        if (Nife.isEmpty(m))
+          return m;
+
+        return `\`${m}\``;
+      });
+
+      return parsedLinksResult;
+    }
+
     if (newType !== type)
       return newType;
 
