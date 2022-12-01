@@ -75,7 +75,7 @@ class TypeScriptLanguageGenerator extends LanguageGeneratorBase {
     }
 
     if (Nife.isNotEmpty(outputArgs))
-      parts.push(outputArgs.join(', '));
+      parts.push((typeof options.argumentFormatter === 'function') ? options.argumentFormatter(outputArgs) : outputArgs.join(', '));
 
     parts.push(')');
 

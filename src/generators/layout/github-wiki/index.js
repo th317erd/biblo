@@ -9,6 +9,8 @@ const {
   GeneratorBase,
 } = require('../../base');
 
+const BASE_PREFIX = '';
+
 class GitHubWikiGenerator extends GeneratorBase {
   onGenerateType(context, type) {
     let newType = type.replace(/<see(?:\s+name\s*=\s*"([^"]+)")?>\s*([\w.]+)\s*<\/see>/g, (m, nameOverride, reference) => {
@@ -70,16 +72,22 @@ class GitHubWikiGenerator extends GeneratorBase {
       args = artifact.arguments;
 
     if (Nife.isNotEmpty(args)) {
-      content.push('>\n> **Arguments**:\n');
+      content.push(`${BASE_PREFIX}\n${BASE_PREFIX} **Arguments**:\n`);
       for (let i = 0, il = args.length; i < il; i++) {
         let arg       = args[i];
-        let signature = this.getLanguageGenerator().generateSignature(context, arg, { fullDescription: true });
+        let signature = this.getLanguageGenerator().generateSignature(
+          context,
+          arg,
+          {
+            fullDescription: true,
+          },
+        );
 
-        content.push(`>  * ${signature}\n`);
+        content.push(`${BASE_PREFIX}  * ${signature}\n`);
 
         let description = arg.description;
         if (Nife.isNotEmpty(description))
-          content.push(`>      > ${this.punctuate(description, context).replace(/\n/g, '\n>      > ').replace(/^> {6}>\s+\|/gm, '>      > |')}\n`);
+          content.push(`${BASE_PREFIX}\n      ${BASE_PREFIX} ${this.punctuate(description, context).replace(/\n/g, `\n${BASE_PREFIX}      ${BASE_PREFIX} `).replace(/^[>\s]+\|/gm, `${BASE_PREFIX}      ${BASE_PREFIX} |`)}\n`);
       }
     }
   }
@@ -99,12 +107,12 @@ class GitHubWikiGenerator extends GeneratorBase {
       let description = returnType.description;
 
       if (Nife.isNotEmpty(typeStr))
-        content.push(`>\n> **Return value**: ${typeStr}\n`);
+        content.push(`${BASE_PREFIX}\n${BASE_PREFIX} **Return value**: ${typeStr}\n`);
       else
-        content.push('>\n> **Return value**: `undefined`\n');
+        content.push('${BASE_PREFIX}\n${BASE_PREFIX} **Return value**: `undefined`\n');
 
       if (Nife.isNotEmpty(description))
-        content.push(`>  > ${this.punctuate(description, context).replace(/\n\s+/g, '\n>  > ')}\n`);
+        content.push(`${BASE_PREFIX}\n  ${BASE_PREFIX} ${this.punctuate(description, context).replace(/\n\s+/g, `\n${BASE_PREFIX}  ${BASE_PREFIX} `)}\n`);
     }
   }
 
@@ -132,7 +140,7 @@ class GitHubWikiGenerator extends GeneratorBase {
     }
 
     if (Nife.isNotEmpty(subContent))
-      content.push(`${(seeAlsoPrefix != null) ? seeAlsoPrefix : '>\n> '}**See also**: ${subContent.join(', ')}\n\n`);
+      content.push(`${(seeAlsoPrefix != null) ? seeAlsoPrefix : `${BASE_PREFIX}\n${BASE_PREFIX} `}**See also**: ${subContent.join(', ')}\n\n`);
   }
 
   generateNotes(context) {
@@ -146,9 +154,9 @@ class GitHubWikiGenerator extends GeneratorBase {
     if (Nife.isEmpty(notes))
       return;
 
-    let _notesPrefix = (notesPrefix != null) ? notesPrefix : '> ';
+    let _notesPrefix = (notesPrefix != null) ? notesPrefix : `${BASE_PREFIX} `;
 
-    content.push(`${(notesPrefix != null) ? '' : `>\n${_notesPrefix}`}**Notes**:\n`);
+    content.push(`${(notesPrefix != null) ? '' : `${BASE_PREFIX}\n${_notesPrefix}`}**Notes**:\n`);
     for (let i = 0, il = notes.length; i < il; i++) {
       let note = notes[i];
 
@@ -167,10 +175,10 @@ class GitHubWikiGenerator extends GeneratorBase {
     if (Nife.isEmpty(examples))
       return;
 
-    let _examplesPrefix = (examplesPrefix != null) ? examplesPrefix : '> ';
+    let _examplesPrefix = (examplesPrefix != null) ? examplesPrefix : `${BASE_PREFIX} `;
     let title = (examples.length === 1) ? 'Example' : 'Examples';
 
-    content.push(`${(examplesPrefix != null) ? '' : `>\n${_examplesPrefix}`}**${title}**:\n`);
+    content.push(`${(examplesPrefix != null) ? '' : `${BASE_PREFIX}\n${_examplesPrefix}`}**${title}**:\n`);
     for (let i = 0, il = examples.length; i < il; i++) {
       let example = examples[i];
 
@@ -191,10 +199,10 @@ class GitHubWikiGenerator extends GeneratorBase {
     if (Nife.isEmpty(interfaces))
       return;
 
-    let _interfacesPrefix = (interfacesPrefix != null) ? interfacesPrefix : '> ';
+    let _interfacesPrefix = (interfacesPrefix != null) ? interfacesPrefix : `${BASE_PREFIX} `;
     let title = (interfaces.length === 1) ? 'Interface' : 'Interfaces';
 
-    content.push(`${(interfacesPrefix != null) ? '' : `>\n${_interfacesPrefix}`}**${title}**:\n`);
+    content.push(`${(interfacesPrefix != null) ? '' : `${BASE_PREFIX}\n${_interfacesPrefix}`}**${title}**:\n`);
     for (let i = 0, il = interfaces.length; i < il; i++) {
       let thisInterface = interfaces[i];
 
@@ -214,10 +222,14 @@ class GitHubWikiGenerator extends GeneratorBase {
       functionType,
     } = context;
 
+    const argumentFormatter = (args) => {
+      return `<br>&nbsp;&nbsp;&nbsp;&nbsp;${args.join(',<br>&nbsp;&nbsp;&nbsp;&nbsp;')},<br>`;
+    };
+
     sidebarItems.push(`  * ${functionType || 'function'} [${artifact.name}](${this.buildArtifactURL(page, artifact, options)})`);
 
     let sourceURL = this.generateSourceLink(context);
-    content.push(`#### **<a name="${this.buildArtifactID(artifact)}"></a>${this.getLanguageGenerator().generateSignature(context, artifact)}** ${sourceURL}\n`);
+    content.push(`### **<a name="${this.buildArtifactID(artifact)}"></a>${this.getLanguageGenerator().generateSignature(context, artifact, { argumentFormatter })}** ${sourceURL}\n`);
 
     let description = this.punctuate(this.getLanguageGenerator().generateDescription(context, artifact), context);
     //content.push(`> ${description.replace(/\n/g, '\n> ')}\n`);
@@ -243,7 +255,7 @@ class GitHubWikiGenerator extends GeneratorBase {
     sidebarItems.push(`  * property [${artifact.name}](${this.buildArtifactURL(page, artifact, options)})`);
 
     let sourceURL = this.generateSourceLink(context);
-    content.push(`#### **<a name="${this.buildArtifactID(artifact)}"></a>${this.getLanguageGenerator().generateSignature(context, artifact)}** ${sourceURL}\n`);
+    content.push(`### **<a name="${this.buildArtifactID(artifact)}"></a>${this.getLanguageGenerator().generateSignature(context, artifact)}** ${sourceURL}\n`);
 
     let description = this.punctuate(this.getLanguageGenerator().generateDescription(context, artifact), context);
     // content.push(`> ${description.replace(/\n/g, '\n> ')}\n`);
