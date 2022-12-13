@@ -49,6 +49,16 @@ class GitHubWikiGenerator extends GeneratorBase {
     return `\`${type}\``;
   }
 
+  buildArtifactID(artifact, options) {
+    let isReference = (options && options.reference);
+    let artifactID = super.buildArtifactID(artifact, options);
+
+    if (isReference)
+      artifactID = `user-content-${artifactID}`;
+
+    return artifactID;
+  }
+
   generateSourceLink(context) {
     let { artifact, options } = context;
     if (!artifact.lineNumber || !artifact.sourceControlFileName)
@@ -226,10 +236,10 @@ class GitHubWikiGenerator extends GeneratorBase {
       return `<br>&nbsp;&nbsp;&nbsp;&nbsp;${args.join(',<br>&nbsp;&nbsp;&nbsp;&nbsp;')},<br>`;
     };
 
-    sidebarItems.push(`  * ${functionType || 'function'} [${artifact.name}](${this.buildArtifactURL(page, artifact, options)})`);
+    sidebarItems.push(`  * ${functionType || 'function'} [${artifact.name}](${this.buildArtifactURL(page, artifact, { ...(options || {}), reference: true })})`);
 
     let sourceURL = this.generateSourceLink(context);
-    content.push(`### **<a name="${this.buildArtifactID(artifact)}"></a>${this.getLanguageGenerator().generateSignature(context, artifact, { argumentFormatter })}** ${sourceURL}\n`);
+    content.push(`### **<a id="${this.buildArtifactID(artifact)}"></a>${this.getLanguageGenerator().generateSignature(context, artifact, { argumentFormatter })}** ${sourceURL}\n`);
 
     let description = this.punctuate(this.getLanguageGenerator().generateDescription(context, artifact), context);
     //content.push(`> ${description.replace(/\n/g, '\n> ')}\n`);
@@ -252,7 +262,7 @@ class GitHubWikiGenerator extends GeneratorBase {
       sidebarItems,
     } = context;
 
-    sidebarItems.push(`  * property [${artifact.name}](${this.buildArtifactURL(page, artifact, options)})`);
+    sidebarItems.push(`  * property [${artifact.name}](${this.buildArtifactURL(page, artifact, { ...(options || {}), reference: true })})`);
 
     let sourceURL = this.generateSourceLink(context);
     content.push(`### **<a name="${this.buildArtifactID(artifact)}"></a>${this.getLanguageGenerator().generateSignature(context, artifact)}** ${sourceURL}\n`);

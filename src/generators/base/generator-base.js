@@ -102,7 +102,7 @@ class GeneratorBase {
 
   buildArtifactURL(page, artifact, options) {
     let baseURL     = Nife.get(options, 'generatorOptions.baseURL', '.');
-    let artifactID  = this.buildArtifactID(artifact);
+    let artifactID  = this.buildArtifactID(artifact, options);
 
     return (`${baseURL}/${page.fileName}#${artifactID}`).replace(/\/+/g, '/');
   }
@@ -292,7 +292,7 @@ class GeneratorBase {
     if (!artifact)
       return `[${(nameOverride) ? nameOverride : this.getPageName(page)}](${this.buildPageURL(page, options)})`;
     else
-      return `[${(nameOverride) ? nameOverride : `${this.getPageName(page)}.${artifact.name}`}](${this.buildArtifactURL(page, artifact, options)})`;
+      return `[${(nameOverride) ? nameOverride : `${this.getPageName(page)}.${artifact.name}`}](${this.buildArtifactURL(page, artifact, { ...(options || {}), reference: true })})`;
   }
 }
 
