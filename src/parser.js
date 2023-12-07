@@ -1,6 +1,8 @@
 import Path       from 'node:path';
 import YAML       from 'yaml';
 import { glob }   from 'glob';
+import { decode } from 'html-entities';
+
 import * as Utils from './utils/index.js';
 
 import {
@@ -81,9 +83,7 @@ export function parseBlocks(content) {
 
 export function parse(source, _options) {
   const decodeString = (content) => {
-    return content
-      .replace(/&ast;/g, '*')
-      .replace(/&grave;/g, '`');
+    return decode(content);
   };
 
   let options = _options || {};
@@ -127,6 +127,10 @@ export function parse(source, _options) {
       if (!scope)
         return;
     }
+
+    // Allow the scope author to
+    // fully control everything
+    scope = Object.assign({}, scope);
 
     return scope;
   });
