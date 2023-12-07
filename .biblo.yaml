@@ -1,0 +1,12 @@
+root: ./
+include:
+  - "**/src/**/*.js"
+
+exclude:
+  - "**/node_modules/**"
+  - "**/spec/**"
+
+outputFormat: json
+output: ./docs/biblo-docs.json
+props:
+  repo: https://github.com/th317erd/biblo

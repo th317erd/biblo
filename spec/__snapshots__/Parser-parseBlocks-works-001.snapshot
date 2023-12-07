@@ -1,0 +1,88 @@
+{
+  '$type': 'Array',
+  value: [
+    {
+      content: 'This is a block',
+      end: 93,
+      start: 68,
+      nextBlock: {
+        content: 'This is another\nblock',
+        end: 132,
+        previousBlock: <ref *1> {
+          content: 'This is a block',
+          end: 93,
+          nextBlock: <ref *2> {
+            content: 'This is another\nblock',
+            end: 132,
+            start: 101,
+            nextBlock: {
+              content: 'WHAT\n\nTHE\n\nHECK!',
+              end: 206,
+              start: 174,
+              previousBlock: [Circular *2]
+            },
+            previousBlock: [Circular *1]
+          },
+          start: 68
+        },
+        start: 101,
+        nextBlock: {
+          content: 'WHAT\n\nTHE\n\nHECK!',
+          end: 206,
+          previousBlock: <ref *2> {
+            content: 'This is another\nblock',
+            end: 132,
+            previousBlock: <ref *1> {
+              content: 'This is a block',
+              end: 93,
+              start: 68,
+              nextBlock: [Circular *2]
+            },
+            start: 101,
+            nextBlock: {
+              content: 'WHAT\n\nTHE\n\nHECK!',
+              end: 206,
+              start: 174,
+              previousBlock: [Circular *2]
+            }
+          },
+          start: 174
+        }
+      }
+    },
+    <ref *2> {
+      content: 'This is another\nblock',
+      end: 132,
+      previousBlock: <ref *1> {
+        content: 'This is a block',
+        end: 93,
+        start: 68,
+        nextBlock: [Circular *2]
+      },
+      start: 101,
+      nextBlock: {
+        content: 'WHAT\n\nTHE\n\nHECK!',
+        end: 206,
+        start: 174,
+        previousBlock: [Circular *2]
+      }
+    },
+    <ref *3> {
+      content: 'WHAT\n\nTHE\n\nHECK!',
+      end: 206,
+      previousBlock: <ref *2> {
+        content: 'This is another\nblock',
+        end: 132,
+        previousBlock: <ref *1> {
+          content: 'This is a block',
+          end: 93,
+          start: 68,
+          nextBlock: [Circular *2]
+        },
+        start: 101,
+        nextBlock: [Circular *3]
+      },
+      start: 174
+    }
+  ]
+}

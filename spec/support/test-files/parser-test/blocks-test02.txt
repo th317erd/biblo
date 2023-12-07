@@ -1,0 +1,26 @@
+/***
+desc: |
+  Get the smallest argument provided
+args:
+  ...args:
+    type: Array<number>
+    desc: Arguments to compare to find the smallest
+return: |
+  Return the smallest of the arguments provided
+notes:
+  - It is probably wiser to just use (Math.min)[https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/min]
+***/
+function min(...args) {
+
+}
+
+/***
+desc: Do the thing!
+***/
+function doThing() {
+
+}
+
+/*** Stuff ***/
+class Stuff {
+}

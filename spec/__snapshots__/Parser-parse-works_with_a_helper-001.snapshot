@@ -1,0 +1,27 @@
+{
+  '$type': 'Array',
+  value: [
+    {
+      desc: 'Get the smallest argument provided\n',
+      return: 'Return the smallest of the arguments provided\n',
+      type: 'Function',
+      args: {
+        '...args': {
+          desc: 'Arguments to compare to find the smallest',
+          type: 'Array<number>'
+        }
+      },
+      notes: [
+        'It is probably wiser to just use (Math.min)[https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/min]'
+      ]
+    },
+    {
+      desc: 'Do the thing!',
+      type: 'Function'
+    },
+    {
+      desc: 'Stuff',
+      type: 'Class'
+    }
+  ]
+}

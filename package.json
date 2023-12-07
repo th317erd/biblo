@@ -3,7 +3,7 @@
   "version": "1.0.3",
   "description": "Biblo is a Javascript documentation generator",
   "main": "src/index.js",
-  "type": "commonjs",
+  "type": "module",
   "bin": {
     "biblo": "./src/bin/main.js"
   },
@@ -24,20 +24,16 @@
   },
   "homepage": "https://github.com/th317erd/biblo#readme",
   "dependencies": {
-    "@babel/core": "^7.18.5",
-    "@babel/preset-typescript": "^7.18.6",
-    "@babel/traverse": "^7.18.5",
+    "cmded": "^1.2.5",
     "colors": "^1.4.0",
-    "dom-serializer": "^2.0.0",
-    "htmlparser2": "^8.0.1",
-    "janap": "^1.0.8",
-    "nife": "^1.11.3",
-    "typescript": "^4.7.4"
+    "glob": "^10.3.10",
+    "yaml": "^2.3.4"
   },
   "devDependencies": {
     "@spothero/eslint-plugin-spothero": "github:spothero/eslint-plugin-spothero",
+    "colors": "^1.4.0",
     "diff": "^5.1.0",
-    "eslint": "^8.18.0",
-    "jasmine": "^4.2.1"
+    "eslint": "^8.55.0",
+    "jasmine": "^5.1.0"
   }
 }

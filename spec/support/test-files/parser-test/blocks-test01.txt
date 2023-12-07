@@ -1,0 +1,31 @@
+Hello world!!!
+
+/* This is ignored*/
+
+/**
+
+This is also ignored
+*/
+
+/***
+This is a block
+***/
+
+Hello /*** This is another
+block ***/ world!
+
+Cool beans!
+What the heck?
+      /***
+
+
+
+WHAT
+
+THE
+
+HECK!
+
+
+
+***/

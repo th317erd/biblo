@@ -1,0 +1,30 @@
+{
+  '$type': 'Array',
+  value: [
+    {
+      desc: 'Get the smallest argument provided\n',
+      groupID: '51462fa7fbbefa5a667f01dfdaba91251156c393cb781a65bf79685a3f65f071',
+      groupName: 'blocks-test02',
+      return: 'Return the smallest of the arguments provided\n',
+      args: {
+        '...args': {
+          desc: 'Arguments to compare to find the smallest',
+          type: 'Array<number>'
+        }
+      },
+      notes: [
+        'It is probably wiser to just use (Math.min)[https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/min]'
+      ]
+    },
+    {
+      desc: 'Do the thing!',
+      groupID: '51462fa7fbbefa5a667f01dfdaba91251156c393cb781a65bf79685a3f65f071',
+      groupName: 'blocks-test02'
+    },
+    {
+      desc: 'Stuff',
+      groupID: '51462fa7fbbefa5a667f01dfdaba91251156c393cb781a65bf79685a3f65f071',
+      groupName: 'blocks-test02'
+    }
+  ]
+}
