@@ -13,6 +13,11 @@ import {
 const BLOCK_PATTERN         = /\/\*\*\*([\s\S]*?)\*\*\*\//g;
 const BLOCK_LINE_START_SKIP = /^[^0-Za-z"'-]+/;
 
+export function getLineNumber(content, offset) {
+  let lines = content.substring(0, offset).split(/\r\n|\r|\n/g);
+  return lines.length + 1;
+}
+
 /***
  * groupName: Parser
  * desc: |
@@ -68,11 +73,14 @@ export function parseBlocks(content, _options) {
   };
 
   const getBlockPattern = () => {
-    if (options.blockPattern) {
-      if (Utils.isType(options.blockPattern, RegExp, 'RegExp'))
-        return options.blockPattern;
-      else if (Utils.isType(options.blockPattern, 'String'))
-        return new RegExp(options.blockPattern, 'gm');
+    let blockPattern = options.blockPattern;
+    if (blockPattern) {
+      if (typeof blockPattern === 'function')
+        return options.blockPattern(options);
+      if (Utils.isType(blockPattern, RegExp, 'RegExp'))
+        return blockPattern;
+      else if (Utils.isType(blockPattern, 'String'))
+        return new RegExp(blockPattern, 'gm');
     }
 
     return BLOCK_PATTERN;
@@ -99,9 +107,11 @@ export function parseBlocks(content, _options) {
   let previousBlock;
 
   content.replace(blockPattern, (m, block, offset) => {
+    let end = offset + m.length;
+
     let newBlock = {
       start:    offset,
-      end:      offset + m.length,
+      end:      end,
       content:  formatContent(block),
     };
 
@@ -142,6 +152,7 @@ export function parse(source, _options) {
       );
     } catch (error) {
       // NOOP
+      console.error(error, '\n\n', block.content);
       return;
     }
 
@@ -150,6 +161,8 @@ export function parse(source, _options) {
 
     if (Utils.isType(scope, 'String'))
       scope = { desc: scope };
+
+    scope.lineNumber = getLineNumber(source, block.end);
 
     if (options.props)
       scope = Object.assign({}, options.props, scope);
@@ -206,6 +219,8 @@ export async function parsePath(_options) {
     nodir:      false,
     ...(options.glob || {}),
   });
+
+  console.log('Files: ', files);
 
   let data = [];
   files.forEach((filePath) => {

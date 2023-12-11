@@ -75,6 +75,9 @@ let args = CMDed(({ $, store, fetch }) => {
   });
 
   console.log('DATA: ', Util.inspect(data, { depth: Infinity, colors: true }));
+
+  FileSystem.mkdirSync(Path.dirname(args.output), { recursive: true });
   FileSystem.writeFileSync(args.output, JSON.stringify(data), 'utf8');
+
   console.log(`Successfully built "${args.output}"`);
 })(args);
