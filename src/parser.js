@@ -130,6 +130,31 @@ export function parseBlocks(content, _options) {
   return blocks;
 }
 
+function scopeToString(scope) {
+  let keys = Object.keys(scope);
+
+  const toString = (_value) => {
+    let value = _value;
+    if (value == null)
+      return ('' + value);
+
+    if (typeof value.valueOf === 'function')
+      value = value.valueOf();
+
+    if (typeof value === 'object')
+      value = JSON.stringify(value);
+
+    if (typeof value.toString === 'function')
+      return value.toString();
+
+    return ('' + value);
+  };
+
+  return keys.sort().map((key) => {
+    return `${key.replace(/:/g, '\\:')}:${toString(scope[key]).replace(/,/g, '\\,')}`;
+  }).join(',');
+}
+
 export function parse(source, _options) {
   const decodeString = (content) => {
     return decode(content);
@@ -183,6 +208,9 @@ export function parse(source, _options) {
     // Allow the scope author to
     // fully control everything
     scope = Object.assign({}, scope);
+
+    let scopeAsString = scopeToString(scope);
+    scope.id = Utils.SHA256(scopeAsString);
 
     return scope;
   });
