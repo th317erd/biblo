@@ -15,7 +15,7 @@ const BLOCK_LINE_START_SKIP = /^[^0-Za-z"'-]+/;
 
 export function getLineNumber(content, offset) {
   let lines = content.substring(0, offset).split(/\r\n|\r|\n/g);
-  return lines.length + 1;
+  return lines.length;
 }
 
 /***
@@ -130,7 +130,7 @@ export function parseBlocks(content, _options) {
   return blocks;
 }
 
-function scopeToString(scope) {
+export function scopeToString(scope) {
   let keys = Object.keys(scope);
 
   const toString = (_value) => {
@@ -153,6 +153,11 @@ function scopeToString(scope) {
   return keys.sort().map((key) => {
     return `${key.replace(/:/g, '\\:')}:${toString(scope[key]).replace(/,/g, '\\,')}`;
   }).join(',');
+}
+
+export function calculateBlockID(scope) {
+  let scopeAsString = scopeToString(scope);
+  return Utils.SHA256(scopeAsString);
 }
 
 export function parse(source, _options) {
@@ -187,7 +192,7 @@ export function parse(source, _options) {
     if (Utils.isType(scope, 'String'))
       scope = { desc: scope };
 
-    scope.lineNumber = getLineNumber(source, block.end);
+    scope.lineNumber = (getLineNumber(source, block.end) + 1);
 
     if (options.props)
       scope = Object.assign({}, options.props, scope);
@@ -195,9 +200,9 @@ export function parse(source, _options) {
     let helper = options.helper;
     if (helper) {
       if (typeof helper === 'function')
-        scope = options.helper({ scope, source, block });
+        scope = options.helper({ scope, source, block, Utils, Parser });
       else if (helper instanceof Helper)
-        scope = helper.exec({ scope, source, block });
+        scope = helper.exec({ scope, source, block, Utils, Parser });
       else
         throw new TypeError('provided "helper" is not a Helper instance, nor a Function');
 
@@ -211,6 +216,9 @@ export function parse(source, _options) {
 
     let scopeAsString = scopeToString(scope);
     scope.id = Utils.SHA256(scopeAsString);
+
+    if (typeof options.blockProcessor === 'function')
+      scope = options.blockProcessor({ scope, source, block, Utils, Parser });
 
     return scope;
   });
@@ -248,8 +256,6 @@ export async function parsePath(_options) {
     ...(options.glob || {}),
   });
 
-  console.log('Files: ', files);
-
   let data = [];
   files.forEach((filePath) => {
     let fileExtension;
@@ -277,3 +283,13 @@ export async function parsePath(_options) {
 
   return data;
 }
+
+const Parser = {
+  getLineNumber,
+  parseBlocks,
+  scopeToString,
+  calculateBlockID,
+  parse,
+  parseFile,
+  parsePath,
+};

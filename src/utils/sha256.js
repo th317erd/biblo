@@ -41,8 +41,6 @@ export function SHA256(_input) {
 
   for (i = 0; i < input[lengthProperty]; i++) {
     j = input.charCodeAt(i);
-    if (j >> 8)
-      return; // ASCII check: only accept characters in range 0-255
     words[i >> 2] |= j << ((3 - i) % 4) * 8;
   }
 

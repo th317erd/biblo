@@ -10,7 +10,7 @@ import Path                 from 'node:path';
 import FileSystem           from 'node:fs';
 import YAML                 from 'yaml';
 import * as Utils           from '../utils/index.js';
-import { parsePath }        from '../parser.js';
+import * as Parser          from '../parser.js';
 import { registerHelpers }  from '../helpers/helper.js';
 
 const help = {
@@ -26,42 +26,76 @@ const help = {
   '--outputFormat': 'Output file format: "yaml" or "json" (default "json")',
 };
 
-let args = CMDed(({ $, store, fetch }) => {
-  const makeArray = (items) => {
-    return ((Array.isArray(items)) ? items : [ items ]).filter(Boolean);
-  };
+const configFileNames = [
+  '.biblo.js',
+  '.biblo.mjs',
+  '.biblo.cjs',
+  '.biblo.yaml',
+  '.biblo.json',
+];
 
-  $('--root', Types.STRING(), { format: Path.resolve }) || store('root', process.cwd());
+function makeArray(items) {
+  return ((Array.isArray(items)) ? items : [ items ]).filter(Boolean);
+}
 
-  let configPath = Utils.findFileBackwards(fetch('root'), '.biblo.yaml');
-  $('--config', Types.STRING(), { format: Path.resolve }) || store('config', configPath);
+async function loadConfigFile(configPath) {
+  let config = {};
 
-  configPath = fetch('config');
-  if (FileSystem.existsSync(configPath)) {
-    let config = YAML.parse(FileSystem.readFileSync(configPath, 'utf8'));
-    config.root     = Path.resolve(config.root);
-    config.output   = Path.resolve(config.output);
-    config.include  = makeArray(config.include);
-    config.exclude  = makeArray(config.exclude);
-
-    store(config);
-    store('_config', config);
+  if ((/\.yaml$/i).test(configPath)) {
+    config = YAML.parse(FileSystem.readFileSync(configPath, 'utf8'));
+  } else if ((/\.json$/i).test(configPath)) {
+    config = Utils.loadJSON(configPath);
   } else {
-    store('_config', {});
+    config = await import(configPath);
+    if (config && config.default)
+      config = config.default;
   }
 
-  $('--output', Types.STRING(), { format: Path.resolve });
-  $('--include', Types.STRING());
-  $('--exclude', Types.STRING());
-  $('--outputFormat', Types.STRING()) || store('outputFormat', 'json');
+  config.root     = Path.resolve(config.root);
+  config.output   = Path.resolve(config.output);
+  config.include  = makeArray(config.include);
+  config.exclude  = makeArray(config.exclude);
 
-  return (
-    Utils.notNOE(fetch('output'))
-    && Utils.notNOE(fetch('include'))
-  );
-}, { help });
+  return config;
+}
 
-(async function(args) {
+(async function() {
+  let args = await CMDed(async ({ $, store, fetch }) => {
+    $('--root', Types.STRING(), { format: Path.resolve }) || store('root', process.cwd());
+
+    let configPath;
+    for (let configFileName of configFileNames) {
+      configPath = Utils.findFileBackwards(fetch('root'), configFileName);
+      if (configPath)
+        break;
+    }
+
+    $('--config', Types.STRING(), { format: Path.resolve }) || store('config', configPath);
+
+    configPath = fetch('config');
+    if (FileSystem.existsSync(configPath)) {
+      let config = await loadConfigFile(configPath);
+
+      store(config);
+      store('_config', config);
+    } else {
+      store('_config', {});
+    }
+
+    $('--output', Types.STRING(), { format: Path.resolve });
+    $('--include', Types.STRING());
+    $('--exclude', Types.STRING());
+    $('--outputFormat', Types.STRING()) || store('outputFormat', 'json');
+
+    return (
+      Utils.notNOE(fetch('output'))
+      && Utils.notNOE(fetch('include'))
+    );
+  }, { help });
+
+  if (!args)
+    return;
+
   let config = args._config || {};
 
   delete args._config;
@@ -69,10 +103,13 @@ let args = CMDed(({ $, store, fetch }) => {
   if (config.helpers)
     registerHelpers(config.helpers);
 
-  let data = await parsePath({
+  let data = await Parser.parsePath({
     ...config,
     ...args,
   });
+
+  if (typeof config.postProcess === 'function')
+    data = config.postProcess({ data, config, args, Utils, Parser });
 
   console.log('DATA: ', Util.inspect(data, { depth: Infinity, colors: true }));
 
@@ -80,4 +117,4 @@ let args = CMDed(({ $, store, fetch }) => {
   FileSystem.writeFileSync(args.output, JSON.stringify(data), 'utf8');
 
   console.log(`Successfully built "${args.output}"`);
-})(args);
+})();

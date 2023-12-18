@@ -19,3 +19,9 @@ export function findFileBackwards(_startDir, fileName) {
 export function loadFileContent(filePath) {
   return FileSystem.readFileSync(filePath, 'utf8');
 }
+
+export function loadJSON(filePath) {
+  let content = loadFileContent(filePath);
+  let func    = new Function(`return ${content.replace(/\s*return\s+/, '')}`);
+  return func();
+}
