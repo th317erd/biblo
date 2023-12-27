@@ -103,18 +103,18 @@ async function loadConfigFile(configPath) {
   if (config.helpers)
     registerHelpers(config.helpers);
 
-  let data = await Parser.parsePath({
+  let scopes = await Parser.parsePath({
     ...config,
     ...args,
   });
 
   if (typeof config.postProcess === 'function')
-    data = config.postProcess({ data, config, args, Utils, Parser });
+    scopes = config.postProcess({ scopes, config, args, Utils, Parser });
 
-  console.log('DATA: ', Util.inspect(data, { depth: Infinity, colors: true }));
+  console.log('DATA: ', Util.inspect(scopes, { depth: Infinity, colors: true }));
 
   FileSystem.mkdirSync(Path.dirname(args.output), { recursive: true });
-  FileSystem.writeFileSync(args.output, JSON.stringify(data), 'utf8');
+  FileSystem.writeFileSync(args.output, JSON.stringify(scopes), 'utf8');
 
   console.log(`Successfully built "${args.output}"`);
 })();

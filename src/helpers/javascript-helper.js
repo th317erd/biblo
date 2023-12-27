@@ -18,6 +18,13 @@ export const JavascriptHelper = registerHelper({
         scope.extends = parentName;
 
       return m;
+    }).replace(/([a-zA-Z$_][\w$]*)\s*\([^)]*?\)\s*\{/, (m, name) => {
+      if (name && name !== 'function') {
+        scope.type = 'Function';
+        scope.name = name;
+      }
+
+      return m;
     });
 
     return scope;

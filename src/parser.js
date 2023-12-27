@@ -10,7 +10,7 @@ import {
   buildHelperRunner,
 } from './helpers/index.js';
 
-const BLOCK_PATTERN         = /\/\*\*\*([\s\S]*?)\*\*\*\//g;
+const BLOCK_PATTERN         = /\/\*\*\**([\s\S]*?)\*\//g;
 const BLOCK_LINE_START_SKIP = /^[^0-Za-z"'-]+/;
 
 export function getLineNumber(content, offset) {
