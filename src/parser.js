@@ -1,7 +1,6 @@
 import Path       from 'node:path';
 import YAML       from 'yaml';
 import { glob }   from 'glob';
-import { decode } from 'html-entities';
 
 import * as Utils from './utils/index.js';
 
