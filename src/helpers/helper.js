@@ -18,11 +18,11 @@ export class Helper {
 
 export function registerHelper(helperObj) {
   let pattern = helperObj.pattern;
-  if (Utils.NOE(pattern))
+  if (Utils.isNOE(pattern))
     throw new Error('"registerHelpers": "pattern" is required to register a file helper.');
 
   let callback = helperObj.callback;
-  if (Utils.NOE(pattern))
+  if (Utils.isNOE(pattern))
     throw new Error('"registerHelpers": "callback" is required to register a file helper.');
 
   let helper = new Helper({

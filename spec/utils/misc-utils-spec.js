@@ -196,25 +196,25 @@ describe('Utils', () => {
     });
   });
 
-  describe('NOE', () => {
+  describe('isNOE', () => {
     it('works', () => {
       class Test {}
 
-      expect(Utils.NOE(undefined)).toBe(true);
-      expect(Utils.NOE(null)).toBe(true);
-      expect(Utils.NOE(NaN)).toBe(true);
-      expect(Utils.NOE('')).toBe(true);
-      expect(Utils.NOE('   ')).toBe(true);
-      expect(Utils.NOE('   \n\r\n')).toBe(true);
+      expect(Utils.isNOE(undefined)).toBe(true);
+      expect(Utils.isNOE(null)).toBe(true);
+      expect(Utils.isNOE(NaN)).toBe(true);
+      expect(Utils.isNOE('')).toBe(true);
+      expect(Utils.isNOE('   ')).toBe(true);
+      expect(Utils.isNOE('   \n\r\n')).toBe(true);
 
-      expect(Utils.NOE(0)).toBe(false);
-      expect(Utils.NOE(true)).toBe(false);
-      expect(Utils.NOE(false)).toBe(false);
-      expect(Utils.NOE([ 0 ])).toBe(false);
-      expect(Utils.NOE({ hello: 'world' })).toBe(false);
-      expect(Utils.NOE(new Test())).toBe(false);
-      expect(Utils.NOE([])).toBe(true);
-      expect(Utils.NOE({})).toBe(true);
+      expect(Utils.isNOE(0)).toBe(false);
+      expect(Utils.isNOE(true)).toBe(false);
+      expect(Utils.isNOE(false)).toBe(false);
+      expect(Utils.isNOE([ 0 ])).toBe(false);
+      expect(Utils.isNOE({ hello: 'world' })).toBe(false);
+      expect(Utils.isNOE(new Test())).toBe(false);
+      expect(Utils.isNOE([])).toBe(true);
+      expect(Utils.isNOE({})).toBe(true);
     });
   });
 

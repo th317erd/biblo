@@ -220,7 +220,7 @@ export function isCollectable(value) {
   return true;
 }
 
-export function NOE(value) {
+export function isNOE(value) {
   if (value == null)
     return true;
 
@@ -242,8 +242,8 @@ export function NOE(value) {
   return false;
 }
 
-export function notNOE(value) {
-  return !NOE(value);
+export function isNotNOE(value) {
+  return !isNOE(value);
 }
 
 export function toCamelCase(value) {

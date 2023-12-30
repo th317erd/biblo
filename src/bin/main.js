@@ -88,8 +88,8 @@ async function loadConfigFile(configPath) {
     $('--outputFormat', Types.STRING()) || store('outputFormat', 'json');
 
     return (
-      Utils.notNOE(fetch('output'))
-      && Utils.notNOE(fetch('include'))
+      Utils.isNotNOE(fetch('output'))
+      && Utils.isNotNOE(fetch('include'))
     );
   }, { help });
 

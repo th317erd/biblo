@@ -162,7 +162,7 @@ export function calculateBlockID(scope) {
 
 export function parse(source, _options) {
   const decodeString = (content) => {
-    return decode(content);
+    return content.replace(/&grave;/g, '`');
   };
 
   let options = _options || {};
@@ -241,10 +241,10 @@ export function parseFile(filePath, _options) {
 
 export async function parsePath(_options) {
   let options = _options;
-  if (Utils.NOE(options.root))
+  if (Utils.isNOE(options.root))
     throw new Error('"root" option is required');
 
-  if (Utils.NOE(options.include))
+  if (Utils.isNOE(options.include))
     throw new Error('"include" option is required');
 
   let rootPath  = options.root;
