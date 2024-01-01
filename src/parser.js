@@ -196,6 +196,8 @@ export function parse(source, _options) {
     if (options.props)
       scope = Object.assign({}, options.props, scope);
 
+    let originalScope = Object.assign({}, scope);
+
     let helper = options.helper;
     if (helper) {
       if (typeof helper === 'function')
@@ -209,9 +211,8 @@ export function parse(source, _options) {
         return;
     }
 
-    // Allow the scope author to
-    // fully control everything
-    scope = Object.assign({}, scope);
+    // Allow the scope author to fully control everything
+    scope = Object.assign({}, scope, originalScope);
 
     let scopeAsString = scopeToString(scope);
     scope.id = Utils.SHA256(scopeAsString);
