@@ -5,7 +5,8 @@ export const JavascriptHelper = registerHelper({
   callback: ({ source, scope, block }) => {
     let sub = source.substring(block.end, block.nextBlock && block.nextBlock.start);
 
-    sub.replace(/[\s\r\n]*(export\s+)?(?:let|var|const\s*=\s*)?(function|class)\s*([\w$]+)?(?:\s+extends\s+([\w$]+))?/, (m, e, type, name, parentName) => {
+    sub.replace(/[\s\r\n]*(export\s+)?(?:let|var|const\s*=\s*)?(function\s*|class\s+)([\w$]+)?(?:\s+extends\s+([\w$]+))?/, (m, e, _type, name, parentName) => {
+      let type = _type.trim();
       if (e)
         scope.exported = true;
 
@@ -18,8 +19,8 @@ export const JavascriptHelper = registerHelper({
         scope.extends = parentName;
 
       return m;
-    }).replace(/([a-zA-Z$_][\w$]*)\s*\([^)]*?\)\s*\{/, (m, name) => {
-      if (name && name !== 'function') {
+    }).replace(/([a-zA-Z$_][\w$]*?)\s*\([^)]*?\)\s*\{/, (m, name) => {
+      if (name && !(/^(function|catch)$/).test(name)) {
         scope.type = 'Function';
         scope.name = name;
       }
