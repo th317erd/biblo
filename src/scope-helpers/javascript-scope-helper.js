@@ -1,8 +1,8 @@
-import { registerHelper } from './helper.js';
+import { registerScopeHelper } from './scope-helper.js';
 
-export const JavascriptHelper = registerHelper({
-  pattern:  /\.([cm]?js|tsx?)$/i,
-  callback: ({ source, scope, block }) => {
+export const JavascriptScopeHelper = registerScopeHelper({
+  matches:  /\.([cm]?js|tsx?)$/i,
+  exec:     ({ source, scope, block }) => {
     let sub = source.substring(block.end, block.nextBlock && block.nextBlock.start);
 
     sub.replace(/[\s\r\n]*(export\s+)?(?:let|var|const\s*=\s*)?(function\s*|class\s+)([\w$]+)?(?:\s+extends\s+([\w$]+))?/, (m, e, _type, name, parentName) => {

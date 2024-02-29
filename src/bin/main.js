@@ -11,7 +11,14 @@ import FileSystem           from 'node:fs';
 import YAML                 from 'yaml';
 import * as Utils           from '../utils/index.js';
 import * as Parser          from '../parser.js';
-import { registerHelpers }  from '../helpers/helper.js';
+
+import {
+  registerScopeHelpers,
+} from '../scope-helpers/scope-helper.js';
+
+import {
+  registerParserHelpers,
+} from '../parser-helpers/parser-helper.js';
 
 const help = {
   '@usage':    'biblo [options] --output ./docs.json',
@@ -100,8 +107,11 @@ async function loadConfigFile(configPath) {
 
   delete args._config;
 
-  if (config.helpers)
-    registerHelpers(config.helpers);
+  if (config.scopeHelpers)
+    registerScopeHelpers(config.scopeHelpers);
+
+  if (config.parserHelpers)
+    registerParserHelpers(config.parserHelpers);
 
   let scopes = await Parser.parsePath({
     ...config,

@@ -5,12 +5,14 @@ import { glob }   from 'glob';
 import * as Utils from './utils/index.js';
 
 import {
-  Helper,
-  buildHelperRunner,
-} from './helpers/index.js';
+  ScopeHelper,
+  buildScopeHelperRunner,
+} from './scope-helpers/index.js';
 
-const BLOCK_PATTERN         = /\/\*\*\**([\s\S]*?)\*\//g;
-const BLOCK_LINE_START_SKIP = /^[^0-Za-z"'-]+/;
+import {
+  ParserHelper,
+  buildParserHelperRunner,
+} from './parser-helpers/index.js';
 
 export function getLineNumber(content, offset) {
   let lines = content.substring(0, offset).split(/\r\n|\r|\n/g);
@@ -52,66 +54,20 @@ export function getLineNumber(content, offset) {
  *
  *     `content` is the content of the parsed block.
 ***/
-export function parseBlocks(content, _options) {
+export function parseBlocks(source, _options) {
   let options = _options || {};
-
-  const formatContent = (_content) => {
-    let content = _content;
-
-    let minLineStart = findMinLineStart(content);
-    if (minLineStart > 0)
-      content = content.split(/\r\n|\r|\n/g).map((line) => line.substring(minLineStart)).join('\n');
-
-    content = content
-      .replace(/^\/\*+\s*/, '')
-      .replace(/\s*\*+\/$/, '')
-      .replace(/&ast;/g, '*')
-      .replace(/`/g, '&grave;');
-
-    return content;
-  };
-
-  const getBlockPattern = () => {
-    let blockPattern = options.blockPattern;
-    if (blockPattern) {
-      if (typeof blockPattern === 'function')
-        return options.blockPattern(options);
-      if (Utils.isType(blockPattern, RegExp, 'RegExp'))
-        return blockPattern;
-      else if (Utils.isType(blockPattern, 'String'))
-        return new RegExp(blockPattern, 'gm');
-    }
-
-    return BLOCK_PATTERN;
-  };
-
-  const findMinLineStart = (block) => {
-    return block.split(/\r\n|\r|\n/g).reduce((min, line) => {
-      let toStartOfLine = Infinity;
-      line.replace(BLOCK_LINE_START_SKIP, (m) => {
-        if (m === line) // If whole line was matched, then skip
-          return m;
-
-        toStartOfLine = m.length;
-
-        return m;
-      });
-
-      return (toStartOfLine < min) ? toStartOfLine : min;
-    }, Infinity);
-  };
-
-  let blockPattern  = getBlockPattern();
-  let blocks        = [];
+  let blocks  = [];
   let previousBlock;
 
-  content.replace(blockPattern, (m, block, offset) => {
-    let end = offset + m.length;
+  const blockConsumer = (rawBlock, block, offset) => {
+    if (Utils.isNOE(block))
+      return;
 
-    let newBlock = {
+    let end       = offset + rawBlock.length;
+    let newBlock  = {
       start:    offset,
       end:      end,
-      content:  formatContent(block),
+      content:  block,
     };
 
     if (previousBlock) {
@@ -123,8 +79,22 @@ export function parseBlocks(content, _options) {
 
     previousBlock = newBlock;
 
-    return m;
-  });
+    return rawBlock;
+  };
+
+  let parserHelper = options.parserHelper;
+  if (!parserHelper && options.fullFileName)
+    parserHelper = buildParserHelperRunner(options.fullFileName);
+
+  if (!parserHelper)
+    throw new TypeError('parseBlocks: "options.parserHelper" is required.');
+
+  if (typeof parserHelper === 'function')
+    parserHelper({ source, blockConsumer, options, Utils, Parser });
+  else if (parserHelper instanceof ParserHelper)
+    parserHelper.exec({ source, blockConsumer, options, Utils, Parser });
+  else
+    throw new TypeError('parseBlocks: provided "parserHelper" is not a ParserHelper instance, nor a Function.');
 
   return blocks;
 }
@@ -191,21 +161,22 @@ export function parse(source, _options) {
     if (Utils.isType(scope, 'String'))
       scope = { desc: scope };
 
-    scope.lineNumber = (getLineNumber(source, block.end) + 1);
-
     if (options.props)
       scope = Object.assign({}, options.props, scope);
 
     let originalScope = Object.assign({}, scope);
 
-    let helper = options.helper;
-    if (helper) {
-      if (typeof helper === 'function')
-        scope = options.helper({ scope, source, block, Utils, Parser });
-      else if (helper instanceof Helper)
-        scope = helper.exec({ scope, source, block, Utils, Parser });
+    if (scope.lineNumber == null)
+      scope.lineNumber = (getLineNumber(source, block.end) + 1);
+
+    let scopeHelper = options.scopeHelper;
+    if (scopeHelper) {
+      if (typeof scopeHelper === 'function')
+        scope = scopeHelper({ scope, source, block, Utils, Parser });
+      else if (scopeHelper instanceof ScopeHelper)
+        scope = scopeHelper.exec({ scope, source, block, Utils, Parser });
       else
-        throw new TypeError('provided "helper" is not a Helper instance, nor a Function');
+        throw new TypeError('parse: provided "scopeHelper" is not a ScopeHelper instance, nor a Function.');
 
       if (!scope)
         return;
@@ -217,24 +188,37 @@ export function parse(source, _options) {
     let scopeAsString = scopeToString(scope);
     scope.id = Utils.SHA256(scopeAsString);
 
-    if (typeof options.blockProcessor === 'function')
-      scope = options.blockProcessor({ scope, source, block, Utils, Parser });
+    if (typeof options.scopeProcessor === 'function')
+      scope = options.scopeProcessor({ scope, source, block, Utils, Parser });
 
     return scope;
   });
 }
 
-export function parseFile(filePath, _options) {
-  let options = _options || {};
-  let content = Utils.loadFileContent(filePath);
+export function parseFile(_filePath, _options) {
+  let fullFileName  = Path.resolve(_filePath);
+  let options       = _options || {};
+  let content       = Utils.loadFileContent(fullFileName);
+  let fileName      = Path.basename(fullFileName);
+  let fileExtension;
+
+  fullFileName.replace(/\.(.*?)$/, (m, ext) => {
+    fileExtension = ext;
+    return m;
+  });
 
   return parse(content, {
-    helper:       buildHelperRunner(filePath),
+    scopeHelper:  buildScopeHelperRunner(fullFileName),
+    parserHelper: buildParserHelperRunner(fullFileName),
     ...options,
-    props:  {
-      groupID:    Utils.SHA256(filePath),
-      groupName:  Path.basename(filePath).replace(/\.[^.]+$/, ''),
+    props:        {
+      groupID:    Utils.SHA256(fullFileName),
+      groupName:  fileName.replace(/\.[^.]+$/, ''),
       ...(options.props || {}),
+      filePath:   Path.dirname(fullFileName),
+      fullFileName,
+      fileName,
+      fileExtension,
     },
   });
 }
@@ -256,30 +240,9 @@ export async function parsePath(_options) {
     ...(options.glob || {}),
   });
 
-  let data = [];
-  files.forEach((filePath) => {
-    let fileExtension;
-
-    filePath.replace(/\.(.*?)$/, (m, ext) => {
-      fileExtension = ext;
-      return m;
-    });
-
-    data = data.concat(
-      parseFile(
-        filePath,
-        {
-          ...options,
-          props: {
-            filePath: Path.relative(rootPath, filePath),
-            fileName: Path.basename(filePath),
-            fileExtension,
-            ...(options.props || {}),
-          },
-        },
-      ),
-    );
-  });
+  let data = files.reduce((data, filePath) => {
+    return data.concat(parseFile(filePath, { ...options }));
+  }, []);
 
   return data;
 }
